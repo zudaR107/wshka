@@ -3,7 +3,7 @@
 Minimal, fast wishlist app.
 
 ## Status
-Milestone 0 complete. Foundation is in place.
+Milestone 1 complete. App foundation is in place.
 
 ## Core Idea
 Create a wishlist, share it by link, and let another person reserve an item.
@@ -27,7 +27,7 @@ Create a wishlist, share it by link, and let another person reserve an item.
 - `main` is protected and updated only through PRs.
 
 ## Current Focus
-- Milestone 1: app foundation.
+- Milestone 2: auth core.
 
 ## Project Docs
 - Product and delivery plan: `master-plan.md`

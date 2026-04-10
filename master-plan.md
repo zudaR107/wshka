@@ -15,8 +15,9 @@ create a wishlist, share it by link, and let another person reserve an item.
 
 ## Current Status
 - Milestone 0 is complete.
-- Repository scaffold, templates, and baseline PR validation are in place.
-- Next focus: Milestone 1 - App Foundation.
+- Milestone 1 is complete.
+- Repository, app, DB, i18n, and UI foundations are in place.
+- Next focus: Milestone 2 - Auth Core.
 
 ## Scope For `v1.0.0`
 Included:
@@ -199,6 +200,9 @@ Release note:
 Goal:
 - establish the application foundation for feature work without architectural churn
 
+Status:
+- complete
+
 Execution backlog:
 1. Bootstrap app shell and route skeleton
 2. App-level CI baseline
@@ -216,9 +220,72 @@ Exit criteria:
 - Russian i18n foundation exists
 - light theme UI foundation exists
 
+Release note:
+- `v0.2.0` marks the application foundation milestone.
+
 ### Milestone 2 - Auth Core (`v0.3.0`)
 Goal:
 - deliver registration, login, logout, and session flow
+
+Execution backlog:
+1. Auth schema foundation
+2. Password hashing and auth helpers
+3. Email registration flow
+4. Login and logout flow
+5. Session guards and route protection
+6. Auth test coverage
+
+Recommended issue shape:
+- `M2-I1 Auth schema foundation`
+- `M2-I2 Password hashing and auth helpers`
+- `M2-I3 Email registration flow`
+- `M2-I4 Login and logout flow`
+- `M2-I5 Session guards and route protection`
+- `M2-I6 Auth test coverage`
+
+Recommended PR order:
+1. `M2-I1 Auth schema foundation`
+2. `M2-I2 Password hashing and auth helpers`
+3. `M2-I3 Email registration flow`
+4. `M2-I4 Login and logout flow`
+5. `M2-I5 Session guards and route protection`
+6. `M2-I6 Auth test coverage`
+
+Dependencies:
+- `M2-I2` depends on `M2-I1`
+- `M2-I3` depends on `M2-I1` and `M2-I2`
+- `M2-I4` depends on `M2-I1` and `M2-I2`
+- `M2-I5` depends on `M2-I4`
+- `M2-I6` depends on `M2-I3`, `M2-I4`, and `M2-I5`
+
+Scope notes:
+- Use `users` and `sessions` as the first auth tables.
+- Keep auth flow email/password only in `v0.3.0`.
+- Do not add email verification or password reset in this milestone.
+- Keep route protection minimal: enough for `/app` and `/app/reservations`.
+- Prefer HTTP-only secure session cookies over client-managed auth state.
+
+Acceptance targets:
+- user can register with email and password
+- user can log in and log out
+- protected routes reject unauthenticated access
+- auth foundation lives inside the agreed module boundaries
+- auth flow is covered by unit, integration, and minimal e2e tests
+
+Exit criteria:
+- `users` and `sessions` schema exist
+- password hashing and comparison utilities exist
+- registration flow works
+- login and logout flow work
+- protected route checks exist for owner-area routes
+- auth CI coverage is in place for the core happy path and guard cases
+
+Definition of small PRs for this milestone:
+- schema PR only adds DB structures and related docs
+- helper PR only adds reusable auth utilities
+- flow PRs add one user-facing auth capability at a time
+- guard PR only adds route/session protection behavior
+- test PR expands coverage without mixing new auth behavior
 
 ### Milestone 3 - Wishlist Core (`v0.4.0`)
 Goal:
