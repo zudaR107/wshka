@@ -13,6 +13,11 @@ create a wishlist, share it by link, and let another person reserve an item.
 - Architecture target: modular monolith, easy to extend and maintain
 - Workflow target: PR-only development, SemVer, Conventional Commits
 
+## Current Status
+- Milestone 0 is complete.
+- Repository scaffold, templates, and baseline PR validation are in place.
+- Next focus: Milestone 1 - App Foundation.
+
 ## Scope For `v1.0.0`
 Included:
 - email/password registration and login
@@ -172,6 +177,9 @@ Checks:
 Goal:
 - create the minimum repository foundation required for disciplined PR-based work
 
+Status:
+- complete
+
 Execution backlog:
 1. Minimal repository scaffold
 2. PR and issue templates
@@ -183,6 +191,9 @@ Exit criteria:
 - PR templates exist
 - baseline CI runs on PRs
 - `main` is protected
+
+Release note:
+- `v0.1.0` marks the repository foundation milestone.
 
 ### Milestone 1 - App Foundation (`v0.2.0`)
 Goal:

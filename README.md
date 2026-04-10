@@ -3,7 +3,7 @@
 Minimal, fast wishlist app.
 
 ## Status
-Planning and foundation stage.
+Milestone 0 complete. Foundation is in place.
 
 ## Core Idea
 Create a wishlist, share it by link, and let another person reserve an item.
@@ -25,6 +25,9 @@ Create a wishlist, share it by link, and let another person reserve an item.
 - Releases follow SemVer.
 - Commits follow Conventional Commits.
 - `main` is protected and updated only through PRs.
+
+## Current Focus
+- Milestone 1: app foundation.
 
 ## Project Docs
 - Product and delivery plan: `master-plan.md`
