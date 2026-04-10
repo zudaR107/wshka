@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { PageShell } from "@/components/page-shell";
+import { PageShell } from "@/shared/ui/page-shell";
 
 const routes = [
   { href: "/login", label: "Login skeleton" },

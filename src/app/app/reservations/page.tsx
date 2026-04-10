@@ -1,4 +1,4 @@
-import { PageShell } from "@/components/page-shell";
+import { PageShell } from "@/shared/ui/page-shell";
 
 export default function ReservationsPage() {
   return (
