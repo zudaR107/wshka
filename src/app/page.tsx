@@ -1,25 +1,27 @@
 import Link from "next/link";
+import { getTranslations } from "@/modules/i18n";
 import { PageShell } from "@/shared/ui/page-shell";
 
+const common = getTranslations("common");
+const messages = getTranslations("app");
+
 const routes = [
-  { href: "/login", label: "Login skeleton" },
-  { href: "/register", label: "Register skeleton" },
-  { href: "/app", label: "App shell" },
-  { href: "/app/reservations", label: "Reservations shell" },
-  { href: "/share/demo-token", label: "Public share shell" },
+  { href: "/login", label: messages.home.links.login },
+  { href: "/register", label: messages.home.links.register },
+  { href: "/app", label: messages.home.links.app },
+  { href: "/app/reservations", label: messages.home.links.reservations },
+  { href: "/share/demo-token", label: messages.home.links.share },
 ];
 
 export default function HomePage() {
   return (
     <PageShell
-      eyebrow="Wishka"
-      title="Minimal wishlist app foundation"
-      description="This route anchors the initial application shell for Milestone 1."
+      eyebrow={common.brand}
+      title={messages.home.title}
+      description={messages.home.description}
     >
       <div className="space-y-4">
-        <p className="text-sm leading-6 text-slate-600">
-          The routes below are placeholders only and intentionally contain no business logic yet.
-        </p>
+        <p className="text-sm leading-6 text-slate-600">{messages.home.routesHint}</p>
         <ul className="grid gap-3 sm:grid-cols-2">
           {routes.map((route) => (
             <li key={route.href}>
