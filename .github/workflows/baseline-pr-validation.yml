@@ -1,0 +1,94 @@
+name: M0 Baseline PR Validation
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions: {}
+
+jobs:
+  repo-files:
+    name: repo-files
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check required repository files
+        shell: bash
+        run: |
+          required=(README.md LICENSE .gitignore .editorconfig .gitattributes CHANGELOG.md)
+          missing=()
+
+          for file in "${required[@]}"; do
+            if [[ ! -f "$file" ]]; then
+              missing+=("$file")
+            fi
+          done
+
+          if (( ${#missing[@]} > 0 )); then
+            echo "Missing required repository files:"
+            printf ' - %s\n' "${missing[@]}"
+            exit 1
+          fi
+
+  pr-title:
+    name: pr-title
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate PR title
+        shell: bash
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          pattern='^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\([^)]+\))?: .+'
+
+          if [[ ! "$PR_TITLE" =~ $pattern ]]; then
+            echo "PR title must follow Conventional Commits."
+            echo "Expected example: docs(repo): add minimal repository scaffold"
+            echo "Received: $PR_TITLE"
+            exit 1
+          fi
+
+  markdown-docs:
+    name: markdown-docs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate markdown files
+        shell: bash
+        run: |
+          mapfile -t files < <(git ls-files '*.md')
+
+          if (( ${#files[@]} == 0 )); then
+            echo "No markdown files found."
+            exit 0
+          fi
+
+          empty=()
+          unbalanced=()
+
+          for file in "${files[@]}"; do
+            if [[ ! -s "$file" ]]; then
+              empty+=("$file")
+              continue
+            fi
+
+            fence_count=$(grep -c '^```' "$file" || true)
+            if (( fence_count % 2 != 0 )); then
+              unbalanced+=("$file")
+            fi
+          done
+
+          if (( ${#empty[@]} > 0 )); then
+            echo "Empty markdown files detected:"
+            printf ' - %s\n' "${empty[@]}"
+            exit 1
+          fi
+
+          if (( ${#unbalanced[@]} > 0 )); then
+            echo "Markdown files with unbalanced code fences detected:"
+            printf ' - %s\n' "${unbalanced[@]}"
+            exit 1
+          fi
