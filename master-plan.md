@@ -16,8 +16,9 @@ create a wishlist, share it by link, and let another person reserve an item.
 ## Current Status
 - Milestone 0 is complete.
 - Milestone 1 is complete.
-- Repository, app, DB, i18n, and UI foundations are in place.
-- Next focus: Milestone 2 - Auth Core.
+- Milestone 2 is complete.
+- Repository, app, DB, i18n, UI, and auth foundations are in place.
+- Next focus: Milestone 3 - Wishlist Core.
 
 ## Scope For `v1.0.0`
 Included:
@@ -227,6 +228,9 @@ Release note:
 Goal:
 - deliver registration, login, logout, and session flow
 
+Status:
+- complete
+
 Execution backlog:
 1. Auth schema foundation
 2. Password hashing and auth helpers
@@ -287,9 +291,82 @@ Definition of small PRs for this milestone:
 - guard PR only adds route/session protection behavior
 - test PR expands coverage without mixing new auth behavior
 
+Release note:
+- `v0.3.0` marks the authentication foundation milestone.
+
 ### Milestone 3 - Wishlist Core (`v0.4.0`)
 Goal:
 - deliver the owner wishlist and item CRUD
+
+Execution backlog:
+1. Wishlist schema foundation
+2. Owner wishlist bootstrap flow
+3. Wishlist item schema and data access foundation
+4. Owner dashboard data loading
+5. Wishlist item create flow
+6. Wishlist item update and delete flow
+7. Wishlist core test coverage
+
+Recommended issue shape:
+- `M3-I1 Wishlist schema foundation`
+- `M3-I2 Owner wishlist bootstrap flow`
+- `M3-I3 Wishlist item schema and data access foundation`
+- `M3-I4 Owner dashboard data loading`
+- `M3-I5 Wishlist item create flow`
+- `M3-I6 Wishlist item update and delete flow`
+- `M3-I7 Wishlist core test coverage`
+
+Recommended PR order:
+1. `M3-I1 Wishlist schema foundation`
+2. `M3-I2 Owner wishlist bootstrap flow`
+3. `M3-I3 Wishlist item schema and data access foundation`
+4. `M3-I4 Owner dashboard data loading`
+5. `M3-I5 Wishlist item create flow`
+6. `M3-I6 Wishlist item update and delete flow`
+7. `M3-I7 Wishlist core test coverage`
+
+Dependencies:
+- `M3-I2` depends on `M2-I5`
+- `M3-I3` depends on `M3-I1`
+- `M3-I4` depends on `M3-I1`, `M3-I2`, and `M3-I3`
+- `M3-I5` depends on `M3-I3` and `M3-I4`
+- `M3-I6` depends on `M3-I3`, `M3-I4`, and `M3-I5`
+- `M3-I7` depends on `M3-I4`, `M3-I5`, and `M3-I6`
+
+Scope notes:
+- Treat `wishlists` as a first-class table even though `v1.0.0` UI exposes one
+  active wishlist per owner.
+- The owner dashboard at `/app` should become the first real wishlist screen.
+- Keep item fields minimal for this milestone: `title`, `url?`, `note?`, `price?`.
+- Use the existing authenticated session guard foundation; do not expand into
+  share or reservation behavior yet.
+- Prefer server actions and server-rendered data loading over client state.
+
+Acceptance targets:
+- authenticated owner sees their current wishlist on `/app`
+- if the owner has no wishlist yet, the app creates or bootstraps the single
+  active wishlist needed for `v1.0.0`
+- owner can create wishlist items
+- owner can update and delete wishlist items
+- wishlist UI and behavior stay inside the agreed module boundaries
+- wishlist core is covered by focused tests for data rules and owner flows
+
+Exit criteria:
+- `wishlists` and `wishlist_items` schema exist
+- authenticated owner can load their current wishlist on `/app`
+- owner can create an item
+- owner can edit an item
+- owner can delete an item
+- one active wishlist per user is enforced in business logic for the current UI
+- wishlist core coverage exists for owner happy path and key validation cases
+
+Definition of small PRs for this milestone:
+- schema PR only adds wishlist tables, relations, migrations, and docs
+- bootstrap PR only establishes the single-owner wishlist creation/loading path
+- data-loading PR only wires owner dashboard reads
+- create PR only adds item creation behavior and its UI
+- update/delete PR only adds item editing and removal behavior
+- test PR expands coverage without mixing in new wishlist behavior
 
 ### Milestone 4 - Share Links (`v0.5.0`)
 Goal:

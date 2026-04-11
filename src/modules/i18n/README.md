@@ -10,7 +10,7 @@
 ## Namespaces
 - `common`: shared short labels
 - `metadata`: application metadata strings
-- `app`: current app shell route text
+- `app`: current app shell, auth flow, and protected-route text
 
 ## Growth Rule
 - Add future locales by mirroring the same namespace files, for example

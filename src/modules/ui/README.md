@@ -11,6 +11,12 @@
 - `PageShell`: base page container and surface composition.
 - `LinkCard`: neutral interactive card for route-level navigation.
 
+## Current Usage
+- The current auth screens reuse the same token-driven primitives for forms,
+  buttons, inputs, and status messages in `src/app/globals.css`.
+- Owner-area routes currently reuse the same shell while product-specific
+  wishlist UI is still pending Milestone 3.
+
 ## Growth Rule
 - Add future theme tokens by extending the same custom property contract.
 - Keep new primitives small and driven by real reuse in the app shell.
