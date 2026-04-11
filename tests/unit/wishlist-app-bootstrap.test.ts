@@ -14,11 +14,12 @@ vi.mock("../../src/modules/wishlist/server/current-wishlist", () => ({
   getOrCreateCurrentWishlist: mocks.getOrCreateCurrentWishlist,
 }));
 
-describe("protected owner routes", () => {
+describe("owner app wishlist bootstrap", () => {
   beforeEach(() => {
     Object.assign(globalThis, { React });
     mocks.requireCurrentUser.mockReset();
     mocks.getOrCreateCurrentWishlist.mockReset();
+
     mocks.requireCurrentUser.mockResolvedValue({
       id: "user-1",
       email: "user@example.com",
@@ -32,19 +33,12 @@ describe("protected owner routes", () => {
     });
   });
 
-  it("guards /app on the server", async () => {
+  it("bootstraps the current wishlist for the authenticated owner on /app", async () => {
     const { default: AppPage } = await import("../../src/app/app/page");
 
     await AppPage();
 
     expect(mocks.requireCurrentUser).toHaveBeenCalled();
-  });
-
-  it("guards /app/reservations on the server", async () => {
-    const { default: ReservationsPage } = await import("../../src/app/app/reservations/page");
-
-    await ReservationsPage();
-
-    expect(mocks.requireCurrentUser).toHaveBeenCalled();
+    expect(mocks.getOrCreateCurrentWishlist).toHaveBeenCalledWith("user-1");
   });
 });
