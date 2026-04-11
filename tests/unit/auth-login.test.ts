@@ -65,6 +65,19 @@ describe("login user flow", () => {
     expect(createSession).not.toHaveBeenCalled();
   });
 
+  it("returns a generic error when the user does not exist", async () => {
+    findFirst.mockResolvedValue(undefined);
+
+    await expect(
+      loginUser({ email: "missing@example.com", password: "wrong-password" }),
+    ).resolves.toEqual({
+      status: "error",
+      code: "invalid-credentials",
+    });
+    expect(verifyPassword).not.toHaveBeenCalled();
+    expect(createSession).not.toHaveBeenCalled();
+  });
+
   it("creates a session after successful credential verification", async () => {
     const expiresAt = new Date("2026-05-01T00:00:00.000Z");
 

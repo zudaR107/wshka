@@ -70,6 +70,13 @@ describe("current auth helpers", () => {
     await expect(getCurrentSession()).resolves.toBeNull();
   });
 
+  it("treats expired sessions as unauthenticated", async () => {
+    mocks.cookieGet.mockReturnValue({ value: "expired-token" });
+    mocks.sessionFindFirst.mockResolvedValue(null);
+
+    await expect(getCurrentSession()).resolves.toBeNull();
+  });
+
   it("loads the current user from a valid session", async () => {
     mocks.cookieGet.mockReturnValue({ value: "valid-token" });
     mocks.sessionFindFirst.mockResolvedValue({
@@ -87,6 +94,19 @@ describe("current auth helpers", () => {
       id: "user-1",
       email: "user@example.com",
     });
+  });
+
+  it("returns null when the session exists but the user record is missing", async () => {
+    mocks.cookieGet.mockReturnValue({ value: "valid-token" });
+    mocks.sessionFindFirst.mockResolvedValue({
+      id: "session-1",
+      userId: "user-1",
+      sessionToken: "valid-token",
+      expiresAt: new Date("2026-05-01T00:00:00.000Z"),
+    });
+    mocks.userFindFirst.mockResolvedValue(undefined);
+
+    await expect(getCurrentUser()).resolves.toBeNull();
   });
 
   it("redirects to login when the current user is missing", async () => {
