@@ -40,9 +40,19 @@ export const app = {
     },
   },
   dashboard: {
-    title: "Приложение",
-    description: "Это только каркас защищённой зоны для будущих возможностей Wishka.",
+    title: "Мой вишлист",
+    description: "Здесь собран ваш текущий вишлист и его предметы для будущего управления.",
     logoutLabel: "Выйти",
+    summaryLabel: "Текущий вишлист",
+    itemCountLabel: "Количество желаний",
+    emptyTitle: "Вишлист пока пуст",
+    emptyDescription: "Следующим шагом сюда можно будет добавить первое желание.",
+    itemsTitle: "Желания",
+    itemFields: {
+      url: "Ссылка",
+      note: "Заметка",
+      price: "Цена",
+    },
   },
   reservations: {
     title: "Бронирования",
