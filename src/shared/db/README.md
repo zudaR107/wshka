@@ -22,12 +22,18 @@
 - Auth runtime logic now builds on these tables inside the `auth` module.
 - Wishlist schema now lives in `src/modules/wishlist/db/schema.ts` with
   first-class `wishlists` and `wishlist_items` tables.
+- Wishlist runtime logic now builds on these tables inside the `wishlist`
+  module for bootstrap, reads, and owner-scoped item mutations.
 
 ## Wishlist Schema Foundation
 - `wishlists`: owner-linked wishlist records with `user_id`, `is_active`, and
   timestamps.
 - `wishlist_items`: item records linked to a wishlist with MVP fields:
   `title`, `url?`, `note?`, `price?`, and timestamps.
+
+## Next Expansion
+- The next DB expansion is expected in the future `share` module for public
+  share-token records tied to wishlists.
 
 ## Environment Contract
 - `DATABASE_URL`: required PostgreSQL connection string

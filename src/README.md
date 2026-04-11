@@ -7,10 +7,12 @@
 
 ## Current State
 - `src/app/login` and `src/app/register` contain working auth entry flows.
-- `src/app/app` and `src/app/app/reservations` are protected by server-side
-  auth guards.
-- `wishlist`, `item`, `share`, and `reservation` remain reserved module areas
-  for the next milestones.
+- `src/app/app` is a server-rendered owner dashboard with wishlist bootstrap,
+  read state, and item CRUD.
+- `src/app/app/reservations` remains a protected placeholder for a later
+  milestone.
+- `wishlist` is now an active feature module; `share` and `reservation` remain
+  the next product modules to flesh out.
 
 ## Module Areas
 - `auth`

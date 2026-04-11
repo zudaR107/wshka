@@ -7,7 +7,18 @@ The format is based on Keep a Changelog, and this project follows SemVer.
 ## [Unreleased]
 
 ### Planned
-- Milestone 3: wishlist core.
+- Milestone 4: share links.
+
+## [0.4.0] - 2026-04-11
+
+### Added
+- Wishlist schema foundation with first-class `wishlists` and `wishlist_items` tables.
+- Current owner wishlist bootstrap flow for the single-wishlist UI path.
+- Wishlist item data-access helpers for current wishlist and item reads.
+- Server-rendered owner dashboard on `/app` with empty state and item list.
+- Owner-side wishlist item create, update, and delete flows.
+- Wishlist milestone coverage for bootstrap, dashboard rendering, item mutations,
+  and owner-scoped behavior.
 
 ## [0.3.0] - 2026-04-11
 

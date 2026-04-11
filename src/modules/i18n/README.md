@@ -10,7 +10,11 @@
 ## Namespaces
 - `common`: shared short labels
 - `metadata`: application metadata strings
-- `app`: current app shell, auth flow, and protected-route text
+- `app`: current app shell, auth flow, owner dashboard, and protected-route text
+
+## Current Usage
+- The `app` namespace now covers owner dashboard empty states, CRUD form labels,
+  per-action success messages, and action-aware error feedback on `/app`.
 
 ## Growth Rule
 - Add future locales by mirroring the same namespace files, for example

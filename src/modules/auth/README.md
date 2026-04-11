@@ -21,6 +21,8 @@
 - `/app` and `/app/reservations` require an authenticated session.
 - Auth state stays server-first through the `sessions` table and an HTTP-only
   cookie.
+- The same auth foundation now backs owner wishlist bootstrap and item CRUD on
+  the protected dashboard.
 
 ## Test Coverage
 - Unit and integration-like tests cover registration, login, logout, session

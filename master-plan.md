@@ -17,8 +17,9 @@ create a wishlist, share it by link, and let another person reserve an item.
 - Milestone 0 is complete.
 - Milestone 1 is complete.
 - Milestone 2 is complete.
-- Repository, app, DB, i18n, UI, and auth foundations are in place.
-- Next focus: Milestone 3 - Wishlist Core.
+- Milestone 3 is complete.
+- Repository, app, DB, i18n, UI, auth, and wishlist foundations are in place.
+- Next focus: Milestone 4 - Share Links.
 
 ## Scope For `v1.0.0`
 Included:
@@ -298,6 +299,9 @@ Release note:
 Goal:
 - deliver the owner wishlist and item CRUD
 
+Status:
+- complete
+
 Execution backlog:
 1. Wishlist schema foundation
 2. Owner wishlist bootstrap flow
@@ -368,9 +372,82 @@ Definition of small PRs for this milestone:
 - update/delete PR only adds item editing and removal behavior
 - test PR expands coverage without mixing in new wishlist behavior
 
+Release note:
+- `v0.4.0` marks the owner wishlist milestone.
+
 ### Milestone 4 - Share Links (`v0.5.0`)
 Goal:
 - deliver secure public read-only sharing by token
+
+Execution backlog:
+1. Share link schema foundation
+2. Share token and owner share helpers
+3. Owner dashboard share link controls
+4. Public wishlist loading by share token
+5. Public share route rendering
+6. Share link revocation and regeneration flow
+7. Share link test coverage
+
+Recommended issue shape:
+- `M4-I1 Share link schema foundation`
+- `M4-I2 Share token and owner share helpers`
+- `M4-I3 Owner dashboard share link controls`
+- `M4-I4 Public wishlist loading by share token`
+- `M4-I5 Public share route rendering`
+- `M4-I6 Share link revocation and regeneration flow`
+- `M4-I7 Share link test coverage`
+
+Recommended PR order:
+1. `M4-I1 Share link schema foundation`
+2. `M4-I2 Share token and owner share helpers`
+3. `M4-I3 Owner dashboard share link controls`
+4. `M4-I4 Public wishlist loading by share token`
+5. `M4-I5 Public share route rendering`
+6. `M4-I6 Share link revocation and regeneration flow`
+7. `M4-I7 Share link test coverage`
+
+Dependencies:
+- `M4-I2` depends on `M4-I1`
+- `M4-I3` depends on `M4-I2` and `M3-I4`
+- `M4-I4` depends on `M4-I1`, `M4-I2`, and `M3-I3`
+- `M4-I5` depends on `M4-I4`
+- `M4-I6` depends on `M4-I2` and `M4-I3`
+- `M4-I7` depends on `M4-I3`, `M4-I4`, `M4-I5`, and `M4-I6`
+
+Scope notes:
+- Public access must be granted only by opaque active share tokens.
+- Keep the share route read-only in this milestone; reservations come later.
+- Prefer one current active share link in the owner UI without blocking archived
+  or regenerated links in the schema.
+- Reuse the current wishlist and item read foundation instead of duplicating
+  public loading logic in routes.
+- Do not expose owner-only controls on the public share page.
+
+Acceptance targets:
+- authenticated owner can obtain a shareable public link for the current
+  wishlist
+- valid share token loads a public read-only wishlist page with items
+- invalid or inactive share token is rejected predictably
+- public share access works without authentication
+- share flow is covered by focused tests for owner and public paths
+
+Exit criteria:
+- share-link schema exists
+- owner can create or access the current public share link for the current
+  wishlist
+- owner can revoke or regenerate a share link
+- `/share/[token]` renders a public read-only wishlist with items
+- invalid or inactive share tokens do not expose wishlist data
+- share coverage exists for owner management and public access happy/guard cases
+
+Definition of small PRs for this milestone:
+- schema PR only adds share tables, relations, migrations, and docs
+- helper PR only adds token generation and owner share lookup logic
+- dashboard-controls PR only adds owner share actions and UI entry points
+- public-loading PR only wires share-token data reads
+- route-render PR only renders the public read-only page
+- revoke-regenerate PR only adds share lifecycle behavior
+- test PR expands coverage without mixing in reservation behavior
 
 ### Milestone 5 - Reservations (`v0.6.0`)
 Goal:

@@ -14,8 +14,8 @@
 ## Current Usage
 - The current auth screens reuse the same token-driven primitives for forms,
   buttons, inputs, and status messages in `src/app/globals.css`.
-- Owner-area routes currently reuse the same shell while product-specific
-  wishlist UI is still pending Milestone 3.
+- The owner dashboard now reuses the same primitives for wishlist summary,
+  empty states, item create/update forms, delete controls, and status messages.
 
 ## Growth Rule
 - Add future theme tokens by extending the same custom property contract.

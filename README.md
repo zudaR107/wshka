@@ -3,7 +3,7 @@
 Minimal, fast wishlist app.
 
 ## Status
-Milestone 2 complete. Auth core is in place.
+Milestone 3 complete. Owner wishlist core is in place.
 
 ## Core Idea
 Create a wishlist, share it by link, and let another person reserve an item.
@@ -27,14 +27,17 @@ Create a wishlist, share it by link, and let another person reserve an item.
 - `main` is protected and updated only through PRs.
 
 ## Current Focus
-- Milestone 3: wishlist core.
+- Milestone 4: share links.
 
 ## Current Capabilities
 - Email/password registration.
 - Email/password login and logout.
 - Server-side sessions with HTTP-only auth cookie.
 - Server-side protection for `/app` and `/app/reservations`.
-- Auth coverage across unit and minimal e2e paths.
+- Automatic current wishlist bootstrap for authenticated owners.
+- Server-rendered owner dashboard with empty state and item list.
+- Owner-side wishlist item create, update, and delete flows.
+- Wishlist core coverage across focused unit and integration-like tests.
 
 ## Project Docs
 - Product and delivery plan: `master-plan.md`
