@@ -2,13 +2,16 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { requireCurrentUser } from "@/modules/auth/server/current-user";
 import { getTranslations } from "@/modules/i18n";
+import { getOrCreateCurrentWishlist } from "@/modules/wishlist/server/current-wishlist";
 import { PageShell } from "@/shared/ui/page-shell";
 
 const common = getTranslations("common");
 const messages = getTranslations("app");
 
 export default async function AppPage() {
-  await requireCurrentUser();
+  const user = await requireCurrentUser();
+
+  await getOrCreateCurrentWishlist(user.id);
 
   return (
     <PageShell
