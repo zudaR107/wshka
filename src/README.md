@@ -5,6 +5,13 @@
 - `src/modules`: feature and cross-cutting module entry points
 - `src/shared`: code that is safe to reuse across modules, including DB foundation
 
+## Current State
+- `src/app/login` and `src/app/register` contain working auth entry flows.
+- `src/app/app` and `src/app/app/reservations` are protected by server-side
+  auth guards.
+- `wishlist`, `item`, `share`, and `reservation` remain reserved module areas
+  for the next milestones.
+
 ## Module Areas
 - `auth`
 - `wishlist`

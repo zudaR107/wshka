@@ -14,6 +14,20 @@
 - `server/current-user.ts`: current session and authenticated-user helpers for
   route-level server guards
 
+## Current Behavior
+- `/register` supports email/password signup with validation and duplicate-email
+  handling.
+- `/login` supports email/password signin and issues a server-side session.
+- `/app` and `/app/reservations` require an authenticated session.
+- Auth state stays server-first through the `sessions` table and an HTTP-only
+  cookie.
+
+## Test Coverage
+- Unit and integration-like tests cover registration, login, logout, session
+  helpers, current user lookup, and protected route guards.
+- Minimal e2e checks cover the login form and unauthenticated redirects to
+  `/login`.
+
 ## Scope
 - Keep auth helpers inside the `auth` module until there is a proven reuse case
 - Registration, login, logout, and session guards should build on these helpers

@@ -18,6 +18,11 @@
 - `sessions`: opaque server-side session records keyed by `session_token`
   with `expires_at` and a foreign key to `users`
 
+## Current State
+- Auth runtime logic now builds on these tables inside the `auth` module.
+- The next DB expansion is expected in `src/modules/wishlist/db/schema.ts` for
+  `wishlists` and `wishlist_items`.
+
 ## Environment Contract
 - `DATABASE_URL`: required PostgreSQL connection string
 - `DATABASE_SSL`: optional boolean flag for SSL mode; default is `false`
