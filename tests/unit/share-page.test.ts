@@ -30,6 +30,20 @@ describe("public share route rendering", () => {
     expect(html).toContain("Эта ссылка недействительна или больше неактивна.");
   });
 
+  it("renders the same unavailable state for revoked tokens", async () => {
+    mocks.getPublicWishlistByShareToken.mockResolvedValue(null);
+
+    const { default: SharePage } = await import("../../src/app/share/[token]/page");
+    const page = await SharePage({
+      params: Promise.resolve({ token: "revoked-token" }),
+    });
+    const html = renderToStaticMarkup(page);
+
+    expect(mocks.getPublicWishlistByShareToken).toHaveBeenCalledWith("revoked-token");
+    expect(html).toContain("Публичная ссылка недоступна");
+    expect(html).toContain("Эта ссылка недействительна или больше неактивна.");
+  });
+
   it("renders an empty public wishlist state when there are no items", async () => {
     mocks.getPublicWishlistByShareToken.mockResolvedValue({
       id: "wishlist-1",

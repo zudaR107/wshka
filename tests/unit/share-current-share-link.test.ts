@@ -107,6 +107,22 @@ describe("current owner share link helpers", () => {
     expect(mocks.insert).not.toHaveBeenCalled();
   });
 
+  it("returns null when the owner wishlist has no active share link", async () => {
+    const wishlist = {
+      id: "wishlist-1",
+      userId: "user-1",
+      isActive: true,
+      createdAt: new Date("2026-04-12T00:00:00.000Z"),
+      updatedAt: new Date("2026-04-12T00:00:00.000Z"),
+    };
+
+    mocks.getCurrentWishlist.mockResolvedValue(wishlist);
+    mocks.findShareLink.mockResolvedValue(undefined);
+
+    await expect(getCurrentShareLink("user-1")).resolves.toBeNull();
+    expect(mocks.insert).not.toHaveBeenCalled();
+  });
+
   it("returns the existing active share link for the current owner wishlist", async () => {
     const wishlist = {
       id: "wishlist-1",
@@ -190,6 +206,36 @@ describe("current owner share link helpers", () => {
     expect(mocks.insert).toHaveBeenCalledTimes(1);
   });
 
+  it("does not create duplicate active links on repeated get-or-create reads", async () => {
+    const wishlist = {
+      id: "wishlist-1",
+      userId: "user-1",
+      isActive: true,
+      createdAt: new Date("2026-04-12T00:00:00.000Z"),
+      updatedAt: new Date("2026-04-12T00:00:00.000Z"),
+    };
+    const shareLink = {
+      id: "share-1",
+      wishlistId: "wishlist-1",
+      token: "generated-token",
+      isActive: true,
+      createdAt: new Date("2026-04-12T00:00:00.000Z"),
+      updatedAt: new Date("2026-04-12T00:00:00.000Z"),
+    };
+
+    mocks.getOrCreateCurrentWishlist.mockResolvedValue(wishlist);
+    mocks.findShareLink
+      .mockResolvedValueOnce(undefined)
+      .mockResolvedValueOnce(shareLink)
+      .mockResolvedValueOnce(shareLink);
+    mocks.generateShareToken.mockReturnValue("generated-token");
+    mocks.insertReturning.mockResolvedValue([shareLink]);
+
+    await expect(getOrCreateCurrentShareLink("user-1")).resolves.toEqual(shareLink);
+    await expect(getOrCreateCurrentShareLink("user-1")).resolves.toEqual(shareLink);
+    expect(mocks.insert).toHaveBeenCalledTimes(1);
+  });
+
   it("revokes the current active share link for the owner wishlist", async () => {
     const wishlist = {
       id: "wishlist-1",
@@ -210,6 +256,13 @@ describe("current owner share link helpers", () => {
         updatedAt: expect.any(Date),
       }),
     );
+  });
+
+  it("returns false when revoke is requested without a current wishlist", async () => {
+    mocks.getCurrentWishlist.mockResolvedValue(null);
+
+    await expect(revokeCurrentShareLink("user-1")).resolves.toBe(false);
+    expect(mocks.update).not.toHaveBeenCalled();
   });
 
   it("regenerates the current share link with a new opaque token", async () => {

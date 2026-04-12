@@ -57,6 +57,13 @@ describe("public wishlist loading by share token", () => {
     expect(mocks.getWishlistWithItems).not.toHaveBeenCalled();
   });
 
+  it("returns null when the token is inactive", async () => {
+    mocks.findShareLink.mockResolvedValue(undefined);
+
+    await expect(getPublicWishlistByShareToken("inactive-token")).resolves.toBeNull();
+    expect(mocks.getWishlistWithItems).not.toHaveBeenCalled();
+  });
+
   it("returns null when the token has been revoked", async () => {
     mocks.findShareLink.mockResolvedValue(undefined);
 
