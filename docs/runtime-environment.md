@@ -113,11 +113,10 @@
 ## Compose Stack Foundation
 - `compose.yaml` is the production-oriented stack foundation for one VPS.
 - The stack shape is:
-  - `caddy` as the public HTTP entrypoint
+  - `caddy` as the public HTTP/HTTPS entrypoint
   - `app` as the internal Next.js runtime
   - `postgres` as the internal persistent database
-- `caddy` publishes port `80`.
-- Port `443` remains reserved for the future HTTPS-focused `M6-I4` change and is not published by this foundation yet.
+- `caddy` publishes public ports `80` and `443`.
 - `app` is not published externally and is reachable only on the internal Compose network.
 - `postgres` is not published externally and is reachable only on the internal Compose network.
 - Persistent volumes are expected for:
@@ -128,13 +127,32 @@
 - The app runtime env inside Compose still follows the `M6-I1` contract:
   - `DATABASE_URL`
   - `DATABASE_SSL`
+- The Caddy-facing Compose values are:
+  - `CADDY_DOMAIN`
+  - `CADDY_HTTP_PORT`
+  - `CADDY_HTTPS_PORT`
 - Compose local validation commands:
   - `docker compose --env-file .env.compose.local config`
   - `docker compose --env-file .env.compose.local up -d`
 - Compose smoke-check commands:
   - `docker compose --env-file .env.compose.local ps`
+  - `curl -H 'Host: wshka.ru' http://localhost/healthz`
+
+## Caddy HTTPS Foundation
+- `ops/caddy/Caddyfile` is now a production-oriented reverse proxy foundation for `wshka.ru`.
+- Public traffic is expected to enter through Caddy on ports `80` and `443`.
+- Caddy proxies application traffic to `app:3000` on the internal Compose network.
+- `/healthz` remains valid through the public reverse proxy path.
+- The config also includes a localhost-only HTTP site block for honest local smoke-checks without pretending that public TLS issuance works on a developer machine.
+- Caddy automatic HTTPS depends on these prerequisites:
+  - public DNS for `wshka.ru` points to the production VPS
+  - inbound ports `80` and `443` are reachable from the public internet
+  - the VPS can complete ACME validation traffic
+- Local Compose smoke-check should validate reverse proxy behavior over HTTP.
+- Local smoke-check commands may use:
   - `curl http://localhost/healthz`
-- `M6-I4` is expected to replace the placeholder HTTP-only Caddy foundation with domain-aware production proxy and HTTPS behavior.
+- Local TLS certificate issuance for `wshka.ru` is not expected to work unless DNS and public ingress already point to the current machine.
+- When local DNS and public ingress do not point to the current machine, ACME errors in local Caddy logs are expected and do not invalidate the HTTP reverse proxy smoke-check.
 
 ## Rollout And Rollback Assumptions
 - Delivery remains single-environment and single-VPS.
