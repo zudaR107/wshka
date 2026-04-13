@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/modules/auth/server/current-user";
 import { MIN_PASSWORD_LENGTH } from "@/modules/auth/server/register-input";
@@ -32,44 +33,57 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
       description={messages.register.description}
     >
       {status === "success" ? (
-        <p className="ui-message ui-message-success">{messages.register.successMessage}</p>
+        <div className="ui-message ui-message-success space-y-3">
+          <p>{messages.register.successMessage}</p>
+          <Link href="/login" className="ui-button ui-button-secondary inline-flex">
+            {messages.register.successLinkLabel}
+          </Link>
+        </div>
       ) : null}
       {errorCode ? (
         <p className="ui-message ui-message-error">{getRegisterErrorMessage(errorCode)}</p>
       ) : null}
-      <form action={registerAction} className="ui-form">
-        <div className="ui-field">
-          <label className="ui-label" htmlFor="email">
-            {messages.register.emailLabel}
-          </label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            autoComplete="email"
-            className="ui-input"
-            required
-          />
-        </div>
-        <div className="ui-field">
-          <label className="ui-label" htmlFor="password">
-            {messages.register.passwordLabel}
-          </label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            autoComplete="new-password"
-            minLength={MIN_PASSWORD_LENGTH}
-            className="ui-input"
-            required
-          />
-          <p className="ui-note">{messages.register.minPasswordHint}</p>
-        </div>
-        <button type="submit" className="ui-button">
-          {messages.register.submitLabel}
-        </button>
-      </form>
+      <div className="space-y-6">
+        <form action={registerAction} className="ui-form">
+          <div className="ui-field">
+            <label className="ui-label" htmlFor="email">
+              {messages.register.emailLabel}
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              className="ui-input"
+              required
+            />
+          </div>
+          <div className="ui-field">
+            <label className="ui-label" htmlFor="password">
+              {messages.register.passwordLabel}
+            </label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              autoComplete="new-password"
+              minLength={MIN_PASSWORD_LENGTH}
+              className="ui-input"
+              required
+            />
+            <p className="ui-note">{messages.register.minPasswordHint}</p>
+          </div>
+          <button type="submit" className="ui-button">
+            {messages.register.submitLabel}
+          </button>
+        </form>
+        <p className="text-sm text-[color:var(--color-text-base)]">
+          {messages.register.loginHint}{" "}
+          <Link href="/login" className="font-medium underline underline-offset-2">
+            {messages.register.loginLinkLabel}
+          </Link>
+        </p>
+      </div>
     </PageShell>
   );
 }

@@ -106,6 +106,8 @@ describe("owner app wishlist bootstrap", () => {
     expect(html).toContain("Вишлист пока пуст");
     expect(html).toContain("Количество желаний");
     expect(html).toContain("Добавить желание");
+    expect(html).toContain("Добавьте первое желание, а потом сможете поделиться вишлистом по публичной ссылке.");
+    expect(html).toContain("Добавить первое желание");
     expect(html).toContain("Публичная ссылка ещё не создана");
     expect(html).toContain("Создать публичную ссылку");
   });

@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "node .next/standalone/server.js",
+    "start": "rm -rf .next/standalone/.next/static && mkdir -p .next/standalone/.next/static && cp -R .next/static/. .next/standalone/.next/static && node --env-file-if-exists=.env.local .next/standalone/server.js",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",

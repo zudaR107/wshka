@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { requireCurrentUser } from "@/modules/auth/server/current-user";
 import { getTranslations } from "@/modules/i18n";
 import { listCurrentUserActiveReservations } from "@/modules/reservation";
@@ -39,12 +40,19 @@ export default async function ReservationsPage(props: ReservationsPageProps) {
       ) : null}
       {reservations.length === 0 ? (
         <section className="ui-surface p-6" data-testid="reservations-empty-state">
-          <h2 className="text-lg font-semibold text-[color:var(--color-text-strong)]">
-            {messages.reservations.emptyTitle}
-          </h2>
-          <p className="mt-3 text-[color:var(--color-text-base)]">
-            {messages.reservations.emptyDescription}
-          </p>
+          <div className="space-y-4">
+            <div>
+              <h2 className="text-lg font-semibold text-[color:var(--color-text-strong)]">
+                {messages.reservations.emptyTitle}
+              </h2>
+              <p className="mt-3 text-[color:var(--color-text-base)]">
+                {messages.reservations.emptyDescription}
+              </p>
+            </div>
+            <Link href="/app" className="ui-button ui-button-secondary inline-flex">
+              {messages.reservations.emptyActionLabel}
+            </Link>
+          </div>
         </section>
       ) : (
         <section className="space-y-4">
@@ -86,7 +94,7 @@ export default async function ReservationsPage(props: ReservationsPageProps) {
                   </div>
                   <form action={cancelReservationAction}>
                     <input type="hidden" name="reservationId" value={reservation.id} />
-                    <button type="submit" className="ui-button">
+                    <button type="submit" className="ui-button ui-button-secondary">
                       {messages.reservations.cancelLabel}
                     </button>
                   </form>

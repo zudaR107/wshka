@@ -167,6 +167,28 @@
     background: #1f3049;
   }
 
+  .ui-button-secondary {
+    border-color: var(--color-border-soft);
+    background: var(--color-bg-surface);
+    color: var(--color-text-strong);
+  }
+
+  .ui-button-secondary:hover {
+    border-color: var(--color-border-strong);
+    background: var(--color-bg-subtle);
+  }
+
+  .ui-button-danger {
+    border-color: #f3c6cc;
+    background: #fff4f4;
+    color: #8a2431;
+  }
+
+  .ui-button-danger:hover {
+    border-color: #e5aeb7;
+    background: #ffe9eb;
+  }
+
   .ui-note {
     color: var(--color-text-muted);
     font-size: var(--font-size-label);
@@ -187,5 +209,10 @@
   .ui-message-error {
     background: #fff4f4;
     color: #8a2431;
+  }
+
+  .ui-message-info {
+    background: var(--color-accent-soft);
+    color: var(--color-text-strong);
   }
 }

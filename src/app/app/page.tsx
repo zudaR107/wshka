@@ -99,7 +99,7 @@ export default async function AppPage(props: AppPageProps) {
             </div>
           </div>
           <form action={logoutAction}>
-            <button type="submit" className="ui-button">
+            <button type="submit" className="ui-button ui-button-secondary">
               {messages.dashboard.logoutLabel}
             </button>
           </form>
@@ -134,12 +134,12 @@ export default async function AppPage(props: AppPageProps) {
                 <p className="ui-note">{messages.dashboard.share.copyHint}</p>
                 <div className="flex flex-col gap-3 sm:flex-row">
                   <form action={revokeShareLinkAction}>
-                    <button type="submit" className="ui-button">
+                    <button type="submit" className="ui-button ui-button-danger">
                       {messages.dashboard.share.revokeLabel}
                     </button>
                   </form>
                   <form action={regenerateShareLinkAction}>
-                    <button type="submit" className="ui-button">
+                    <button type="submit" className="ui-button ui-button-secondary">
                       {messages.dashboard.share.regenerateLabel}
                     </button>
                   </form>
@@ -160,16 +160,20 @@ export default async function AppPage(props: AppPageProps) {
           </div>
         </section>
 
-        <section className="ui-surface p-6">
+        <section className="ui-surface p-6" id="wishlist-create-form-panel">
           <div className="space-y-5">
-            <div>
+            <div className="space-y-2">
               <h2 className="text-lg font-semibold text-[color:var(--color-text-strong)]">
                 {messages.dashboard.formTitle}
               </h2>
+              <p className="text-sm text-[color:var(--color-text-base)]">
+                {messages.dashboard.formDescription}
+              </p>
             </div>
             <form
               action={createItemAction}
               className="ui-form max-w-none"
+              id="wishlist-create-form"
               data-testid="wishlist-create-form"
             >
               <div className="ui-field">
@@ -207,12 +211,19 @@ export default async function AppPage(props: AppPageProps) {
 
         {wishlist.items.length === 0 ? (
           <section className="ui-surface p-6" data-testid="wishlist-empty-state">
-            <h2 className="text-lg font-semibold text-[color:var(--color-text-strong)]">
-              {messages.dashboard.emptyTitle}
-            </h2>
-            <p className="mt-3 text-[color:var(--color-text-base)]">
-              {messages.dashboard.emptyDescription}
-            </p>
+            <div className="space-y-4">
+              <div>
+                <h2 className="text-lg font-semibold text-[color:var(--color-text-strong)]">
+                  {messages.dashboard.emptyTitle}
+                </h2>
+                <p className="mt-3 text-[color:var(--color-text-base)]">
+                  {messages.dashboard.emptyDescription}
+                </p>
+              </div>
+              <a href="#wishlist-create-form-panel" className="ui-button inline-flex">
+                {messages.dashboard.emptyActionLabel}
+              </a>
+            </div>
           </section>
         ) : (
           <section className="space-y-4">
@@ -282,6 +293,7 @@ export default async function AppPage(props: AppPageProps) {
                           defaultValue={item.url ?? ""}
                           className="ui-input"
                         />
+                        <p className="ui-note">{messages.dashboard.hints.url}</p>
                       </div>
                       <div className="ui-field">
                         <label className="ui-label" htmlFor={`note-${item.id}`}>
@@ -305,6 +317,7 @@ export default async function AppPage(props: AppPageProps) {
                           defaultValue={item.price ?? ""}
                           className="ui-input"
                         />
+                        <p className="ui-note">{messages.dashboard.hints.price}</p>
                       </div>
                       <div className="flex flex-col gap-3 sm:flex-row">
                         <button type="submit" className="ui-button">
@@ -314,7 +327,7 @@ export default async function AppPage(props: AppPageProps) {
                     </form>
                     <form action={deleteItemAction}>
                       <input type="hidden" name="itemId" value={item.id} />
-                      <button type="submit" className="ui-button">
+                      <button type="submit" className="ui-button ui-button-danger">
                         {messages.dashboard.deleteLabel}
                       </button>
                     </form>

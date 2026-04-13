@@ -51,7 +51,10 @@ describe("current user reservations page", () => {
     const html = renderToStaticMarkup(page);
 
     expect(html).toContain("Активных броней пока нет");
-    expect(html).toContain("Когда вы забронируете подарок из публичного вишлиста, он появится здесь.");
+    expect(html).toContain(
+      "Когда вы забронируете подарок из публичного вишлиста, он появится здесь. Отсюда же бронь можно будет отменить.",
+    );
+    expect(html).toContain("Вернуться к вишлисту");
   });
 
   it("renders only the current user's active reservations", async () => {

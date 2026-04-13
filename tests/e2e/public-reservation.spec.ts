@@ -43,7 +43,7 @@ test("public wishlist and reserver journey works end to end", async ({ browser }
 
       await expect(guestPage.getByRole("heading", { name: "Публичный вишлист" })).toBeVisible();
       await expect(guestPage.getByTestId("share-guest-guard")).toContainText(
-        "Войдите, чтобы забронировать доступное желание.",
+        "Войдите, чтобы забронировать доступное желание и потом управлять бронями в своём разделе.",
       );
 
       const guestItemCard = getShareItemCard(guestPage, item.title);

@@ -26,7 +26,7 @@ test("owner can complete the core wishlist journey end to end", async ({ page })
     await registerOwner(page, credentials);
 
     await expect(page).toHaveURL(/\/register\?status=success$/);
-    await expect(page.getByText("Аккаунт создан. Теперь можно перейти к будущему сценарию входа.")).toBeVisible();
+    await expect(page.getByText("Аккаунт создан. Теперь войдите, чтобы открыть свой вишлист.")).toBeVisible();
   });
 
   await test.step("log in and land on the bootstrapped /app state", async () => {
@@ -99,7 +99,11 @@ test("owner can complete the core wishlist journey end to end", async ({ page })
 
     await sharePreviewPage.goto(firstShareUrl);
     await expect(sharePreviewPage.getByRole("heading", { name: "Публичный вишлист" })).toBeVisible();
-    await expect(sharePreviewPage.getByText("Это ваш вишлист. Бронировать собственные желания нельзя.")).toBeVisible();
+    await expect(
+      sharePreviewPage.getByText(
+        "Это ваш вишлист. Здесь можно только проверить, как он выглядит по публичной ссылке.",
+      ),
+    ).toBeVisible();
     await expect(sharePreviewPage.getByRole("heading", { name: updatedItem.title })).toBeVisible();
 
     await page.getByRole("button", { name: "Создать новую ссылку" }).click();

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/modules/auth/server/current-user";
 import { getTranslations } from "@/modules/i18n";
@@ -36,37 +37,45 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
       {errorCode ? (
         <p className="ui-message ui-message-error">{getLoginErrorMessage(errorCode)}</p>
       ) : null}
-      <form action={loginAction} className="ui-form">
-        <div className="ui-field">
-          <label className="ui-label" htmlFor="email">
-            {messages.login.emailLabel}
-          </label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            autoComplete="email"
-            className="ui-input"
-            required
-          />
-        </div>
-        <div className="ui-field">
-          <label className="ui-label" htmlFor="password">
-            {messages.login.passwordLabel}
-          </label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            autoComplete="current-password"
-            className="ui-input"
-            required
-          />
-        </div>
-        <button type="submit" className="ui-button">
-          {messages.login.submitLabel}
-        </button>
-      </form>
+      <div className="space-y-6">
+        <form action={loginAction} className="ui-form">
+          <div className="ui-field">
+            <label className="ui-label" htmlFor="email">
+              {messages.login.emailLabel}
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              className="ui-input"
+              required
+            />
+          </div>
+          <div className="ui-field">
+            <label className="ui-label" htmlFor="password">
+              {messages.login.passwordLabel}
+            </label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              autoComplete="current-password"
+              className="ui-input"
+              required
+            />
+          </div>
+          <button type="submit" className="ui-button">
+            {messages.login.submitLabel}
+          </button>
+        </form>
+        <p className="text-sm text-[color:var(--color-text-base)]">
+          {messages.login.registerHint}{" "}
+          <Link href="/register" className="font-medium underline underline-offset-2">
+            {messages.login.registerLinkLabel}
+          </Link>
+        </p>
+      </div>
     </PageShell>
   );
 }

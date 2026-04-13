@@ -37,7 +37,21 @@ export default async function SharePage(props: SharePageProps) {
         eyebrow={common.brand}
         title={messages.share.unavailableTitle}
         description={messages.share.unavailableDescription}
-      />
+      >
+        <section className="ui-surface p-6">
+          <div className="space-y-4">
+            <p className="text-[color:var(--color-text-base)]">{messages.share.unavailableHint}</p>
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <Link href="/" className="ui-button ui-button-secondary inline-flex">
+                {messages.share.unavailableHomeLabel}
+              </Link>
+              <Link href="/login" className="ui-button inline-flex">
+                {messages.share.loginToReserveLabel}
+              </Link>
+            </div>
+          </div>
+        </section>
+      </PageShell>
     );
   }
 
@@ -54,8 +68,8 @@ export default async function SharePage(props: SharePageProps) {
         <p className="ui-message ui-message-error">{getShareActionErrorMessage(action, errorCode)}</p>
       ) : null}
       {!publicWishlist.viewer.isAuthenticated ? (
-        <div className="ui-surface p-4" data-testid="share-guest-guard">
-          <p className="text-sm text-[color:var(--color-text-base)]">{messages.share.guestHint}</p>
+        <div className="ui-message ui-message-info space-y-3" data-testid="share-guest-guard">
+          <p className="text-sm">{messages.share.guestHint}</p>
           <div className="mt-3">
             <Link href="/login" className="ui-button inline-flex">
               {messages.share.loginToReserveLabel}
@@ -63,16 +77,18 @@ export default async function SharePage(props: SharePageProps) {
           </div>
         </div>
       ) : publicWishlist.viewer.isOwner ? (
-        <p className="ui-message ui-message-error">{messages.share.ownerHint}</p>
+        <div className="ui-message ui-message-info">
+          <p>{messages.share.ownerHint}</p>
+        </div>
       ) : null}
       {publicWishlist.items.length === 0 ? (
         <section className="ui-surface p-6">
-          <h2 className="text-lg font-semibold text-[color:var(--color-text-strong)]">
-            {messages.share.emptyTitle}
-          </h2>
-          <p className="mt-3 text-[color:var(--color-text-base)]">
-            {messages.share.emptyDescription}
-          </p>
+          <div className="space-y-3">
+            <h2 className="text-lg font-semibold text-[color:var(--color-text-strong)]">
+              {messages.share.emptyTitle}
+            </h2>
+            <p className="text-[color:var(--color-text-base)]">{messages.share.emptyDescription}</p>
+          </div>
         </section>
       ) : (
         <section className="space-y-4">
