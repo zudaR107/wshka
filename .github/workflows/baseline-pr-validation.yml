@@ -157,9 +157,9 @@ jobs:
         shell: bash
         run: npm ci
 
-      - name: Run unit smoke tests
+      - name: Run unit test suite
         shell: bash
-        run: npm run test:unit:smoke
+        run: npm run test:unit
 
   e2e-smoke:
     name: e2e-smoke
@@ -179,6 +179,6 @@ jobs:
         shell: bash
         run: npx playwright install --with-deps chromium
 
-      - name: Run e2e smoke tests
+      - name: Run e2e test suite
         shell: bash
-        run: npm run test:e2e:smoke
+        run: npm run test:e2e

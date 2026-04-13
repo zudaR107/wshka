@@ -21,8 +21,8 @@
   - `npm ci`
   - `npm run typecheck`
   - `npm run build`
-  - `npm run test:unit:smoke`
-  - `npm run test:e2e:smoke`
+  - `npm run test:unit`
+  - `npm run test:e2e`
 - A PR is not delivery-ready until this workflow is green.
 
 ### Image Publish
@@ -54,8 +54,8 @@ How to validate locally before or after PR:
 npm ci
 npm run typecheck
 npm run build
-npm run test:unit:smoke
-npm run test:e2e:smoke
+npm run test:unit
+npm run test:e2e
 ```
 
 How to validate on GitHub:
