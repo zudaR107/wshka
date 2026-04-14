@@ -75,20 +75,6 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
             />
             <p className="ui-note">{messages.register.minPasswordHint}</p>
           </div>
-          <div className="ui-field">
-            <label className="ui-label" htmlFor="confirmPassword">
-              {messages.register.confirmPasswordLabel}
-            </label>
-            <input
-              id="confirmPassword"
-              name="confirmPassword"
-              type="password"
-              autoComplete="new-password"
-              minLength={MIN_PASSWORD_LENGTH}
-              className="ui-input"
-              required
-            />
-          </div>
           <button type="submit" className="ui-button ui-button-full">
             {messages.register.submitLabel}
           </button>
@@ -108,18 +94,11 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
 async function registerAction(formData: FormData) {
   "use server";
 
-  const password = getFormValue(formData, "password");
-  const confirmPassword = getFormValue(formData, "confirmPassword");
-
-  if (password !== confirmPassword) {
-    redirect("/register?error=password-mismatch");
-  }
-
   const { registerUser } = await import("@/modules/auth/server/register");
 
   const result = await registerUser({
     email: getFormValue(formData, "email"),
-    password,
+    password: getFormValue(formData, "password"),
   });
 
   if (result.status === "success") {
@@ -141,8 +120,6 @@ function getRegisterErrorMessage(errorCode: string): string {
       return messages.register.errors.invalidEmail;
     case "password-too-short":
       return messages.register.errors.passwordTooShort;
-    case "password-mismatch":
-      return messages.register.errors.passwordMismatch;
     case "email-taken":
       return messages.register.errors.emailTaken;
     default:
