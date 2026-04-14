@@ -2,10 +2,8 @@ import Link from "next/link";
 import { requireCurrentUser } from "@/modules/auth/server/current-user";
 import { getTranslations } from "@/modules/i18n";
 import { listCurrentUserActiveReservations } from "@/modules/reservation";
-import { PageShell } from "@/shared/ui/page-shell";
 import { cancelReservationAction } from "@/app/app/reservations/actions";
 
-const common = getTranslations("common");
 const messages = getTranslations("app");
 
 type ReservationsPageProps = {
@@ -25,86 +23,87 @@ export default async function ReservationsPage(props: ReservationsPageProps) {
   const errorCode = params?.error;
 
   return (
-    <PageShell
-      eyebrow={common.routeSkeleton}
-      title={messages.reservations.title}
-      description={messages.reservations.description}
-    >
+    <div className="content-page">
+      <div className="content-page-header">
+        <h1 className="content-page-title">{messages.reservations.title}</h1>
+        <p className="content-page-description">{messages.reservations.description}</p>
+      </div>
+
       {status === "reservation-cancelled" ? (
-        <p className="ui-message ui-message-success">{messages.reservations.cancelSuccessMessage}</p>
+        <p className="ui-message ui-message-success">
+          {messages.reservations.cancelSuccessMessage}
+        </p>
       ) : null}
       {errorCode ? (
         <p className="ui-message ui-message-error">
           {getReservationsActionErrorMessage(action, errorCode)}
         </p>
       ) : null}
+
       {reservations.length === 0 ? (
-        <section className="ui-surface p-6" data-testid="reservations-empty-state">
-          <div className="space-y-4">
-            <div>
-              <h2 className="text-lg font-semibold text-[color:var(--color-text-strong)]">
-                {messages.reservations.emptyTitle}
-              </h2>
-              <p className="mt-3 text-[color:var(--color-text-base)]">
-                {messages.reservations.emptyDescription}
-              </p>
-            </div>
-            <Link href="/app" className="ui-button ui-button-secondary inline-flex">
-              {messages.reservations.emptyActionLabel}
-            </Link>
-          </div>
-        </section>
+        <div className="dashboard-empty" data-testid="reservations-empty-state">
+          <p className="dashboard-empty-title">{messages.reservations.emptyTitle}</p>
+          <p className="dashboard-empty-description">{messages.reservations.emptyDescription}</p>
+          <Link href="/app" className="ui-button ui-button-secondary">
+            {messages.reservations.emptyActionLabel}
+          </Link>
+        </div>
       ) : (
-        <section className="space-y-4">
-          <h2 className="text-lg font-semibold text-[color:var(--color-text-strong)]">
-            {messages.reservations.listTitle}
-          </h2>
-          <ul className="space-y-4">
+        <section>
+          <p className="content-section-label">{messages.reservations.listTitle}</p>
+          <ul
+            style={{
+              listStyle: "none",
+              margin: 0,
+              padding: 0,
+              display: "flex",
+              flexDirection: "column",
+              gap: "var(--space-3)",
+            }}
+          >
             {reservations.map((reservation) => (
-              <li key={reservation.id} className="ui-surface p-6" data-testid="reservation-card">
-                <div className="space-y-4">
-                  <div className="space-y-3">
-                    <h3 className="text-base font-semibold text-[color:var(--color-text-strong)]">
-                      {reservation.item.title}
-                    </h3>
+              <li
+                key={reservation.id}
+                className="reservation-card"
+                data-testid="reservation-card"
+              >
+                <h3 className="reservation-card-title">{reservation.item.title}</h3>
+                {(reservation.item.price || reservation.item.url || reservation.item.note) ? (
+                  <div className="reservation-card-meta">
+                    {reservation.item.price ? (
+                      <span style={{ fontWeight: 600, color: "var(--color-text-strong)" }}>
+                        {reservation.item.price}
+                      </span>
+                    ) : null}
                     {reservation.item.url ? (
-                      <p className="text-sm text-[color:var(--color-text-base)] break-all">
-                        <span className="font-medium text-[color:var(--color-text-strong)]">
-                          {messages.reservations.itemFields.url}: 
-                        </span>
+                      <a
+                        href={reservation.item.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="reservation-card-url"
+                      >
                         {reservation.item.url}
-                      </p>
+                      </a>
                     ) : null}
                     {reservation.item.note ? (
-                      <p className="text-sm text-[color:var(--color-text-base)]">
-                        <span className="font-medium text-[color:var(--color-text-strong)]">
-                          {messages.reservations.itemFields.note}: 
-                        </span>
+                      <span style={{ color: "var(--color-text-muted)" }}>
                         {reservation.item.note}
-                      </p>
-                    ) : null}
-                    {reservation.item.price ? (
-                      <p className="text-sm text-[color:var(--color-text-base)]">
-                        <span className="font-medium text-[color:var(--color-text-strong)]">
-                          {messages.reservations.itemFields.price}: 
-                        </span>
-                        {reservation.item.price}
-                      </p>
+                      </span>
                     ) : null}
                   </div>
-                  <form action={cancelReservationAction}>
-                    <input type="hidden" name="reservationId" value={reservation.id} />
-                    <button type="submit" className="ui-button ui-button-secondary">
-                      {messages.reservations.cancelLabel}
-                    </button>
-                  </form>
-                </div>
+                ) : null}
+                <form action={cancelReservationAction}>
+                  <input type="hidden" name="reservationId" value={reservation.id} />
+                  <button type="submit" className="ui-button ui-button-danger">
+                    {messages.reservations.cancelLabel}
+                  </button>
+                </form>
               </li>
             ))}
           </ul>
         </section>
       )}
-    </PageShell>
+    </div>
   );
 }
 
