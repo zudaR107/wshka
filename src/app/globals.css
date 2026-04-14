@@ -294,7 +294,7 @@
   .site-logo {
     display: flex;
     align-items: center;
-    gap: var(--space-2);
+    gap: 4px;
     font-weight: 800;
     font-size: 1.2rem;
     letter-spacing: -0.03em;

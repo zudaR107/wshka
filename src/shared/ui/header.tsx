@@ -26,11 +26,11 @@ export function Header({ user, onLogout }: HeaderProps) {
             style={{ width: 28, height: 28, flexShrink: 0 }}
           >
             <rect width="32" height="32" rx="7" fill="#3b82f6" />
-            <rect x="6" y="10" width="20" height="17" rx="2.5" fill="white" />
-            <rect x="14.5" y="10" width="3" height="17" fill="#3b82f6" opacity="0.22" />
-            <path d="M16 10 C15 7 10 6.5 10.5 9 C11 10.5 16 10 16 10 Z" fill="#93c5fd" />
-            <path d="M16 10 C17 7 22 6.5 21.5 9 C21 10.5 16 10 16 10 Z" fill="#93c5fd" />
-            <circle cx="16" cy="10" r="1.5" fill="white" />
+            <rect x="6" y="9" width="20" height="17" rx="2.5" fill="white" />
+            <rect x="14.5" y="9" width="3" height="17" fill="#3b82f6" opacity="0.22" />
+            <path d="M16 9 C15 6 10 5.5 10.5 8 C11 9.5 16 9 16 9 Z" fill="#93c5fd" />
+            <path d="M16 9 C17 6 22 5.5 21.5 8 C21 9.5 16 9 16 9 Z" fill="#93c5fd" />
+            <circle cx="16" cy="9" r="1.5" fill="white" />
           </svg>
           {common.brand}
         </Link>
