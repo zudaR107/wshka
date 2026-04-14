@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getTranslations } from "@/modules/i18n";
+import { NavLinks, GuestLinks } from "@/shared/ui/nav-links";
 
 const common = getTranslations("common");
 
@@ -19,32 +20,7 @@ export function Header({ user, onLogout }: HeaderProps) {
         <Link href="/" className="site-logo">
           {common.brand}
         </Link>
-        <nav className="site-nav">
-          {user ? (
-            <>
-              <Link href="/app" className="site-nav-link">
-                {common.nav.wishlist}
-              </Link>
-              <Link href="/app/reservations" className="site-nav-link">
-                {common.nav.reservations}
-              </Link>
-              <form action={onLogout}>
-                <button type="submit" className="ui-button ui-button-secondary">
-                  {common.nav.logout}
-                </button>
-              </form>
-            </>
-          ) : (
-            <>
-              <Link href="/login" className="site-nav-link">
-                {common.nav.login}
-              </Link>
-              <Link href="/register" className="ui-button">
-                {common.nav.register}
-              </Link>
-            </>
-          )}
-        </nav>
+        {user ? <NavLinks onLogout={onLogout} /> : <GuestLinks />}
       </div>
     </header>
   );

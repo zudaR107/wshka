@@ -321,6 +321,15 @@
     background: var(--color-bg-subtle);
   }
 
+  .site-nav-link--active {
+    color: var(--color-text-strong);
+    background: var(--color-accent-surface);
+  }
+
+  .site-nav-link--active:hover {
+    background: var(--color-accent-surface);
+  }
+
   /* Site footer */
   .site-footer {
     border-top: 1px solid var(--color-border-soft);
