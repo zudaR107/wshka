@@ -16,14 +16,14 @@ export function NavLinks({ onLogout }: NavLinksProps) {
   return (
     <nav className="site-nav">
       <Link
-        href="/app"
-        className={`site-nav-link${pathname === "/app" ? " site-nav-link--active" : ""}`}
+        href="/"
+        className={`site-nav-link${pathname === "/" ? " site-nav-link--active" : ""}`}
       >
         {common.nav.wishlist}
       </Link>
       <Link
-        href="/app/reservations"
-        className={`site-nav-link${pathname === "/app/reservations" ? " site-nav-link--active" : ""}`}
+        href="/reservations"
+        className={`site-nav-link${pathname === "/reservations" ? " site-nav-link--active" : ""}`}
       >
         {common.nav.reservations}
       </Link>

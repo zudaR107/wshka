@@ -18,7 +18,7 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
   const currentUser = await getCurrentUser();
 
   if (currentUser) {
-    redirect("/app");
+    redirect("/");
   }
 
   const params = searchParams ? await searchParams : undefined;

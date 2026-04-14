@@ -17,7 +17,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   const currentUser = await getCurrentUser();
 
   if (currentUser) {
-    redirect("/app");
+    redirect("/");
   }
 
   const params = searchParams ? await searchParams : undefined;
@@ -98,7 +98,7 @@ async function loginAction(formData: FormData) {
 
   if (result.status === "success") {
     await setSessionCookie(result.sessionToken, result.expiresAt);
-    redirect("/app");
+    redirect("/");
   }
 
   redirect(`/login?error=${result.code}`);
