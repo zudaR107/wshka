@@ -63,7 +63,10 @@
   body {
     margin: 0;
     min-height: 100vh;
-    background: radial-gradient(circle at top, #ffffff 0%, var(--color-bg-canvas) 55%);
+    background-color: var(--color-bg-canvas);
+    background-image: url('/wallpaper.svg');
+    background-size: 200px 200px;
+    background-repeat: repeat;
     color: var(--color-text-strong);
     font-family: var(--font-sans);
     font-size: var(--font-size-body);
