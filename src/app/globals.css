@@ -16,6 +16,14 @@
   --color-accent-soft: #e6eefc;
   --color-focus-ring: rgba(59, 130, 246, 0.35);
 
+  --color-accent: #3b82f6;
+  --color-accent-hover: #2563eb;
+  --color-accent-surface: #eff6ff;
+  --color-status-available: #16a34a;
+  --color-status-reserved: #7c3aed;
+  --color-dev-surface: #fffbeb;
+  --color-dev-border: #fde68a;
+
   --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
     "Segoe UI", sans-serif;
   --font-size-body: 1rem;
@@ -152,19 +160,25 @@
   }
 
   .ui-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     width: fit-content;
     border: 1px solid transparent;
     border-radius: var(--radius-md);
-    background: var(--color-text-strong);
-    padding: var(--space-4) var(--space-5);
+    background: var(--color-accent);
+    padding: var(--space-3) var(--space-5);
     color: #ffffff;
     font: inherit;
+    font-size: var(--font-size-label);
     font-weight: 600;
     cursor: pointer;
+    text-decoration: none;
+    white-space: nowrap;
   }
 
   .ui-button:hover {
-    background: #1f3049;
+    background: var(--color-accent-hover);
   }
 
   .ui-button-secondary {
@@ -214,5 +228,133 @@
   .ui-message-info {
     background: var(--color-accent-soft);
     color: var(--color-text-strong);
+  }
+
+  /* Layout */
+  .app-layout {
+    display: flex;
+    flex-direction: column;
+    min-height: 100dvh;
+  }
+
+  .app-main {
+    flex: 1;
+  }
+
+  /* Status badges */
+  .ui-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.1875rem var(--space-3);
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    line-height: 1.5;
+    white-space: nowrap;
+  }
+
+  .ui-badge-available {
+    background: #dcfce7;
+    color: var(--color-status-available);
+  }
+
+  .ui-badge-reserved {
+    background: #f3e8ff;
+    color: var(--color-status-reserved);
+  }
+
+  /* Site header */
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    border-bottom: 1px solid var(--color-border-soft);
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .site-header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: 0 var(--space-4);
+    height: 4rem;
+    gap: var(--space-4);
+  }
+
+  .site-logo {
+    font-weight: 800;
+    font-size: 1.2rem;
+    letter-spacing: -0.03em;
+    color: var(--color-text-strong);
+    text-decoration: none;
+    flex-shrink: 0;
+  }
+
+  .site-logo:hover {
+    color: var(--color-accent);
+  }
+
+  .site-nav {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    flex-wrap: nowrap;
+  }
+
+  .site-nav-link {
+    color: var(--color-text-base);
+    font-size: var(--font-size-label);
+    font-weight: 500;
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .site-nav-link:hover {
+    color: var(--color-text-strong);
+    background: var(--color-bg-subtle);
+  }
+
+  /* Site footer */
+  .site-footer {
+    border-top: 1px solid var(--color-border-soft);
+    padding: var(--space-6) var(--space-4);
+    background: var(--color-bg-surface);
+  }
+
+  .site-footer-inner {
+    max-width: 72rem;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--color-text-muted);
+    font-size: var(--font-size-label);
+    text-align: center;
+  }
+
+  .site-footer-links {
+    display: flex;
+    gap: var(--space-5);
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .site-footer-link {
+    color: var(--color-text-muted);
+    text-decoration: none;
+  }
+
+  .site-footer-link:hover {
+    color: var(--color-text-base);
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
 }
