@@ -32,7 +32,7 @@ test("public wishlist and reserver journey works end to end", async ({ browser }
 
       await ownerPage.getByRole("button", { name: "Создать публичную ссылку" }).click();
 
-      await expect(ownerPage).toHaveURL(/\/app\?status=share-link-created$/);
+      await expect(ownerPage).toHaveURL(/\/\?status=share-link-created$/);
       await expect(ownerPage.getByTestId("share-link-url")).toHaveValue(/\/share\//);
 
       return ownerPage.getByTestId("share-link-url").inputValue();
@@ -88,8 +88,8 @@ test("public wishlist and reserver journey works end to end", async ({ browser }
       await expect(guestPage.getByText(reserver.email)).toHaveCount(0);
     });
 
-    await test.step("reserver can cancel the reservation from /app/reservations", async () => {
-      await reserverPage.goto("/app/reservations");
+    await test.step("reserver can cancel the reservation from /reservations", async () => {
+      await reserverPage.goto("/reservations");
 
       await expect(reserverPage.getByRole("heading", { name: "Бронирования" })).toBeVisible();
 
@@ -100,7 +100,7 @@ test("public wishlist and reserver journey works end to end", async ({ browser }
       await expect(reservationCard).toContainText("3490.00");
       await reservationCard.getByRole("button", { name: "Отменить бронь" }).click();
 
-      await expect(reserverPage).toHaveURL(/\/app\/reservations\?status=reservation-cancelled$/);
+      await expect(reserverPage).toHaveURL(/\/reservations\?status=reservation-cancelled$/);
       await expect(reserverPage.getByText("Бронь отменена.")).toBeVisible();
       await expect(reserverPage.getByTestId("reservations-empty-state")).toBeVisible();
       await expect(reserverPage.getByRole("heading", { name: item.title, exact: true })).toHaveCount(0);

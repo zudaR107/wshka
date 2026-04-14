@@ -46,7 +46,7 @@ describe("current user reservations page", () => {
   it("renders an empty state when the current user has no active reservations", async () => {
     mocks.listCurrentUserActiveReservations.mockResolvedValue([]);
 
-    const { default: ReservationsPage } = await import("../../src/app/app/reservations/page");
+    const { default: ReservationsPage } = await import("../../src/app/reservations/page");
     const page = await ReservationsPage({});
     const html = renderToStaticMarkup(page);
 
@@ -75,7 +75,7 @@ describe("current user reservations page", () => {
       },
     ]);
 
-    const { default: ReservationsPage } = await import("../../src/app/app/reservations/page");
+    const { default: ReservationsPage } = await import("../../src/app/reservations/page");
     const page = await ReservationsPage({});
     const html = renderToStaticMarkup(page);
 
@@ -91,7 +91,7 @@ describe("current user reservations page", () => {
   it("renders cancel success and error feedback", async () => {
     mocks.listCurrentUserActiveReservations.mockResolvedValue([]);
 
-    const { default: ReservationsPage } = await import("../../src/app/app/reservations/page");
+    const { default: ReservationsPage } = await import("../../src/app/reservations/page");
     const successPage = await ReservationsPage({
       searchParams: Promise.resolve({ status: "reservation-cancelled" }),
     });
@@ -106,7 +106,7 @@ describe("current user reservations page", () => {
   });
 
   it("redirects after a successful cancel and blocks not-owner or missing reservations", async () => {
-    const { cancelReservationAction } = await import("../../src/app/app/reservations/actions");
+    const { cancelReservationAction } = await import("../../src/app/reservations/actions");
 
     const successFormData = new FormData();
     successFormData.set("reservationId", "reservation-1");
@@ -114,7 +114,7 @@ describe("current user reservations page", () => {
 
     await expectRedirectCall(
       () => cancelReservationAction(successFormData),
-      "/app/reservations?status=reservation-cancelled",
+      "/reservations?status=reservation-cancelled",
     );
 
     const notOwnerFormData = new FormData();
@@ -126,7 +126,7 @@ describe("current user reservations page", () => {
 
     await expectRedirectCall(
       () => cancelReservationAction(notOwnerFormData),
-      "/app/reservations?action=cancel&error=not-reservation-owner",
+      "/reservations?action=cancel&error=not-reservation-owner",
     );
 
     const missingFormData = new FormData();
@@ -138,7 +138,7 @@ describe("current user reservations page", () => {
 
     await expectRedirectCall(
       () => cancelReservationAction(missingFormData),
-      "/app/reservations?action=cancel&error=reservation-not-found",
+      "/reservations?action=cancel&error=reservation-not-found",
     );
     expect(mocks.cancelReservation).toHaveBeenNthCalledWith(1, "user-1", "reservation-1");
     expect(mocks.cancelReservation).toHaveBeenNthCalledWith(2, "user-1", "reservation-2");
