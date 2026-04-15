@@ -980,9 +980,17 @@
     max-width: 60rem;
     margin: 0 auto;
     padding: var(--space-10) var(--space-6);
-    background: var(--color-bg-canvas);
+    background: var(--color-bg-surface);
     border-radius: var(--radius-xl);
     box-shadow: 0 2px 24px rgba(0, 0, 0, 0.06);
+  }
+
+  .home-dev-section.home-section-inner {
+    background: none;
+    border-radius: 0;
+    box-shadow: none;
+    padding-left: 0;
+    padding-right: 0;
   }
 
   .home-section-title {
