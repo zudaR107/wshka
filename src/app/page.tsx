@@ -156,7 +156,7 @@ async function DashboardView({
       {/* Page header */}
       <div className="dashboard-header">
         <h1 className="dashboard-title">{messages.dashboard.title}</h1>
-        <span className="dashboard-count">
+        <span className="dashboard-count" data-testid="wishlist-item-count">
           {wishlist.items.length} {pluralize(wishlist.items.length, messages.dashboard.itemCountForms)}
         </span>
       </div>
@@ -209,7 +209,7 @@ async function DashboardView({
 
       {/* Add item collapsible */}
       <details className="add-item-details" id="wishlist-create-form-panel">
-        <summary className="add-item-summary">
+        <summary className="add-item-summary" data-testid="add-item-toggle">
           <span>{messages.dashboard.addItemToggleLabel}</span>
         </summary>
         <div className="add-item-form-inner">
@@ -327,7 +327,7 @@ async function DashboardView({
 
                 {/* Inline edit toggle */}
                 <details className="item-edit-details">
-                  <summary className="item-edit-summary">
+                  <summary className="item-edit-summary" data-testid="edit-item-toggle">
                     ✏ {messages.dashboard.editToggleLabel}
                   </summary>
                   <div className="item-edit-form-inner">
