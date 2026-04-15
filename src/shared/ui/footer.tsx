@@ -9,7 +9,14 @@ export function Footer() {
     <footer className="site-footer">
       <div className="site-footer-inner">
         <p>
-          {common.footer.copyright}
+          <a
+            href="https://github.com/zudaR107/wshka"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="site-footer-link"
+          >
+            {common.footer.copyright}
+          </a>
           <span style={{ marginLeft: "var(--space-2)", opacity: 0.5 }}>v{pkg.version}</span>
         </p>
         <nav className="site-footer-links">
