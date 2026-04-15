@@ -1,5 +1,6 @@
 export const common = {
   brand: "Wshka",
+  currencySymbol: "₽",
   routeSkeleton: "Каркас маршрута",
   nav: {
     wishlist: "Мой вишлист",

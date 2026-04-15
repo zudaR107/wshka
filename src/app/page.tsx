@@ -17,6 +17,7 @@ import {
 } from "@/modules/wishlist/server/manage-item";
 import { PriceInput } from "@/shared/ui/price-input";
 
+const common = getTranslations("common");
 const messages = getTranslations("app");
 
 const devLinks = [
@@ -553,7 +554,8 @@ function buildShareUrl(origin: string, token: string): string {
 
 function formatPrice(price: string): string {
   const num = parseFloat(price);
-  return isNaN(num) ? price : String(Math.round(num));
+  const amount = isNaN(num) ? price : String(Math.round(num));
+  return `${amount} ${common.currencySymbol}`;
 }
 
 function pluralize(n: number, forms: [string, string, string]): string {

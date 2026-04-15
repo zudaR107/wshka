@@ -4,6 +4,7 @@ import { getTranslations } from "@/modules/i18n";
 import { listCurrentUserActiveReservations } from "@/modules/reservation";
 import { cancelReservationAction } from "@/app/reservations/actions";
 
+const common = getTranslations("common");
 const messages = getTranslations("app");
 
 type ReservationsPageProps = {
@@ -109,7 +110,8 @@ export default async function ReservationsPage(props: ReservationsPageProps) {
 
 function formatPrice(price: string): string {
   const num = parseFloat(price);
-  return isNaN(num) ? price : String(Math.round(num));
+  const amount = isNaN(num) ? price : String(Math.round(num));
+  return `${amount} ${common.currencySymbol}`;
 }
 
 function getReservationsActionErrorMessage(action: string | undefined, errorCode: string): string {

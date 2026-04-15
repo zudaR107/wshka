@@ -276,7 +276,8 @@ function SharePageView({
 
 function formatPrice(price: string): string {
   const num = parseFloat(price);
-  return isNaN(num) ? price : String(Math.round(num));
+  const amount = isNaN(num) ? price : String(Math.round(num));
+  return `${amount} ${common.currencySymbol}`;
 }
 
 function getShareActionErrorMessage(action: string | undefined, errorCode: string): string {
