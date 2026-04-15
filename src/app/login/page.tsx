@@ -8,7 +8,6 @@ const messages = getTranslations("app");
 
 type LoginPageProps = {
   searchParams?: Promise<{
-    status?: string;
     error?: string;
   }>;
 };
@@ -21,7 +20,6 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   }
 
   const params = searchParams ? await searchParams : undefined;
-  const status = params?.status;
   const errorCode = params?.error;
 
   return (
@@ -33,9 +31,6 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           <p className="auth-card-description">{messages.login.description}</p>
         </div>
 
-        {status === "logged-out" ? (
-          <p className="ui-message ui-message-success">{messages.login.loggedOutMessage}</p>
-        ) : null}
         {errorCode ? (
           <p className="ui-message ui-message-error">{getLoginErrorMessage(errorCode)}</p>
         ) : null}

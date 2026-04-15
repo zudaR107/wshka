@@ -13,5 +13,5 @@ export async function logoutAction() {
   await logoutUser(cookieStore.get(AUTH_SESSION_COOKIE_NAME)?.value);
   await clearSessionCookie();
 
-  redirect("/login?status=logged-out");
+  redirect("/");
 }
