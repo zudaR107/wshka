@@ -1,14 +1,13 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/modules/auth/server/current-user";
 import { getTranslations } from "@/modules/i18n";
-import { PageShell } from "@/shared/ui/page-shell";
 
 const common = getTranslations("common");
 const messages = getTranslations("app");
 
 type LoginPageProps = {
   searchParams?: Promise<{
-    status?: string;
     error?: string;
   }>;
 };
@@ -17,57 +16,66 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   const currentUser = await getCurrentUser();
 
   if (currentUser) {
-    redirect("/app");
+    redirect("/");
   }
 
   const params = searchParams ? await searchParams : undefined;
-  const status = params?.status;
   const errorCode = params?.error;
 
   return (
-    <PageShell
-      eyebrow={common.routeSkeleton}
-      title={messages.login.title}
-      description={messages.login.description}
-    >
-      {status === "logged-out" ? (
-        <p className="ui-message ui-message-success">{messages.login.loggedOutMessage}</p>
-      ) : null}
-      {errorCode ? (
-        <p className="ui-message ui-message-error">{getLoginErrorMessage(errorCode)}</p>
-      ) : null}
-      <form action={loginAction} className="ui-form">
-        <div className="ui-field">
-          <label className="ui-label" htmlFor="email">
-            {messages.login.emailLabel}
-          </label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            autoComplete="email"
-            className="ui-input"
-            required
-          />
+    <div className="auth-page">
+      <div className="auth-card">
+        <div className="auth-card-header">
+          <p className="auth-card-logo">{common.brand}</p>
+          <h1 className="auth-card-title">{messages.login.title}</h1>
+          <p className="auth-card-description">{messages.login.description}</p>
         </div>
-        <div className="ui-field">
-          <label className="ui-label" htmlFor="password">
-            {messages.login.passwordLabel}
-          </label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            autoComplete="current-password"
-            className="ui-input"
-            required
-          />
-        </div>
-        <button type="submit" className="ui-button">
-          {messages.login.submitLabel}
-        </button>
-      </form>
-    </PageShell>
+
+        {errorCode ? (
+          <p className="ui-message ui-message-error">{getLoginErrorMessage(errorCode)}</p>
+        ) : null}
+
+        <form action={loginAction} className="ui-form" style={{ maxWidth: "none" }}>
+          <div className="ui-field">
+            <label className="ui-label" htmlFor="email">
+              {messages.login.emailLabel}
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              className="ui-input"
+              required
+              maxLength={320}
+            />
+          </div>
+          <div className="ui-field">
+            <label className="ui-label" htmlFor="password">
+              {messages.login.passwordLabel}
+            </label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              autoComplete="current-password"
+              className="ui-input"
+              required
+            />
+          </div>
+          <button type="submit" className="ui-button ui-button-full">
+            {messages.login.submitLabel}
+          </button>
+        </form>
+
+        <p className="auth-card-footer">
+          {messages.login.registerHint}{" "}
+          <Link href="/register" className="auth-card-footer-link">
+            {messages.login.registerLinkLabel}
+          </Link>
+        </p>
+      </div>
+    </div>
   );
 }
 
@@ -86,7 +94,7 @@ async function loginAction(formData: FormData) {
 
   if (result.status === "success") {
     await setSessionCookie(result.sessionToken, result.expiresAt);
-    redirect("/app");
+    redirect("/");
   }
 
   redirect(`/login?error=${result.code}`);

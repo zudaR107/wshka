@@ -62,7 +62,10 @@ describe("public share route rendering", () => {
 
     expect(mocks.getPublicWishlistViewByShareToken).toHaveBeenCalledWith("missing-token", undefined);
     expect(html).toContain("Публичная ссылка недоступна");
-    expect(html).toContain("Эта ссылка недействительна или больше неактивна.");
+    expect(html).toContain("Эта ссылка недействительна, отключена или устарела.");
+    expect(html).toContain("Попросите владельца отправить актуальную ссылку.");
+    expect(html).toContain("На главную");
+    expect(html).toContain("Войти, чтобы забронировать");
   });
 
   it("renders the same unavailable state for revoked tokens", async () => {
@@ -76,7 +79,8 @@ describe("public share route rendering", () => {
 
     expect(mocks.getPublicWishlistViewByShareToken).toHaveBeenCalledWith("revoked-token", undefined);
     expect(html).toContain("Публичная ссылка недоступна");
-    expect(html).toContain("Эта ссылка недействительна или больше неактивна.");
+    expect(html).toContain("Эта ссылка недействительна, отключена или устарела.");
+    expect(html).toContain("Попросите владельца отправить актуальную ссылку.");
   });
 
   it("renders an empty public wishlist state when there are no items", async () => {
@@ -101,7 +105,7 @@ describe("public share route rendering", () => {
 
     expect(html).toContain("Публичный вишлист");
     expect(html).toContain("Этот вишлист пока пуст");
-    expect(html).toContain("Владелец ещё не добавил сюда желания.");
+    expect(html).toContain("Владелец ещё не добавил сюда желания. Проверьте ссылку позже.");
   });
 
   it("shows a login prompt for guests without reserve controls", async () => {
@@ -114,7 +118,7 @@ describe("public share route rendering", () => {
           title: "Наушники",
           url: "https://example.com/item",
           note: "Нужны беспроводные",
-          price: "9990.00",
+          price: "9990",
           createdAt: new Date("2026-04-11T00:00:00.000Z"),
           updatedAt: new Date("2026-04-11T00:00:00.000Z"),
           reservation: {
@@ -143,8 +147,10 @@ describe("public share route rendering", () => {
     expect(html).toContain("Наушники");
     expect(html).toContain("https://example.com/item");
     expect(html).toContain("Нужны беспроводные");
-    expect(html).toContain("9990.00");
-    expect(html).toContain("Войдите, чтобы забронировать доступное желание.");
+    expect(html).toContain("9990");
+    expect(html).toContain(
+      "Войдите, чтобы забронировать доступное желание и потом управлять бронями в своём разделе.",
+    );
     expect(html).toContain("Войти, чтобы забронировать");
     expect(html).not.toContain("Забронировать</button>");
   });
@@ -229,7 +235,9 @@ describe("public share route rendering", () => {
     });
     const html = renderToStaticMarkup(page);
 
-    expect(html).toContain("Это ваш вишлист. Бронировать собственные желания нельзя.");
+    expect(html).toContain(
+      "Это ваш вишлист. Здесь можно только проверить, как он выглядит по публичной ссылке.",
+    );
     expect(html).not.toContain("Забронировать</button>");
   });
 
