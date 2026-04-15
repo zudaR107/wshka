@@ -17,7 +17,9 @@ export function Footer() {
           >
             {common.footer.copyright}
           </a>
-          <span style={{ marginLeft: "var(--space-2)", opacity: 0.5 }}>v{pkg.version}</span>
+          <Link href="/roadmap" className="site-footer-link" style={{ marginLeft: "var(--space-2)", opacity: 0.5 }}>
+            v{pkg.version}
+          </Link>
         </p>
         <nav className="site-footer-links">
           <Link href="/privacy" className="site-footer-link">
