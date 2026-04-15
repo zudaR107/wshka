@@ -68,7 +68,7 @@ describe("current user reservations page", () => {
           title: "Наушники",
           url: "https://example.com/item",
           note: "Нужны беспроводные",
-          price: "9990.00",
+          price: "9990",
           createdAt: new Date("2026-04-11T00:00:00.000Z"),
           updatedAt: new Date("2026-04-11T00:00:00.000Z"),
         },
@@ -84,7 +84,7 @@ describe("current user reservations page", () => {
     expect(html).toContain("Наушники");
     expect(html).toContain("https://example.com/item");
     expect(html).toContain("Нужны беспроводные");
-    expect(html).toContain("9990.00");
+    expect(html).toContain("9990");
     expect(html).toContain("Отменить бронь");
   });
 

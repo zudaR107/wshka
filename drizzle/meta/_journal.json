@@ -36,6 +36,13 @@
       "when": 1744646400000,
       "tag": "0004_price-no-decimals",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1776235906196,
+      "tag": "0005_lonely_zzzax",
+      "breakpoints": true
     }
   ]
 }
