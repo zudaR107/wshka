@@ -943,6 +943,10 @@
     gap: var(--space-6);
   }
 
+  .legal-section[id] {
+    scroll-margin-top: 5.5rem;
+  }
+
   .legal-section h2 {
     font-size: 1rem;
     font-weight: 700;
@@ -1387,5 +1391,45 @@
     font-weight: 400;
     color: var(--color-text-muted);
     font-family: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, monospace;
+  }
+
+  /* ── Cookie banner ───────────────────────────────────── */
+  .cookie-banner {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    background: var(--color-bg-surface);
+    border-top: 1px solid var(--color-border-soft);
+    box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.06);
+  }
+
+  .cookie-banner-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    max-width: 64rem;
+    margin: 0 auto;
+    padding: var(--space-4) var(--space-5);
+  }
+
+  .cookie-banner-text {
+    font-size: var(--font-size-label);
+    color: var(--color-text-muted);
+  }
+
+  .cookie-banner-link {
+    color: var(--color-accent);
+    text-underline-offset: 3px;
+  }
+
+  .cookie-banner-link:hover {
+    text-decoration: underline;
+  }
+
+  .cookie-banner-actions {
+    flex-shrink: 0;
   }
 }

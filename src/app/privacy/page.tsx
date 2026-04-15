@@ -140,7 +140,7 @@ export default function PrivacyPage() {
           </p>
         </div>
 
-        <div className="legal-section">
+        <div className="legal-section" id="cookie">
           <h2>10. Cookie</h2>
           <p>
             Сервис использует один HTTP-only cookie («wshka_session») для хранения анонимного
