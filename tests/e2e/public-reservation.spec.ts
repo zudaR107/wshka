@@ -27,7 +27,6 @@ test("public wishlist and reserver journey works end to end", async ({ browser }
   try {
     const shareUrl = await test.step("owner prepares a public wishlist with one item", async () => {
       await registerUser(ownerPage, owner);
-      await loginUser(ownerPage, owner);
       await createWishlistItem(ownerPage, item);
 
       await ownerPage.getByRole("button", { name: "Создать публичную ссылку" }).click();
@@ -58,7 +57,6 @@ test("public wishlist and reserver journey works end to end", async ({ browser }
 
     await test.step("authenticated non-owner can reserve the shared item", async () => {
       await registerUser(reserverPage, reserver);
-      await loginUser(reserverPage, reserver);
       await reserverPage.goto(await shareUrl);
 
       const availableItemCard = getShareItemCard(reserverPage, item.title);
@@ -138,15 +136,6 @@ async function registerUser(page: Page, credentials: Credentials) {
   await page.getByLabel("Email").fill(credentials.email);
   await page.getByLabel("Пароль").fill(credentials.password);
   await page.getByRole("button", { name: "Создать аккаунт" }).click();
-  await expect(page).toHaveURL(/\/register\?status=success$/);
-}
-
-async function loginUser(page: Page, credentials: Credentials) {
-  await page.goto("/login");
-  await expect(page.getByRole("heading", { name: "Вход" })).toBeVisible();
-  await page.getByLabel("Email").fill(credentials.email);
-  await page.getByLabel("Пароль").fill(credentials.password);
-  await page.getByRole("button", { name: "Войти" }).click();
   await expect(page).toHaveURL(/\/(?:\?.*)?$/);
 }
 

@@ -22,7 +22,6 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
   }
 
   const params = searchParams ? await searchParams : undefined;
-  const status = params?.status;
   const errorCode = params?.error;
 
   return (
@@ -34,14 +33,6 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
           <p className="auth-card-description">{messages.register.description}</p>
         </div>
 
-        {status === "success" ? (
-          <div className="ui-message ui-message-success" style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
-            <p>{messages.register.successMessage}</p>
-            <Link href="/login" className="ui-button ui-button-secondary" style={{ width: "fit-content" }}>
-              {messages.register.successLinkLabel}
-            </Link>
-          </div>
-        ) : null}
         {errorCode ? (
           <p className="ui-message ui-message-error">{getRegisterErrorMessage(errorCode)}</p>
         ) : null}
@@ -96,6 +87,7 @@ async function registerAction(formData: FormData) {
   "use server";
 
   const { registerUser } = await import("@/modules/auth/server/register");
+  const { createSession, setSessionCookie } = await import("@/modules/auth/server/session");
 
   const result = await registerUser({
     email: getFormValue(formData, "email"),
@@ -103,7 +95,9 @@ async function registerAction(formData: FormData) {
   });
 
   if (result.status === "success") {
-    redirect("/register?status=success");
+    const session = await createSession(result.userId);
+    await setSessionCookie(session.sessionToken, session.expiresAt);
+    redirect("/");
   }
 
   redirect(`/register?error=${result.code}`);

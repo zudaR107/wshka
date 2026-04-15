@@ -22,15 +22,8 @@ test("owner can complete the core wishlist journey end to end", async ({ page })
     price: "2490",
   };
 
-  await test.step("register a new owner account", async () => {
+  await test.step("register and land on the bootstrapped / state", async () => {
     await registerOwner(page, credentials);
-
-    await expect(page).toHaveURL(/\/register\?status=success$/);
-    await expect(page.getByText("Аккаунт создан. Теперь войдите, чтобы открыть свой вишлист.")).toBeVisible();
-  });
-
-  await test.step("log in and land on the bootstrapped / state", async () => {
-    await loginOwner(page, credentials);
 
     await expect(page).toHaveURL(/\/(?:\?.*)?$/);
     await expect(page.getByRole("heading", { name: "Мой вишлист" })).toBeVisible();
@@ -171,14 +164,6 @@ async function registerOwner(page: Page, credentials: OwnerCredentials) {
   await page.getByLabel("Email").fill(credentials.email);
   await page.getByLabel("Пароль").fill(credentials.password);
   await page.getByRole("button", { name: "Создать аккаунт" }).click();
-}
-
-async function loginOwner(page: Page, credentials: OwnerCredentials) {
-  await page.goto("/login");
-  await expect(page.getByRole("heading", { name: "Вход" })).toBeVisible();
-  await page.getByLabel("Email").fill(credentials.email);
-  await page.getByLabel("Пароль").fill(credentials.password);
-  await page.getByRole("button", { name: "Войти" }).click();
 }
 
 function getWishlistItemCard(page: Page, title: string) {
