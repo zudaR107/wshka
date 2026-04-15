@@ -730,6 +730,39 @@
     justify-content: center;
   }
 
+  /* Consent checkbox row */
+  .ui-consent {
+    display: flex;
+    gap: var(--space-3);
+    align-items: flex-start;
+  }
+
+  .ui-consent-checkbox {
+    flex-shrink: 0;
+    width: 1rem;
+    height: 1rem;
+    margin-top: 0.125rem;
+    cursor: pointer;
+    accent-color: var(--color-accent);
+  }
+
+  .ui-consent-label {
+    font-size: var(--font-size-label);
+    color: var(--color-text-muted);
+    line-height: 1.5;
+    cursor: pointer;
+  }
+
+  .ui-consent-link {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .ui-consent-link:hover {
+    color: var(--color-accent-hover);
+  }
+
   /* ── Reservations & Share pages ─────────────────────── */
   .content-page {
     width: 100%;
