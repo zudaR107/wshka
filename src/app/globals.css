@@ -1019,7 +1019,8 @@
 
   .roadmap-description {
     font-size: 1rem;
-    color: var(--color-text-muted);
+    font-weight: 500;
+    color: var(--color-text-strong);
     margin: 0 0 var(--space-6);
   }
 
@@ -1035,7 +1036,8 @@
     align-items: center;
     gap: var(--space-2);
     font-size: var(--font-size-label);
-    color: var(--color-text-muted);
+    font-weight: 500;
+    color: var(--color-text-strong);
   }
 
   .roadmap-legend-dot {
@@ -1090,21 +1092,21 @@
   }
 
   .roadmap-dot-released {
-    background: #dcfce7;
-    color: #16a34a;
-    border: 2px solid #16a34a;
+    background: #16a34a;
+    color: #ffffff;
+    border: 2px solid #15803d;
   }
 
   .roadmap-dot-in-progress {
-    background: #eff6ff;
-    color: var(--color-accent);
-    border: 2px solid var(--color-accent);
+    background: var(--color-accent);
+    color: #ffffff;
+    border: 2px solid var(--color-accent-hover);
   }
 
   .roadmap-dot-planned {
-    background: var(--color-bg-canvas);
-    color: var(--color-text-muted);
-    border: 2px solid var(--color-border-soft);
+    background: #475569;
+    color: #ffffff;
+    border: 2px solid #334155;
   }
 
   /* Milestone content */
@@ -1218,8 +1220,10 @@
 
   .home-hero-description {
     font-size: clamp(1rem, 2vw, 1.125rem);
+    font-weight: 500;
     line-height: 1.7;
-    color: var(--color-text-base);
+    color: var(--color-text-strong);
+    text-shadow: 0 1px 3px rgba(255, 255, 255, 0.9);
     max-width: 36rem;
     margin: 0;
   }

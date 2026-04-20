@@ -56,7 +56,7 @@ export const app = {
       {
         version: "v1.1",
         title: "Основные улучшения",
-        status: "planned" as const,
+        status: "inProgress" as const,
         items: [
           "Несколько вишлистов",
           "Приоритет желаний",
