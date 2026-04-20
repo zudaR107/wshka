@@ -142,6 +142,7 @@ test("owner can complete the core wishlist journey end to end", async ({ page })
     const updatedItemCard = getWishlistItemCard(page, updatedItem.title);
 
     await updatedItemCard.getByRole("button", { name: "Удалить" }).click();
+    await page.getByRole("button", { name: "Да, удалить" }).click();
 
     await expect(page).toHaveURL(/\/\?status=item-deleted$/);
     await expect(page.getByText("Желание удалено.")).toBeVisible();

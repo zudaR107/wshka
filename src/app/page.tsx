@@ -17,6 +17,7 @@ import {
 } from "@/modules/wishlist/server/manage-item";
 import { PriceInput } from "@/shared/ui/price-input";
 import { OpenFormButton, AddItemFormFocus } from "./open-form-button";
+import { DeleteItemButton } from "./delete-item-button";
 
 const common = getTranslations("common");
 const messages = getTranslations("app");
@@ -326,12 +327,18 @@ async function DashboardView({
                           {messages.dashboard.itemReservation.availableLabel}
                         </span>
                       )}
-                      <form action={deleteItemAction}>
-                        <input type="hidden" name="itemId" value={item.id} />
-                        <button type="submit" className="item-delete-btn">
-                          {messages.dashboard.deleteLabel}
-                        </button>
-                      </form>
+                      <DeleteItemButton
+                        itemId={item.id}
+                        itemTitle={item.title}
+                        deleteAction={deleteItemAction}
+                        labels={{
+                          deleteLabel: messages.dashboard.deleteLabel,
+                          confirmTitle: messages.dashboard.deleteConfirmTitle,
+                          confirmDescription: messages.dashboard.deleteConfirmDescription,
+                          confirmLabel: messages.dashboard.deleteConfirmLabel,
+                          cancelLabel: messages.dashboard.deleteCancelLabel,
+                        }}
+                      />
                     </div>
                   </div>
                 </div>
