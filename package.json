@@ -18,20 +18,20 @@
     "@types/pg": "^8.20.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
-    "autoprefixer": "^10.4.27",
+    "autoprefixer": "^10.5.0",
     "drizzle-orm": "^0.45.2",
     "next": "^15.0.0",
-    "pg": "^8.13.1",
-    "postcss": "^8.5.9",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "pg": "^8.20.0",
+    "postcss": "^8.5.10",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
     "@tailwindcss/postcss": "^4",
     "tailwindcss": "^4",
     "typescript": "^5.9.3"
   },
   "devDependencies": {
-    "@playwright/test": "^1.55.0",
-    "drizzle-kit": "^0.27.2",
+    "@playwright/test": "^1.59.1",
+    "drizzle-kit": "^0.31.10",
     "vitest": "^4"
   }
 }
