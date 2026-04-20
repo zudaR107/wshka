@@ -26,6 +26,7 @@ export function ItemEditSection({ editLabel, deleteButton, children }: ItemEditS
         <button
           type="button"
           className="item-edit-btn"
+          data-testid="edit-item-toggle"
           aria-expanded={open}
           onClick={() => setOpen((v) => !v)}
         >

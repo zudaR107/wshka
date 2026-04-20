@@ -272,7 +272,7 @@ describe("owner app wishlist bootstrap", () => {
     expect(html).toContain("Нужны беспроводные");
     expect(html).toContain("9990");
     expect(html).toContain("Статус: забронировано");
-    expect(html).toContain("Сохранить");
+    expect(html).toContain("Редактировать");
     expect(html).toContain("Удалить");
   });
 
