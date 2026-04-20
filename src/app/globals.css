@@ -56,6 +56,7 @@
 
   html {
     background: var(--color-bg-canvas);
+    overflow-x: clip;
   }
 
   body {
@@ -316,10 +317,28 @@
     color: var(--color-text-base);
     font-size: var(--font-size-label);
     font-weight: 500;
-    padding: var(--space-2) var(--space-3);
+    padding: var(--space-2) var(--space-2);
     border-radius: var(--radius-sm);
     text-decoration: none;
     white-space: nowrap;
+  }
+
+  @media (min-width: 480px) {
+    .site-nav-link {
+      padding: var(--space-2) var(--space-3);
+    }
+  }
+
+  @media (max-width: 479px) {
+    .site-logo-text {
+      display: none;
+    }
+
+    .copy-url-btn {
+      width: 2.75rem;
+      height: 2.75rem;
+    }
+
   }
 
   .site-nav-link:hover {
@@ -401,12 +420,16 @@
     letter-spacing: -0.03em;
     color: var(--color-text-strong);
     margin: 0;
+    min-width: 0;
   }
 
   .dashboard-count {
     display: inline-flex;
     align-items: center;
-    padding: 0.2rem var(--space-3);
+    justify-content: center;
+    flex-shrink: 0;
+    line-height: 1;
+    padding: 0.3rem var(--space-3);
     border-radius: 9999px;
     background: var(--color-bg-subtle);
     border: 1px solid var(--color-border-soft);
@@ -690,11 +713,11 @@
   .item-card-footer {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     gap: var(--space-3);
     padding: var(--space-3) var(--space-4);
     border-top: 1px solid var(--color-border-soft);
     background: var(--color-bg-subtle);
+    overflow: hidden;
   }
 
   .item-edit-btn {
@@ -704,13 +727,14 @@
     border: 1px solid var(--color-border-strong);
     border-radius: var(--radius-md);
     background: var(--color-bg-surface);
-    padding: var(--space-3) var(--space-5);
+    padding: var(--space-3) var(--space-4);
     color: var(--color-text-base);
     font: inherit;
     font-size: var(--font-size-label);
     font-weight: 600;
     cursor: pointer;
     white-space: nowrap;
+    flex-shrink: 0;
   }
 
   .item-edit-btn:hover {
@@ -732,13 +756,15 @@
     border: 1px solid #f3c6cc;
     border-radius: var(--radius-md);
     background: #fff4f4;
-    padding: var(--space-3) var(--space-5);
+    padding: var(--space-3) var(--space-4);
     color: #8a2431;
     font: inherit;
     font-size: var(--font-size-label);
     font-weight: 600;
     cursor: pointer;
     white-space: nowrap;
+    flex-shrink: 0;
+    margin-left: auto;
   }
 
   .item-delete-btn:hover {
@@ -751,6 +777,17 @@
     background: var(--color-bg-surface);
     border-top: 1px solid var(--color-border-soft);
     border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  }
+
+  @media (max-width: 479px) {
+    .item-card-footer {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .item-delete-btn {
+      margin-left: 0;
+    }
   }
 
   /* Empty state */
@@ -1250,6 +1287,19 @@
     gap: var(--space-3);
     flex-wrap: wrap;
     margin-bottom: var(--space-4);
+  }
+
+  @media (max-width: 640px) {
+    .roadmap-milestone-header::after {
+      content: "";
+      display: block;
+      flex-basis: 100%;
+      order: 1;
+    }
+
+    .roadmap-status-badge {
+      order: 2;
+    }
   }
 
   .roadmap-version {
