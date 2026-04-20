@@ -16,6 +16,7 @@ import {
   updateCurrentWishlistItem,
 } from "@/modules/wishlist/server/manage-item";
 import { PriceInput } from "@/shared/ui/price-input";
+import { OpenFormButton, AddItemSummary } from "./open-form-button";
 
 const common = getTranslations("common");
 const messages = getTranslations("app");
@@ -210,9 +211,9 @@ async function DashboardView({
 
       {/* Add item collapsible */}
       <details className="add-item-details" id="wishlist-create-form-panel">
-        <summary className="add-item-summary" data-testid="add-item-toggle">
+        <AddItemSummary className="add-item-summary" data-testid="add-item-toggle" inputName="title">
           <span>{messages.dashboard.addItemToggleLabel}</span>
-        </summary>
+        </AddItemSummary>
         <div className="add-item-form-inner">
           <p
             style={{
@@ -267,9 +268,9 @@ async function DashboardView({
         <div className="dashboard-empty" data-testid="wishlist-empty-state">
           <p className="dashboard-empty-title">{messages.dashboard.emptyTitle}</p>
           <p className="dashboard-empty-description">{messages.dashboard.emptyDescription}</p>
-          <a href="#wishlist-create-form-panel" className="ui-button">
+          <OpenFormButton formId="wishlist-create-form-panel" inputName="title" className="ui-button">
             {messages.dashboard.emptyActionLabel}
-          </a>
+          </OpenFormButton>
         </div>
       ) : (
         <section>
