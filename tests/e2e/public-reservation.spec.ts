@@ -50,7 +50,7 @@ test("public wishlist and reserver journey works end to end", async ({ browser }
       await expect(guestItemCard).toBeVisible();
       await expect(guestItemCard).toContainText(item.url);
       await expect(guestItemCard).toContainText(item.note);
-      await expect(guestItemCard).toContainText("3490");
+      await expect(guestItemCard).toContainText("3\u00a0490");
       await expect(guestItemCard.getByRole("button", { name: "Забронировать" })).toHaveCount(0);
       await expect(guestPage.getByText(owner.email)).toHaveCount(0);
       await expect(guestPage.getByText(reserver.email)).toHaveCount(0);
@@ -96,7 +96,7 @@ test("public wishlist and reserver journey works end to end", async ({ browser }
 
       await expect(reservationCard).toContainText(item.url);
       await expect(reservationCard).toContainText(item.note);
-      await expect(reservationCard).toContainText("3490");
+      await expect(reservationCard).toContainText("3\u00a0490");
       await reservationCard.getByRole("button", { name: "Отменить бронь" }).click();
 
       await expect(reserverPage).toHaveURL(/\/reservations\?status=reservation-cancelled$/);

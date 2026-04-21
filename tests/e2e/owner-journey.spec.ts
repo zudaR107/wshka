@@ -59,7 +59,7 @@ test("owner can complete the core wishlist journey end to end", async ({ page })
     await expect(createdItemCard).toBeVisible();
     await expect(createdItemCard).toContainText(initialItem.url);
     await expect(createdItemCard).toContainText(initialItem.note);
-    await expect(createdItemCard).toContainText("1990");
+    await expect(createdItemCard).toContainText("1\u00a0990");
     await expect(createdItemCard).toContainText("Статус: доступно");
 
     // Open the inline edit form
@@ -84,7 +84,7 @@ test("owner can complete the core wishlist journey end to end", async ({ page })
     await expect(updatedItemCard).toBeVisible();
     await expect(updatedItemCard).toContainText(updatedItem.url);
     await expect(updatedItemCard).toContainText(updatedItem.note);
-    await expect(updatedItemCard).toContainText("2490");
+    await expect(updatedItemCard).toContainText("2\u00a0490");
   });
 
   await test.step("create, regenerate, and revoke a share link", async () => {

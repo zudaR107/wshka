@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getTranslations } from "@/modules/i18n";
 import { reservePublicWishlistItemAction } from "@/app/share/[token]/actions";
+import { formatPrice } from "@/app/format-price";
 
 const common = getTranslations("common");
 const messages = getTranslations("app");
@@ -272,12 +273,6 @@ function SharePageView({
       )}
     </div>
   );
-}
-
-function formatPrice(price: string): string {
-  const num = parseFloat(price);
-  const amount = isNaN(num) ? price : String(Math.round(num));
-  return `${amount} ${common.currencySymbol}`;
 }
 
 function getShareActionErrorMessage(action: string | undefined, errorCode: string): string {
