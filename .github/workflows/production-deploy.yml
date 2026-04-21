@@ -1,4 +1,4 @@
-name: M6 Production Deploy
+name: Production Deploy
 
 on:
   release:

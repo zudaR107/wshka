@@ -1,4 +1,4 @@
-name: M6 Image Publish
+name: Image Publish
 
 on:
   push:
