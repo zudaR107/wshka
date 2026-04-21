@@ -4,10 +4,8 @@ import { redirect } from "next/navigation";
 import { getCurrentUser, requireCurrentUser } from "@/modules/auth/server/current-user";
 import { getTranslations } from "@/modules/i18n";
 import {
-  getCurrentShareLink,
   getOrCreateCurrentShareLink,
   regenerateCurrentShareLink,
-  revokeCurrentShareLink,
 } from "@/modules/share";
 import { getCurrentOwnerWishlistWithReservations } from "@/modules/reservation";
 import { deleteCurrentWishlistItem } from "@/modules/wishlist/server/manage-item";
@@ -17,6 +15,7 @@ import { ItemEditSection } from "./item-edit-section";
 import { CopyUrlButton } from "./copy-url-button";
 import { CreateItemForm } from "./create-item-form";
 import { EditItemForm } from "./edit-item-form";
+import { RegenerateLinkButton } from "./regenerate-link-button";
 import { formatPrice } from "./format-price";
 
 const common = getTranslations("common");
@@ -122,7 +121,7 @@ async function DashboardView({
   const params = searchParams ? await searchParams : undefined;
   const [wishlist, currentShareLink, appOrigin] = await Promise.all([
     getCurrentOwnerWishlistWithReservations(userId),
-    getCurrentShareLink(userId),
+    getOrCreateCurrentShareLink(userId),
     getAppOrigin(),
   ]);
   const action = params?.action;
@@ -141,12 +140,6 @@ async function DashboardView({
         <p className="ui-message ui-message-success">{messages.dashboard.updateSuccessMessage}</p>
       ) : status === "item-deleted" ? (
         <p className="ui-message ui-message-success">{messages.dashboard.deleteSuccessMessage}</p>
-      ) : status === "share-link-created" ? (
-        <p className="ui-message ui-message-success">{messages.dashboard.share.successMessage}</p>
-      ) : status === "share-link-revoked" ? (
-        <p className="ui-message ui-message-success">
-          {messages.dashboard.share.revokeSuccessMessage}
-        </p>
       ) : status === "share-link-regenerated" ? (
         <p className="ui-message ui-message-success">
           {messages.dashboard.share.regenerateSuccessMessage}
@@ -170,45 +163,30 @@ async function DashboardView({
           <h2 className="share-panel-title">{messages.dashboard.share.title}</h2>
           <p className="share-panel-description">{messages.dashboard.share.description}</p>
         </div>
-        {currentShareUrl ? (
-          <>
-            <div className="share-url-row">
-              <input
-                id="share-link-url"
-                data-testid="share-link-url"
-                value={currentShareUrl}
-                readOnly
-                className="share-url-input"
-                aria-label={messages.dashboard.share.urlLabel}
-              />
-              <CopyUrlButton url={currentShareUrl} />
-            </div>
-            <p className="ui-note">{messages.dashboard.share.copyHint}</p>
-            <div className="share-panel-actions">
-              <form action={revokeShareLinkAction}>
-                <button type="submit" className="ui-button ui-button-danger">
-                  {messages.dashboard.share.revokeLabel}
-                </button>
-              </form>
-              <form action={regenerateShareLinkAction}>
-                <button type="submit" className="ui-button ui-button-secondary">
-                  {messages.dashboard.share.regenerateLabel}
-                </button>
-              </form>
-            </div>
-          </>
-        ) : (
-          <div>
-            <p className="ui-note" style={{ marginBottom: "var(--space-4)" }}>
-              {messages.dashboard.share.emptyDescription}
-            </p>
-            <form action={createShareLinkAction}>
-              <button type="submit" className="ui-button">
-                {messages.dashboard.share.createLabel}
-              </button>
-            </form>
-          </div>
-        )}
+        <div className="share-url-row">
+          <input
+            id="share-link-url"
+            data-testid="share-link-url"
+            value={currentShareUrl ?? ""}
+            readOnly
+            className="share-url-input"
+            aria-label={messages.dashboard.share.urlLabel}
+          />
+          {currentShareUrl ? <CopyUrlButton url={currentShareUrl} /> : null}
+        </div>
+        <p className="ui-note">{messages.dashboard.share.copyHint}</p>
+        <div className="share-panel-actions">
+          <RegenerateLinkButton
+            regenerateAction={regenerateShareLinkAction}
+            labels={{
+              regenerateLabel: messages.dashboard.share.regenerateLabel,
+              confirmTitle: messages.dashboard.share.regenerateConfirmTitle,
+              confirmDescription: messages.dashboard.share.regenerateConfirmDescription,
+              confirmLabel: messages.dashboard.share.regenerateConfirmLabel,
+              cancelLabel: messages.dashboard.share.regenerateCancelLabel,
+            }}
+          />
+        </div>
       </div>
 
       {/* Add item collapsible */}
@@ -357,34 +335,6 @@ async function deleteItemAction(formData: FormData) {
   redirect(`/?action=delete&error=${result.code}`);
 }
 
-async function createShareLinkAction() {
-  "use server";
-
-  const user = await requireCurrentUser();
-
-  try {
-    await getOrCreateCurrentShareLink(user.id);
-  } catch {
-    redirect("/?action=share-create&error=unknown");
-  }
-
-  redirect("/?status=share-link-created");
-}
-
-async function revokeShareLinkAction() {
-  "use server";
-
-  const user = await requireCurrentUser();
-
-  try {
-    await revokeCurrentShareLink(user.id);
-  } catch {
-    redirect("/?action=share-revoke&error=unknown");
-  }
-
-  redirect("/?status=share-link-revoked");
-}
-
 async function regenerateShareLinkAction() {
   "use server";
 
@@ -420,8 +370,6 @@ function getActionErrorMessage(action: string | undefined, errorCode: string): s
     case "item-not-found":
       return messages.dashboard.errors.itemNotFound;
     default:
-      if (action === "share-create") return messages.dashboard.share.errors.unknownCreate;
-      if (action === "share-revoke") return messages.dashboard.share.errors.unknownRevoke;
       if (action === "share-regenerate") return messages.dashboard.share.errors.unknownRegenerate;
       if (action === "update") return messages.dashboard.errors.unknownUpdate;
       if (action === "delete") return messages.dashboard.errors.unknownDelete;

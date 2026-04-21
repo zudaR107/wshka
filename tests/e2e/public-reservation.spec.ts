@@ -29,9 +29,6 @@ test("public wishlist and reserver journey works end to end", async ({ browser }
       await registerUser(ownerPage, owner);
       await createWishlistItem(ownerPage, item);
 
-      await ownerPage.getByRole("button", { name: "Создать публичную ссылку" }).click();
-
-      await expect(ownerPage).toHaveURL(/\/\?status=share-link-created$/);
       await expect(ownerPage.getByTestId("share-link-url")).toHaveValue(/\/share\//);
 
       return ownerPage.getByTestId("share-link-url").inputValue();
@@ -135,7 +132,8 @@ async function registerUser(page: Page, credentials: Credentials) {
   await page.goto("/register");
   await expect(page.getByRole("heading", { name: "Регистрация" })).toBeVisible();
   await page.getByLabel("Email").fill(credentials.email);
-  await page.getByLabel("Пароль").fill(credentials.password);
+  await page.getByLabel("Пароль", { exact: true }).fill(credentials.password);
+  await page.getByLabel("Повторите пароль").fill(credentials.password);
   await page.locator("#consent").check();
   await page.getByRole("button", { name: "Создать аккаунт" }).click();
   await expect(page).toHaveURL(/\/(?:\?.*)?$/);

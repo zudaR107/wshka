@@ -29,7 +29,7 @@ test("owner can complete the core wishlist journey end to end", async ({ page })
     await expect(page.getByRole("heading", { name: "Мой вишлист" })).toBeVisible();
     await expect(page.getByTestId("wishlist-item-count")).toContainText("0");
     await expect(page.getByTestId("wishlist-empty-state")).toBeVisible();
-    await expect(page.getByRole("button", { name: "Создать публичную ссылку" })).toBeVisible();
+    await expect(page.getByTestId("share-link-url")).toBeVisible();
 
     const sessionCookie = (await page.context().cookies()).find(
       ({ name }) => name === "wshka_session",
@@ -87,11 +87,7 @@ test("owner can complete the core wishlist journey end to end", async ({ page })
     await expect(updatedItemCard).toContainText("2\u00a0490");
   });
 
-  await test.step("create, regenerate, and revoke a share link", async () => {
-    await page.getByRole("button", { name: "Создать публичную ссылку" }).click();
-
-    await expect(page).toHaveURL(/\/\?status=share-link-created$/);
-    await expect(page.getByText("Публичная ссылка готова.")).toBeVisible();
+  await test.step("regenerate the share link and verify the old one is invalid", async () => {
     await expect(page.getByTestId("share-link-url")).toHaveValue(/\/share\//);
 
     const firstShareUrl = await page.getByTestId("share-link-url").inputValue();
@@ -106,7 +102,8 @@ test("owner can complete the core wishlist journey end to end", async ({ page })
     ).toBeVisible();
     await expect(sharePreviewPage.getByRole("heading", { name: updatedItem.title })).toBeVisible();
 
-    await page.getByRole("button", { name: "Создать новую ссылку" }).click();
+    await page.getByRole("button", { name: "Сменить ссылку" }).click();
+    await page.getByRole("button", { name: "Да, сменить" }).click();
 
     await expect(page).toHaveURL(/\/\?status=share-link-regenerated$/);
     await expect(page.getByText("Создана новая публичная ссылка.")).toBeVisible();
@@ -123,17 +120,6 @@ test("owner can complete the core wishlist journey end to end", async ({ page })
     await sharePreviewPage.goto(regeneratedShareUrl);
     await expect(sharePreviewPage.getByRole("heading", { name: "Публичный вишлист" })).toBeVisible();
     await expect(sharePreviewPage.getByRole("heading", { name: updatedItem.title })).toBeVisible();
-
-    await page.getByRole("button", { name: "Отключить ссылку" }).click();
-
-    await expect(page).toHaveURL(/\/\?status=share-link-revoked$/);
-    await expect(page.getByText("Публичная ссылка отключена.")).toBeVisible();
-    await expect(page.getByRole("button", { name: "Создать публичную ссылку" })).toBeVisible();
-
-    await sharePreviewPage.goto(regeneratedShareUrl);
-    await expect(
-      sharePreviewPage.getByRole("heading", { name: "Публичная ссылка недоступна" }),
-    ).toBeVisible();
 
     await sharePreviewPage.close();
   });
@@ -165,7 +151,8 @@ async function registerOwner(page: Page, credentials: OwnerCredentials) {
   await page.goto("/register");
   await expect(page.getByRole("heading", { name: "Регистрация" })).toBeVisible();
   await page.getByLabel("Email").fill(credentials.email);
-  await page.getByLabel("Пароль").fill(credentials.password);
+  await page.getByLabel("Пароль", { exact: true }).fill(credentials.password);
+  await page.getByLabel("Повторите пароль").fill(credentials.password);
   await page.locator("#consent").check();
   await page.getByRole("button", { name: "Создать аккаунт" }).click();
 }
