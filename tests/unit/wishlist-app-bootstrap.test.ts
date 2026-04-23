@@ -223,4 +223,16 @@ describe("owner app wishlist bootstrap", () => {
     expect(html).not.toContain("user-2");
     expect(html).not.toContain("@example.com");
   });
+
+  it("renders the landing page with JSON-LD structured data for unauthenticated users", async () => {
+    mocks.getCurrentUser.mockResolvedValue(null);
+
+    const { default: AppPage } = await import("../../src/app/page");
+
+    const html = await render(await AppPage({}));
+
+    expect(html).toContain("application/ld+json");
+    expect(html).toContain("WebApplication");
+    expect(html).toContain("wshka.ru");
+  });
 });
