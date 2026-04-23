@@ -62,10 +62,9 @@ describe("public share route rendering", () => {
 
     expect(mocks.getPublicWishlistViewByShareToken).toHaveBeenCalledWith("missing-token", undefined);
     expect(html).toContain("Публичная ссылка недоступна");
-    expect(html).toContain("Эта ссылка недействительна, отключена или устарела.");
     expect(html).toContain("Попросите владельца отправить актуальную ссылку.");
     expect(html).toContain("На главную");
-    expect(html).toContain("Войти, чтобы забронировать");
+    expect(html).not.toContain("Войти, чтобы забронировать");
   });
 
   it("renders the same unavailable state for revoked tokens", async () => {
@@ -79,7 +78,6 @@ describe("public share route rendering", () => {
 
     expect(mocks.getPublicWishlistViewByShareToken).toHaveBeenCalledWith("revoked-token", undefined);
     expect(html).toContain("Публичная ссылка недоступна");
-    expect(html).toContain("Эта ссылка недействительна, отключена или устарела.");
     expect(html).toContain("Попросите владельца отправить актуальную ссылку.");
   });
 

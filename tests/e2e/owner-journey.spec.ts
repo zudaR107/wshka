@@ -50,7 +50,6 @@ test("owner can complete the core wishlist journey end to end", async ({ page })
     await createForm.getByLabel("Цена").fill(initialItem.price);
     await createForm.getByRole("button", { name: "Добавить" }).click();
 
-    await expect(page).toHaveURL(/\/\?status=item-created$/);
     await expect(page.getByText("Желание добавлено.")).toBeVisible();
     await expect(page.getByTestId("wishlist-item-count")).toContainText("1");
 
@@ -75,7 +74,6 @@ test("owner can complete the core wishlist journey end to end", async ({ page })
     await updateForm.getByLabel("Цена").fill(updatedItem.price);
     await updateForm.getByRole("button", { name: "Сохранить" }).click();
 
-    await expect(page).toHaveURL(/\/\?status=item-updated$/);
     await expect(page.getByText("Желание обновлено.")).toBeVisible();
     await expect(page.getByRole("heading", { name: initialItem.title, exact: true })).toHaveCount(0);
 
@@ -105,9 +103,7 @@ test("owner can complete the core wishlist journey end to end", async ({ page })
     await page.getByRole("button", { name: "Сменить ссылку" }).click();
     await page.getByRole("button", { name: "Да, сменить" }).click();
 
-    await expect(page).toHaveURL(/\/\?status=share-link-regenerated$/);
-    await expect(page.getByText("Создана новая публичная ссылка.")).toBeVisible();
-
+    await expect(page.getByTestId("share-link-url")).not.toHaveValue(firstShareUrl);
     const regeneratedShareUrl = await page.getByTestId("share-link-url").inputValue();
 
     expect(regeneratedShareUrl).not.toBe(firstShareUrl);
@@ -130,8 +126,6 @@ test("owner can complete the core wishlist journey end to end", async ({ page })
     await updatedItemCard.getByRole("button", { name: "Удалить" }).click();
     await page.getByRole("button", { name: "Да, удалить" }).click();
 
-    await expect(page).toHaveURL(/\/\?status=item-deleted$/);
-    await expect(page.getByText("Желание удалено.")).toBeVisible();
     await expect(page.getByTestId("wishlist-item-count")).toContainText("0");
     await expect(page.getByTestId("wishlist-empty-state")).toBeVisible();
     await expect(page.getByRole("heading", { name: updatedItem.title, exact: true })).toHaveCount(0);

@@ -1,6 +1,5 @@
 "use server";
 
-import { redirect } from "next/navigation";
 import { requireCurrentUser } from "@/modules/auth/server/current-user";
 import { createCurrentWishlistItem } from "@/modules/wishlist/server/create-item";
 import { updateCurrentWishlistItem } from "@/modules/wishlist/server/manage-item";
@@ -13,9 +12,19 @@ export type ItemValues = {
 };
 
 export type ItemFormState = {
-  error: string;
+  status: "success" | "error";
+  error?: string;
   key: number;
-  values: ItemValues;
+  values?: ItemValues;
+} | null;
+
+export type DeleteItemState = {
+  status: "success" | "error";
+  error?: string;
+} | null;
+
+export type RegenerateState = {
+  status: "success" | "error";
 } | null;
 
 export async function createItemAction(
@@ -33,10 +42,10 @@ export async function createItemAction(
   const result = await createCurrentWishlistItem(user.id, values);
 
   if (result.status === "success") {
-    redirect("/?status=item-created");
+    return { status: "success", key: (prev?.key ?? 0) + 1 };
   }
 
-  return { error: result.code, key: (prev?.key ?? 0) + 1, values };
+  return { status: "error", error: result.code, key: (prev?.key ?? 0) + 1, values };
 }
 
 export async function updateItemAction(
@@ -54,10 +63,10 @@ export async function updateItemAction(
   const result = await updateCurrentWishlistItem(user.id, getString(formData, "itemId"), values);
 
   if (result.status === "success") {
-    redirect("/?status=item-updated");
+    return { status: "success", key: (prev?.key ?? 0) + 1 };
   }
 
-  return { error: result.code, key: (prev?.key ?? 0) + 1, values };
+  return { status: "error", error: result.code, key: (prev?.key ?? 0) + 1, values };
 }
 
 function getString(formData: FormData, name: string): string {

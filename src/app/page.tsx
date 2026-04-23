@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { headers } from "next/headers";
-import { redirect } from "next/navigation";
 import { getCurrentUser, requireCurrentUser } from "@/modules/auth/server/current-user";
 import { getTranslations } from "@/modules/i18n";
 import {
   getOrCreateCurrentShareLink,
   regenerateCurrentShareLink,
 } from "@/modules/share";
+import type { DeleteItemState, RegenerateState } from "./item-actions";
 import { getCurrentOwnerWishlistWithReservations } from "@/modules/reservation";
 import { deleteCurrentWishlistItem } from "@/modules/wishlist/server/manage-item";
 import { OpenFormButton, AddItemFormFocus } from "./open-form-button";
@@ -29,20 +29,12 @@ const devLinks = [
   { href: "/share/demo-token", label: messages.home.devLinks.share },
 ];
 
-type RootPageProps = {
-  searchParams?: Promise<{
-    action?: string;
-    status?: string;
-    error?: string;
-  }>;
-};
-
-export default async function RootPage(props: RootPageProps) {
+export default async function RootPage() {
   const user = await getCurrentUser();
   const isDev = process.env.NODE_ENV === "development";
 
   if (user) {
-    return <DashboardView userId={user.id} searchParams={props.searchParams} />;
+    return <DashboardView userId={user.id} />;
   }
 
   return (
@@ -111,44 +103,18 @@ export default async function RootPage(props: RootPageProps) {
 // Dashboard view (shown when user is logged in)
 // ---------------------------------------------------------------------------
 
-async function DashboardView({
-  userId,
-  searchParams,
-}: {
-  userId: string;
-  searchParams?: Promise<{ action?: string; status?: string; error?: string }>;
-}) {
-  const params = searchParams ? await searchParams : undefined;
+async function DashboardView({ userId }: { userId: string }) {
   const [wishlist, currentShareLink, appOrigin] = await Promise.all([
     getCurrentOwnerWishlistWithReservations(userId),
     getOrCreateCurrentShareLink(userId),
     getAppOrigin(),
   ]);
-  const action = params?.action;
-  const status = params?.status;
-  const errorCode = params?.error;
   const currentShareUrl = currentShareLink
     ? buildShareUrl(appOrigin, currentShareLink.token)
     : null;
 
   return (
     <div className="dashboard-page">
-      {/* Status messages */}
-      {status === "item-created" ? (
-        <p className="ui-message ui-message-success">{messages.dashboard.successMessage}</p>
-      ) : status === "item-updated" ? (
-        <p className="ui-message ui-message-success">{messages.dashboard.updateSuccessMessage}</p>
-      ) : status === "item-deleted" ? (
-        <p className="ui-message ui-message-success">{messages.dashboard.deleteSuccessMessage}</p>
-      ) : status === "share-link-regenerated" ? (
-        <p className="ui-message ui-message-success">
-          {messages.dashboard.share.regenerateSuccessMessage}
-        </p>
-      ) : null}
-      {errorCode ? (
-        <p className="ui-message ui-message-error">{getActionErrorMessage(action, errorCode)}</p>
-      ) : null}
-
       {/* Page header */}
       <div className="dashboard-header">
         <h1 className="dashboard-title">{messages.dashboard.title}</h1>
@@ -305,6 +271,7 @@ async function DashboardView({
                       url: item.url,
                       note: item.note,
                       priceFormatted: item.price ?? "",
+                      updatedAt: item.updatedAt.toISOString(),
                     }}
                   />
                 </ItemEditSection>
@@ -322,31 +289,30 @@ async function DashboardView({
 // Server actions
 // ---------------------------------------------------------------------------
 
-async function deleteItemAction(formData: FormData) {
+async function deleteItemAction(
+  prev: DeleteItemState,
+  formData: FormData,
+): Promise<DeleteItemState> {
   "use server";
 
   const user = await requireCurrentUser();
   const result = await deleteCurrentWishlistItem(user.id, getFormValue(formData, "itemId"));
 
-  if (result.status === "success") {
-    redirect("/?status=item-deleted");
-  }
-
-  redirect(`/?action=delete&error=${result.code}`);
+  if (result.status === "success") return { status: "success" };
+  return { status: "error", error: result.code };
 }
 
-async function regenerateShareLinkAction() {
+async function regenerateShareLinkAction(prev: RegenerateState): Promise<RegenerateState> {
   "use server";
 
   const user = await requireCurrentUser();
 
   try {
     await regenerateCurrentShareLink(user.id);
+    return { status: "success" };
   } catch {
-    redirect("/?action=share-regenerate&error=unknown");
+    return { status: "error" };
   }
-
-  redirect("/?status=share-link-regenerated");
 }
 
 // ---------------------------------------------------------------------------
@@ -359,23 +325,6 @@ function getFormValue(formData: FormData, fieldName: string): string {
   return typeof value === "string" ? value : "";
 }
 
-function getActionErrorMessage(action: string | undefined, errorCode: string): string {
-  switch (errorCode) {
-    case "invalid-title":
-      return messages.dashboard.errors.invalidTitle;
-    case "invalid-url":
-      return messages.dashboard.errors.invalidUrl;
-    case "invalid-price":
-      return messages.dashboard.errors.invalidPrice;
-    case "item-not-found":
-      return messages.dashboard.errors.itemNotFound;
-    default:
-      if (action === "share-regenerate") return messages.dashboard.share.errors.unknownRegenerate;
-      if (action === "update") return messages.dashboard.errors.unknownUpdate;
-      if (action === "delete") return messages.dashboard.errors.unknownDelete;
-      return messages.dashboard.errors.unknownCreate;
-  }
-}
 
 async function getAppOrigin(): Promise<string> {
   const headerStore = await headers();

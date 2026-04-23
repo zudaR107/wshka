@@ -153,7 +153,6 @@ async function createWishlistItem(
   await createForm.getByLabel("Цена").fill(item.price);
   await createForm.getByRole("button", { name: "Добавить" }).click();
 
-  await expect(page).toHaveURL(/\/\?status=item-created$/);
   await expect(page.getByTestId("wishlist-item-count")).toContainText("1");
 }
 

@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { PriceInput } from "@/shared/ui/price-input";
 import { getTranslations } from "@/modules/i18n";
 import { createItemAction, type ItemFormState } from "./item-actions";
@@ -21,13 +22,21 @@ function getErrorMessage(code: string): string {
 }
 
 export function CreateItemForm() {
+  const router = useRouter();
+  const [, startTransition] = useTransition();
   const [state, action] = useActionState<ItemFormState, FormData>(createItemAction, null);
-  const err = state?.error;
+  const err = state?.status === "error" ? state.error : undefined;
+
+  useEffect(() => {
+    if (state?.status === "success") startTransition(() => router.refresh());
+  }, [state]);
 
   return (
     <>
-      {err ? (
-        <p className="ui-message ui-message-error">{getErrorMessage(err)}</p>
+      {state?.status === "success" ? (
+        <p className="ui-message ui-message-success">{messages.dashboard.successMessage}</p>
+      ) : err ? (
+        <p className="ui-message ui-message-error">{getErrorMessage(err ?? "")}</p>
       ) : null}
       <form
         key={state?.key ?? 0}

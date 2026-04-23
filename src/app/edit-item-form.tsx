@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useRef, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { PriceInput } from "@/shared/ui/price-input";
 import { getTranslations } from "@/modules/i18n";
 import { updateItemAction, type ItemFormState } from "./item-actions";
@@ -14,6 +15,7 @@ type EditItemFormProps = {
     url: string | null;
     note: string | null;
     priceFormatted: string;
+    updatedAt: string;
   };
 };
 
@@ -33,17 +35,43 @@ function getErrorMessage(code: string): string {
 }
 
 export function EditItemForm({ item }: EditItemFormProps) {
+  const router = useRouter();
+  const [, startTransition] = useTransition();
+  const formRef = useRef<HTMLFormElement>(null);
+  // Tracks whether this is the first render so the reset effect skips mount.
+  const isMountedRef = useRef(false);
   const [state, action] = useActionState<ItemFormState, FormData>(updateItemAction, null);
 
   const v = state?.values;
-  const err = state?.error;
+  const err = state?.status === "error" ? state.error : undefined;
+
+  // On success: scroll the item card into view (so the notification is visible)
+  // then refresh RSC data from the server.
+  useEffect(() => {
+    if (state?.status !== "success") return;
+    const card = formRef.current?.closest(".item-card") as HTMLElement | null;
+    (card ?? formRef.current)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    startTransition(() => router.refresh());
+  }, [state]);
+
+  // After router.refresh() delivers new RSC props (detected via updatedAt change),
+  // reset native input values to the fresh defaults — no DOM re-mount, no flicker.
+  useEffect(() => {
+    if (!isMountedRef.current) {
+      isMountedRef.current = true;
+      return;
+    }
+    formRef.current?.reset();
+  }, [item.updatedAt]);
 
   return (
     <>
-      {err ? (
-        <p className="ui-message ui-message-error">{getErrorMessage(err)}</p>
+      {state?.status === "success" ? (
+        <p className="ui-message ui-message-success" style={{ marginBottom: "var(--space-4)" }}>{messages.dashboard.updateSuccessMessage}</p>
+      ) : err ? (
+        <p className="ui-message ui-message-error" style={{ marginBottom: "var(--space-4)" }}>{getErrorMessage(err ?? "")}</p>
       ) : null}
-      <form key={state?.key ?? 0} action={action} className="ui-form" style={{ maxWidth: "none" }} noValidate>
+      <form ref={formRef} action={action} className="ui-form" style={{ maxWidth: "none" }} noValidate>
         <input type="hidden" name="itemId" value={item.id} />
         <div className="ui-field">
           <label className="ui-label" htmlFor={`title-${item.id}`}>

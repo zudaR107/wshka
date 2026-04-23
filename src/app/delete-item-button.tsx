@@ -1,6 +1,11 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useEffect, useActionState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { getTranslations } from "@/modules/i18n";
+import type { DeleteItemState } from "./item-actions";
+
+const messages = getTranslations("app");
 
 function TrashIcon() {
   return (
@@ -25,7 +30,7 @@ type DeleteItemButtonLabels = {
 type DeleteItemButtonProps = {
   itemId: string;
   itemTitle: string;
-  deleteAction: (formData: FormData) => Promise<void>;
+  deleteAction: (prev: DeleteItemState, formData: FormData) => Promise<DeleteItemState>;
   labels: DeleteItemButtonLabels;
 };
 
@@ -35,7 +40,17 @@ export function DeleteItemButton({
   deleteAction,
   labels,
 }: DeleteItemButtonProps) {
+  const router = useRouter();
+  const [, startTransition] = useTransition();
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const [state, formAction] = useActionState(deleteAction, null);
+
+  useEffect(() => {
+    if (state?.status === "success") {
+      dialogRef.current?.close();
+      startTransition(() => router.refresh());
+    }
+  }, [state]);
 
   function handleBackdropClick(e: React.MouseEvent<HTMLDialogElement>) {
     if (e.target === e.currentTarget) {
@@ -61,8 +76,13 @@ export function DeleteItemButton({
             {labels.confirmDescription}{" "}
             <strong className="confirm-dialog-item-name">&laquo;{itemTitle}&raquo;</strong>?
           </p>
+          {state?.status === "error" ? (
+            <p className="ui-message ui-message-error">
+              {messages.dashboard.errors.unknownDelete}
+            </p>
+          ) : null}
           <div className="confirm-dialog-actions">
-            <form action={deleteAction}>
+            <form action={formAction}>
               <input type="hidden" name="itemId" value={itemId} />
               <button type="submit" className="ui-button ui-button-danger">
                 {labels.confirmLabel}

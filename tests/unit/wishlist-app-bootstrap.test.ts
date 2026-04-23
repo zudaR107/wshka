@@ -32,6 +32,7 @@ vi.mock("next/headers", () => ({
 
 vi.mock("next/navigation", () => ({
   redirect: vi.fn(),
+  useRouter: vi.fn().mockReturnValue({ refresh: vi.fn() }),
 }));
 
 vi.mock("../../src/modules/auth/server/current-user", () => ({
@@ -137,72 +138,6 @@ describe("owner app wishlist bootstrap", () => {
     expect(html).toContain("https://wshka.test/share/default-token");
     expect(html).toContain("Сменить ссылку");
     expect(html).not.toContain("Отключить ссылку");
-  });
-
-  it("renders create success feedback when redirected after item creation", async () => {
-    const { default: AppPage } = await import("../../src/app/page");
-
-    const html = await render(await AppPage({
-      searchParams: Promise.resolve({ status: "item-created" }),
-    }));
-
-    expect(html).toContain("Желание добавлено.");
-  });
-
-  it("renders update and delete success feedback with action-aware state", async () => {
-    const { default: AppPage } = await import("../../src/app/page");
-
-    const [updatedHtml, deletedHtml] = await Promise.all([
-      render(await AppPage({ searchParams: Promise.resolve({ status: "item-updated" }) })),
-      render(await AppPage({ searchParams: Promise.resolve({ status: "item-deleted" }) })),
-    ]);
-
-    expect(updatedHtml).toContain("Желание обновлено.");
-    expect(deletedHtml).toContain("Желание удалено.");
-  });
-
-  it("renders regenerate success feedback", async () => {
-    const { default: AppPage } = await import("../../src/app/page");
-
-    const html = await render(await AppPage({
-      searchParams: Promise.resolve({ status: "share-link-regenerated" }),
-    }));
-
-    expect(html).toContain("Создана новая публичная ссылка.");
-  });
-
-  it("renders action-aware error feedback for create, update, and delete flows", async () => {
-    const { default: AppPage } = await import("../../src/app/page");
-
-    const [createHtml, updateHtml, deleteHtml] = await Promise.all([
-      render(await AppPage({ searchParams: Promise.resolve({ action: "create", error: "unknown" }) })),
-      render(await AppPage({ searchParams: Promise.resolve({ action: "update", error: "unknown" }) })),
-      render(await AppPage({ searchParams: Promise.resolve({ action: "delete", error: "unknown" }) })),
-    ]);
-
-    expect(createHtml).toContain("Не удалось добавить желание. Попробуйте ещё раз.");
-    expect(updateHtml).toContain("Не удалось сохранить изменения. Попробуйте ещё раз.");
-    expect(deleteHtml).toContain("Не удалось удалить желание. Попробуйте ещё раз.");
-  });
-
-  it("renders regenerate error feedback", async () => {
-    const { default: AppPage } = await import("../../src/app/page");
-
-    const html = await render(await AppPage({
-      searchParams: Promise.resolve({ action: "share-regenerate", error: "unknown" }),
-    }));
-
-    expect(html).toContain("Не удалось создать новую публичную ссылку. Попробуйте ещё раз.");
-  });
-
-  it("renders item-not-found feedback for owner-scoped update or delete failures", async () => {
-    const { default: AppPage } = await import("../../src/app/page");
-
-    const html = await render(await AppPage({
-      searchParams: Promise.resolve({ action: "update", error: "item-not-found" }),
-    }));
-
-    expect(html).toContain("Не удалось найти это желание в текущем вишлисте.");
   });
 
   it("renders wishlist items when they exist", async () => {
