@@ -6,6 +6,47 @@ The format is based on Keep a Changelog, and this project follows SemVer.
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-04-23
+
+### Added
+- Technical SEO baseline: page-level `<title>` and `<meta description>` for
+  all routes; `robots.txt` with noindex for auth and private pages; `sitemap.xml`
+  covering public routes; branded OG image (1200 × 630) via `next/og`.
+- JSON-LD `WebApplication` structured-data script on the landing page.
+- Dynamic share-page metadata: page title and description reflect the wishlist
+  item count with correct Russian pluralization; always noindexed.
+- App favicons: `icon.png` (32 × 32) and `apple-icon.png` (180 × 180)
+  converted from the existing `icon.svg`.
+- Unit tests for `formatPrice`: seven cases covering thousands separators,
+  rounding, and zero.
+- Unit tests for wishlist item validation: URL-without-protocol normalisation,
+  `MAX_PRICE` boundary acceptance and rejection, zero price acceptance.
+- Unit test for JSON-LD rendering on the unauthenticated landing page.
+
+### Changed
+- Owner dashboard, create-item form, delete-item button, and regenerate-link
+  button now use `useActionState` + `startTransition(() => router.refresh())`
+  instead of redirect-based status URLs, eliminating full-page reloads after
+  mutations.
+- Edit-item form uses `formRef` + `form.reset()` (driven by `updatedAt` change
+  after RSC refresh) instead of key-based DOM re-mount; prevents stale field
+  values and flicker after save.
+- Inline success/error notifications scroll into view on success via
+  `scrollIntoView({ behavior: "smooth", block: "start" })`.
+- Dashboard component files grouped into `src/app/_dashboard/` using Next.js
+  private-folder convention; no routing changes.
+- Deleted empty barrel files `src/modules/item/` and `src/modules/ui/`
+  (contained only `export {}`).
+
+### Fixed
+- Edited note reverted to old text after save when RSC refreshed before the
+  form re-mounted with new data.
+- UI flicker on item create / delete / regenerate-link caused by unguarded
+  `router.refresh()` calls outside `startTransition`.
+- E2e tests updated to match inline-state flow: removed assertions for
+  `?status=item-created` / `?status=item-updated` query parameters that no
+  longer exist after the redirect removal.
+
 ## [1.0.0] - 2026-04-15
 
 ### Added
