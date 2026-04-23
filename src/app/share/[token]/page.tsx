@@ -1,9 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-
-export const metadata: Metadata = {
-  robots: { index: false },
-};
 import { getTranslations } from "@/modules/i18n";
 import { reservePublicWishlistItemAction } from "@/app/share/[token]/actions";
 import { formatPrice } from "@/app/format-price";
@@ -65,6 +61,37 @@ const DEV_MOCK_WISHLIST: WishlistView = {
     },
   ],
 };
+
+export async function generateMetadata(props: SharePageProps): Promise<Metadata> {
+  const params = props?.params ? await props.params : undefined;
+  const token = params?.token ?? "";
+
+  if (token && token !== "demo-token") {
+    const { getPublicWishlistViewByShareToken } = await import("@/modules/share/server/public-wishlist");
+    const wishlist = await getPublicWishlistViewByShareToken(token, undefined);
+
+    if (wishlist) {
+      const count = wishlist.items.length;
+      return {
+        title: "Публичный вишлист",
+        description: count > 0
+          ? `${count} ${pluralizeItems(count)} в вишлисте. Забронируй нужный подарок.`
+          : "Вишлист пока пуст.",
+        robots: { index: false },
+      };
+    }
+  }
+
+  return { robots: { index: false } };
+}
+
+function pluralizeItems(n: number): string {
+  const mod10 = n % 10;
+  const mod100 = n % 100;
+  if (mod10 === 1 && mod100 !== 11) return "желание";
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return "желания";
+  return "желаний";
+}
 
 export default async function SharePage(props: SharePageProps) {
   const params = props?.params ? await props.params : undefined;

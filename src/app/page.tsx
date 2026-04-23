@@ -43,8 +43,24 @@ export default async function RootPage() {
     return <DashboardView userId={user.id} />;
   }
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    name: "WSHKA",
+    url: "https://wshka.ru",
+    applicationCategory: "LifestyleApplication",
+    operatingSystem: "Web",
+    description: "Создай список желаний, поделись ссылкой — близкие забронируют подарки без спойлеров.",
+    offers: { "@type": "Offer", price: "0", priceCurrency: "RUB" },
+    inLanguage: "ru",
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Hero */}
       <section className="home-hero">
         <div className="home-hero-inner">

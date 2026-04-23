@@ -1,5 +1,10 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations } from "@/modules/i18n";
+
+export const metadata: Metadata = {
+  robots: { index: false },
+};
 
 const messages = getTranslations("app");
 

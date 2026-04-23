@@ -22,6 +22,9 @@ export const metadata: Metadata = {
     locale: "ru_RU",
     siteName: "WSHKA",
   },
+  twitter: {
+    card: "summary",
+  },
 };
 
 export default async function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
