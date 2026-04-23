@@ -37,7 +37,18 @@ describe("wishlist item creation validation", () => {
     expect(
       validateCreateWishlistItemInput({
         title: "Наушники",
-        url: "not-a-url",
+        url: "not a valid url",
+        note: "",
+        price: "",
+      }),
+    ).toEqual({ status: "error", code: "invalid-url" });
+  });
+
+  it("rejects bare words without a dot as urls", () => {
+    expect(
+      validateCreateWishlistItemInput({
+        title: "Наушники",
+        url: "helloworld",
         note: "",
         price: "",
       }),
@@ -64,6 +75,59 @@ describe("wishlist item creation validation", () => {
         price: "abc",
       }),
     ).toEqual({ status: "error", code: "invalid-price" });
+  });
+
+  it("accepts a url without protocol and prepends https://", () => {
+    expect(
+      validateCreateWishlistItemInput({
+        title: "Наушники",
+        url: "example.com",
+        note: "",
+        price: "",
+      }),
+    ).toEqual({
+      status: "valid",
+      values: { title: "Наушники", url: "https://example.com", note: null, price: null },
+    });
+  });
+
+  it("rejects a price that exceeds the maximum allowed value", () => {
+    expect(
+      validateCreateWishlistItemInput({
+        title: "Наушники",
+        url: "",
+        note: "",
+        price: "1000000000000",
+      }),
+    ).toEqual({ status: "error", code: "invalid-price" });
+  });
+
+  it("accepts a price equal to the maximum allowed value", () => {
+    expect(
+      validateCreateWishlistItemInput({
+        title: "Наушники",
+        url: "",
+        note: "",
+        price: "999999999999",
+      }),
+    ).toEqual({
+      status: "valid",
+      values: { title: "Наушники", url: null, note: null, price: "999999999999" },
+    });
+  });
+
+  it("accepts a zero price", () => {
+    expect(
+      validateCreateWishlistItemInput({
+        title: "Наушники",
+        url: "",
+        note: "",
+        price: "0",
+      }),
+    ).toEqual({
+      status: "valid",
+      values: { title: "Наушники", url: null, note: null, price: "0" },
+    });
   });
 });
 

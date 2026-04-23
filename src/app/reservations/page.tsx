@@ -1,10 +1,16 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Бронирования",
+  robots: { index: false },
+};
 import { requireCurrentUser } from "@/modules/auth/server/current-user";
 import { getTranslations } from "@/modules/i18n";
 import { listCurrentUserActiveReservations } from "@/modules/reservation";
 import { cancelReservationAction } from "@/app/reservations/actions";
+import { formatPrice } from "@/app/format-price";
 
-const common = getTranslations("common");
 const messages = getTranslations("app");
 
 type ReservationsPageProps = {
@@ -68,37 +74,43 @@ export default async function ReservationsPage(props: ReservationsPageProps) {
                 className="reservation-card"
                 data-testid="reservation-card"
               >
-                <h3 className="reservation-card-title">{reservation.item.title}</h3>
-                {(reservation.item.price || reservation.item.url || reservation.item.note) ? (
-                  <div className="reservation-card-meta">
-                    {reservation.item.price ? (
-                      <span style={{ fontWeight: 600, color: "var(--color-text-strong)" }}>
-                        {formatPrice(reservation.item.price)}
-                      </span>
-                    ) : null}
-                    {reservation.item.url ? (
-                      <a
-                        href={reservation.item.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="reservation-card-url"
-                      >
-                        {reservation.item.url}
-                      </a>
-                    ) : null}
-                    {reservation.item.note ? (
-                      <span style={{ color: "var(--color-text-muted)" }}>
-                        {reservation.item.note}
-                      </span>
-                    ) : null}
-                  </div>
-                ) : null}
-                <form action={cancelReservationAction}>
-                  <input type="hidden" name="reservationId" value={reservation.id} />
-                  <button type="submit" className="ui-button ui-button-danger">
-                    {messages.reservations.cancelLabel}
-                  </button>
-                </form>
+                <div className="item-card-status item-card-status-reserved">
+                  <span className="item-card-status-dot" />
+                  {messages.dashboard.itemReservation.reservedLabel}
+                </div>
+                <div className="reservation-card-body">
+                  <h3 className="reservation-card-title">{reservation.item.title}</h3>
+                  {(reservation.item.price || reservation.item.url || reservation.item.note) ? (
+                    <div className="reservation-card-meta">
+                      {reservation.item.price ? (
+                        <span style={{ fontWeight: 600, color: "var(--color-text-strong)" }}>
+                          {formatPrice(reservation.item.price)}
+                        </span>
+                      ) : null}
+                      {reservation.item.url ? (
+                        <a
+                          href={reservation.item.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="reservation-card-url"
+                        >
+                          {reservation.item.url}
+                        </a>
+                      ) : null}
+                      {reservation.item.note ? (
+                        <span style={{ color: "var(--color-text-muted)" }}>
+                          {reservation.item.note}
+                        </span>
+                      ) : null}
+                    </div>
+                  ) : null}
+                  <form action={cancelReservationAction}>
+                    <input type="hidden" name="reservationId" value={reservation.id} />
+                    <button type="submit" className="ui-button ui-button-danger">
+                      {messages.reservations.cancelLabel}
+                    </button>
+                  </form>
+                </div>
               </li>
             ))}
           </ul>
@@ -106,12 +118,6 @@ export default async function ReservationsPage(props: ReservationsPageProps) {
       )}
     </div>
   );
-}
-
-function formatPrice(price: string): string {
-  const num = parseFloat(price);
-  const amount = isNaN(num) ? price : String(Math.round(num));
-  return `${amount} ${common.currencySymbol}`;
 }
 
 function getReservationsActionErrorMessage(action: string | undefined, errorCode: string): string {

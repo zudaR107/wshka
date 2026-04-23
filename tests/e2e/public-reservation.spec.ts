@@ -29,9 +29,6 @@ test("public wishlist and reserver journey works end to end", async ({ browser }
       await registerUser(ownerPage, owner);
       await createWishlistItem(ownerPage, item);
 
-      await ownerPage.getByRole("button", { name: "Создать публичную ссылку" }).click();
-
-      await expect(ownerPage).toHaveURL(/\/\?status=share-link-created$/);
       await expect(ownerPage.getByTestId("share-link-url")).toHaveValue(/\/share\//);
 
       return ownerPage.getByTestId("share-link-url").inputValue();
@@ -47,9 +44,10 @@ test("public wishlist and reserver journey works end to end", async ({ browser }
 
       const guestItemCard = getShareItemCard(guestPage, item.title);
 
+      await expect(guestItemCard).toBeVisible();
       await expect(guestItemCard).toContainText(item.url);
       await expect(guestItemCard).toContainText(item.note);
-      await expect(guestItemCard).toContainText("3490");
+      await expect(guestItemCard).toContainText("3\u00a0490");
       await expect(guestItemCard.getByRole("button", { name: "Забронировать" })).toHaveCount(0);
       await expect(guestPage.getByText(owner.email)).toHaveCount(0);
       await expect(guestPage.getByText(reserver.email)).toHaveCount(0);
@@ -95,7 +93,7 @@ test("public wishlist and reserver journey works end to end", async ({ browser }
 
       await expect(reservationCard).toContainText(item.url);
       await expect(reservationCard).toContainText(item.note);
-      await expect(reservationCard).toContainText("3490");
+      await expect(reservationCard).toContainText("3\u00a0490");
       await reservationCard.getByRole("button", { name: "Отменить бронь" }).click();
 
       await expect(reserverPage).toHaveURL(/\/reservations\?status=reservation-cancelled$/);
@@ -134,7 +132,8 @@ async function registerUser(page: Page, credentials: Credentials) {
   await page.goto("/register");
   await expect(page.getByRole("heading", { name: "Регистрация" })).toBeVisible();
   await page.getByLabel("Email").fill(credentials.email);
-  await page.getByLabel("Пароль").fill(credentials.password);
+  await page.getByLabel("Пароль", { exact: true }).fill(credentials.password);
+  await page.getByLabel("Повторите пароль").fill(credentials.password);
   await page.locator("#consent").check();
   await page.getByRole("button", { name: "Создать аккаунт" }).click();
   await expect(page).toHaveURL(/\/(?:\?.*)?$/);
@@ -154,7 +153,6 @@ async function createWishlistItem(
   await createForm.getByLabel("Цена").fill(item.price);
   await createForm.getByRole("button", { name: "Добавить" }).click();
 
-  await expect(page).toHaveURL(/\/\?status=item-created$/);
   await expect(page.getByTestId("wishlist-item-count")).toContainText("1");
 }
 

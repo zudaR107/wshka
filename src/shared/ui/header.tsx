@@ -32,7 +32,7 @@ export function Header({ user, onLogout }: HeaderProps) {
             <path d="M16 9 C17 6 22 5.5 21.5 8 C21 9.5 16 9 16 9 Z" fill="#93c5fd" />
             <circle cx="16" cy="9" r="1.5" fill="white" />
           </svg>
-          {common.brand}
+          <span className="site-logo-text">{common.brand}</span>
         </Link>
         {user ? <NavLinks onLogout={onLogout} /> : <GuestLinks />}
       </div>

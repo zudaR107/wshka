@@ -1,4 +1,10 @@
+import type { Metadata } from "next";
 import { getTranslations } from "@/modules/i18n";
+
+export const metadata: Metadata = {
+  title: "Дорожная карта",
+  description: "Публичная дорожная карта WSHKA — что уже сделано и что планируется.",
+};
 
 const messages = getTranslations("app");
 
@@ -27,21 +33,23 @@ export default function RoadmapPage() {
     <div className="roadmap-page">
       <div className="roadmap-header">
         <h1 className="roadmap-title">{title}</h1>
-        <p className="roadmap-description">{description}</p>
+        <div className="roadmap-subtitle-group">
+          <p className="roadmap-description">{description}</p>
 
-        <div className="roadmap-legend">
+          <div className="roadmap-legend">
           <span className="roadmap-legend-item">
-            <span className={`roadmap-legend-dot roadmap-dot-released`} />
+            <span className="roadmap-dot roadmap-dot-released" aria-hidden="true">✓</span>
             {statusLabels.released}
           </span>
           <span className="roadmap-legend-item">
-            <span className={`roadmap-legend-dot roadmap-dot-in-progress`} />
+            <span className="roadmap-dot roadmap-dot-in-progress" aria-hidden="true">◐</span>
             {statusLabels.inProgress}
           </span>
           <span className="roadmap-legend-item">
-            <span className={`roadmap-legend-dot roadmap-dot-planned`} />
+            <span className="roadmap-dot roadmap-dot-planned" aria-hidden="true">○</span>
             {statusLabels.planned}
           </span>
+          </div>
         </div>
       </div>
 

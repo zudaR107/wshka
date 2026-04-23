@@ -79,6 +79,7 @@ create a wishlist → share it by link → let another person reserve a gift.
 |---|---|---|
 | v0.1.0–v0.7.0 | M0–M6: Repo scaffold, auth, wishlist CRUD, share links, reservations, Docker/CI/CD/VPS | ✅ shipped |
 | v1.0.0 | M7–M8: UI redesign, auto-login, /app→/ routing merge, legal pages, project restructure | ✅ shipped |
+| v1.0.1 | Patch: inline mutation state (no redirect), UX fixes, technical SEO, dashboard refactor, test coverage | ✅ shipped |
 
 ---
 

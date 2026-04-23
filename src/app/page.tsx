@@ -1,21 +1,23 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { headers } from "next/headers";
-import { redirect } from "next/navigation";
 import { getCurrentUser, requireCurrentUser } from "@/modules/auth/server/current-user";
 import { getTranslations } from "@/modules/i18n";
 import {
-  getCurrentShareLink,
   getOrCreateCurrentShareLink,
   regenerateCurrentShareLink,
-  revokeCurrentShareLink,
 } from "@/modules/share";
+import type { DeleteItemState, RegenerateState } from "./_dashboard/item-actions";
 import { getCurrentOwnerWishlistWithReservations } from "@/modules/reservation";
-import { createCurrentWishlistItem } from "@/modules/wishlist/server/create-item";
-import {
-  deleteCurrentWishlistItem,
-  updateCurrentWishlistItem,
-} from "@/modules/wishlist/server/manage-item";
-import { PriceInput } from "@/shared/ui/price-input";
+import { deleteCurrentWishlistItem } from "@/modules/wishlist/server/manage-item";
+import { OpenFormButton, AddItemFormFocus } from "./_dashboard/open-form-button";
+import { DeleteItemButton } from "./_dashboard/delete-item-button";
+import { ItemEditSection } from "./_dashboard/item-edit-section";
+import { CopyUrlButton } from "./_dashboard/copy-url-button";
+import { CreateItemForm } from "./_dashboard/create-item-form";
+import { EditItemForm } from "./_dashboard/edit-item-form";
+import { RegenerateLinkButton } from "./_dashboard/regenerate-link-button";
+import { formatPrice } from "./format-price";
 
 const common = getTranslations("common");
 const messages = getTranslations("app");
@@ -28,24 +30,37 @@ const devLinks = [
   { href: "/share/demo-token", label: messages.home.devLinks.share },
 ];
 
-type RootPageProps = {
-  searchParams?: Promise<{
-    action?: string;
-    status?: string;
-    error?: string;
-  }>;
+export const metadata: Metadata = {
+  title: "WSHKA — вишлист с бронированием подарков",
+  description: "Создай список желаний, отправь ссылку близким — и получи именно то, о чём мечтал. Каждый видит, что уже забронировано.",
 };
 
-export default async function RootPage(props: RootPageProps) {
+export default async function RootPage() {
   const user = await getCurrentUser();
   const isDev = process.env.NODE_ENV === "development";
 
   if (user) {
-    return <DashboardView userId={user.id} searchParams={props.searchParams} />;
+    return <DashboardView userId={user.id} />;
   }
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    name: "WSHKA",
+    url: "https://wshka.ru",
+    applicationCategory: "LifestyleApplication",
+    operatingSystem: "Web",
+    description: "Создай список желаний, поделись ссылкой — близкие забронируют подарки без спойлеров.",
+    offers: { "@type": "Offer", price: "0", priceCurrency: "RUB" },
+    inLanguage: "ru",
+  };
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Hero */}
       <section className="home-hero">
         <div className="home-hero-inner">
@@ -110,50 +125,18 @@ export default async function RootPage(props: RootPageProps) {
 // Dashboard view (shown when user is logged in)
 // ---------------------------------------------------------------------------
 
-async function DashboardView({
-  userId,
-  searchParams,
-}: {
-  userId: string;
-  searchParams?: Promise<{ action?: string; status?: string; error?: string }>;
-}) {
-  const params = searchParams ? await searchParams : undefined;
+async function DashboardView({ userId }: { userId: string }) {
   const [wishlist, currentShareLink, appOrigin] = await Promise.all([
     getCurrentOwnerWishlistWithReservations(userId),
-    getCurrentShareLink(userId),
+    getOrCreateCurrentShareLink(userId),
     getAppOrigin(),
   ]);
-  const action = params?.action;
-  const status = params?.status;
-  const errorCode = params?.error;
   const currentShareUrl = currentShareLink
     ? buildShareUrl(appOrigin, currentShareLink.token)
     : null;
 
   return (
     <div className="dashboard-page">
-      {/* Status messages */}
-      {status === "item-created" ? (
-        <p className="ui-message ui-message-success">{messages.dashboard.successMessage}</p>
-      ) : status === "item-updated" ? (
-        <p className="ui-message ui-message-success">{messages.dashboard.updateSuccessMessage}</p>
-      ) : status === "item-deleted" ? (
-        <p className="ui-message ui-message-success">{messages.dashboard.deleteSuccessMessage}</p>
-      ) : status === "share-link-created" ? (
-        <p className="ui-message ui-message-success">{messages.dashboard.share.successMessage}</p>
-      ) : status === "share-link-revoked" ? (
-        <p className="ui-message ui-message-success">
-          {messages.dashboard.share.revokeSuccessMessage}
-        </p>
-      ) : status === "share-link-regenerated" ? (
-        <p className="ui-message ui-message-success">
-          {messages.dashboard.share.regenerateSuccessMessage}
-        </p>
-      ) : null}
-      {errorCode ? (
-        <p className="ui-message ui-message-error">{getActionErrorMessage(action, errorCode)}</p>
-      ) : null}
-
       {/* Page header */}
       <div className="dashboard-header">
         <h1 className="dashboard-title">{messages.dashboard.title}</h1>
@@ -168,47 +151,34 @@ async function DashboardView({
           <h2 className="share-panel-title">{messages.dashboard.share.title}</h2>
           <p className="share-panel-description">{messages.dashboard.share.description}</p>
         </div>
-        {currentShareUrl ? (
-          <>
-            <div className="share-url-row">
-              <input
-                id="share-link-url"
-                data-testid="share-link-url"
-                value={currentShareUrl}
-                readOnly
-                className="share-url-input"
-                aria-label={messages.dashboard.share.urlLabel}
-              />
-            </div>
-            <p className="ui-note">{messages.dashboard.share.copyHint}</p>
-            <div className="share-panel-actions">
-              <form action={revokeShareLinkAction}>
-                <button type="submit" className="ui-button ui-button-danger">
-                  {messages.dashboard.share.revokeLabel}
-                </button>
-              </form>
-              <form action={regenerateShareLinkAction}>
-                <button type="submit" className="ui-button ui-button-secondary">
-                  {messages.dashboard.share.regenerateLabel}
-                </button>
-              </form>
-            </div>
-          </>
-        ) : (
-          <div>
-            <p className="ui-note" style={{ marginBottom: "var(--space-4)" }}>
-              {messages.dashboard.share.emptyDescription}
-            </p>
-            <form action={createShareLinkAction}>
-              <button type="submit" className="ui-button">
-                {messages.dashboard.share.createLabel}
-              </button>
-            </form>
-          </div>
-        )}
+        <div className="share-url-row">
+          <input
+            id="share-link-url"
+            data-testid="share-link-url"
+            value={currentShareUrl ?? ""}
+            readOnly
+            className="share-url-input"
+            aria-label={messages.dashboard.share.urlLabel}
+          />
+          {currentShareUrl ? <CopyUrlButton url={currentShareUrl} /> : null}
+        </div>
+        <p className="ui-note">{messages.dashboard.share.copyHint}</p>
+        <div className="share-panel-actions">
+          <RegenerateLinkButton
+            regenerateAction={regenerateShareLinkAction}
+            labels={{
+              regenerateLabel: messages.dashboard.share.regenerateLabel,
+              confirmTitle: messages.dashboard.share.regenerateConfirmTitle,
+              confirmDescription: messages.dashboard.share.regenerateConfirmDescription,
+              confirmLabel: messages.dashboard.share.regenerateConfirmLabel,
+              cancelLabel: messages.dashboard.share.regenerateCancelLabel,
+            }}
+          />
+        </div>
       </div>
 
       {/* Add item collapsible */}
+      <AddItemFormFocus formId="wishlist-create-form-panel" inputName="title" />
       <details className="add-item-details" id="wishlist-create-form-panel">
         <summary className="add-item-summary" data-testid="add-item-toggle">
           <span>{messages.dashboard.addItemToggleLabel}</span>
@@ -223,42 +193,7 @@ async function DashboardView({
           >
             {messages.dashboard.formDescription}
           </p>
-          <form
-            action={createItemAction}
-            className="ui-form"
-            style={{ maxWidth: "none" }}
-            id="wishlist-create-form"
-            data-testid="wishlist-create-form"
-          >
-            <div className="ui-field">
-              <label className="ui-label" htmlFor="title">
-                {messages.dashboard.fields.title}
-              </label>
-              <input id="title" name="title" className="ui-input" required maxLength={255} />
-            </div>
-            <div className="ui-field">
-              <label className="ui-label" htmlFor="url">
-                {messages.dashboard.fields.url}
-              </label>
-              <input id="url" name="url" type="url" className="ui-input" maxLength={2048} />
-              <p className="ui-note">{messages.dashboard.hints.url}</p>
-            </div>
-            <div className="ui-field">
-              <label className="ui-label" htmlFor="note">
-                {messages.dashboard.fields.note}
-              </label>
-              <textarea id="note" name="note" className="ui-input min-h-28 resize-y" maxLength={2000} />
-            </div>
-            <div className="ui-field">
-              <label className="ui-label" htmlFor="price">
-                {messages.dashboard.fields.price}
-              </label>
-              <PriceInput id="price" name="price" className="ui-input" />
-            </div>
-            <button type="submit" className="ui-button">
-              {messages.dashboard.submitLabel}
-            </button>
-          </form>
+          <CreateItemForm />
         </div>
       </details>
 
@@ -267,9 +202,9 @@ async function DashboardView({
         <div className="dashboard-empty" data-testid="wishlist-empty-state">
           <p className="dashboard-empty-title">{messages.dashboard.emptyTitle}</p>
           <p className="dashboard-empty-description">{messages.dashboard.emptyDescription}</p>
-          <a href="#wishlist-create-form-panel" className="ui-button">
+          <OpenFormButton formId="wishlist-create-form-panel" inputName="title" className="ui-button">
             {messages.dashboard.emptyActionLabel}
-          </a>
+          </OpenFormButton>
         </div>
       ) : (
         <section>
@@ -288,120 +223,81 @@ async function DashboardView({
           <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
             {wishlist.items.map((item) => (
               <li key={item.id} className="item-card">
+                {/* Status strip */}
+                {item.reservation.status === "reserved" ? (
+                  <div className="item-card-status item-card-status-reserved">
+                    <span className="item-card-status-dot" />
+                    {messages.dashboard.itemReservation.reservedLabel}
+                  </div>
+                ) : (
+                  <div className="item-card-status item-card-status-available">
+                    <span className="item-card-status-dot" />
+                    {messages.dashboard.itemReservation.availableLabel}
+                  </div>
+                )}
+
                 {/* Card view */}
                 <div className="item-card-view">
                   <div className="item-card-top">
-                    <h3 className="item-card-title">{item.title}</h3>
-                    {item.reservation.status === "reserved" ? (
-                      <span className="ui-badge ui-badge-reserved">
-                        {messages.dashboard.itemReservation.reservedLabel}
-                      </span>
-                    ) : (
-                      <span className="ui-badge ui-badge-available">
-                        {messages.dashboard.itemReservation.availableLabel}
-                      </span>
-                    )}
-                  </div>
-                  {(item.price || item.url || item.note) ? (
-                    <div className="item-card-meta">
-                      {item.price ? (
-                        <span className="item-card-price">{formatPrice(item.price)}</span>
-                      ) : null}
-                      {item.url ? (
-                        <a
-                          href={item.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="item-card-url"
-                        >
-                          {item.url}
-                        </a>
-                      ) : null}
-                      {item.note ? (
-                        <span className="item-card-note" style={{ width: "100%" }}>
-                          {item.note}
-                        </span>
+                    <div className="item-card-top-left">
+                      <h3 className="item-card-title">{item.title}</h3>
+                      {(item.price || item.url || item.note) ? (
+                        <div className="item-card-meta">
+                          {item.price ? (
+                            <span className="item-card-price">{formatPrice(item.price)}</span>
+                          ) : null}
+                          {item.url ? (
+                            <span className="item-card-url-row">
+                              <a
+                                href={item.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="item-card-url"
+                              >
+                                {item.url}
+                              </a>
+                              <CopyUrlButton url={item.url} />
+                            </span>
+                          ) : null}
+                          {item.note ? (
+                            <span className="item-card-note">{item.note}</span>
+                          ) : null}
+                        </div>
                       ) : null}
                     </div>
-                  ) : null}
-                </div>
-
-                {/* Inline edit toggle */}
-                <details className="item-edit-details">
-                  <summary className="item-edit-summary" data-testid="edit-item-toggle">
-                    ✏ {messages.dashboard.editToggleLabel}
-                  </summary>
-                  <div className="item-edit-form-inner">
-                    <form action={updateItemAction} className="ui-form" style={{ maxWidth: "none" }}>
-                      <input type="hidden" name="itemId" value={item.id} />
-                      <div className="ui-field">
-                        <label className="ui-label" htmlFor={`title-${item.id}`}>
-                          {messages.dashboard.fields.title}
-                        </label>
-                        <input
-                          id={`title-${item.id}`}
-                          name="title"
-                          defaultValue={item.title}
-                          className="ui-input"
-                          required
-                          maxLength={255}
-                        />
-                      </div>
-                      <div className="ui-field">
-                        <label className="ui-label" htmlFor={`url-${item.id}`}>
-                          {messages.dashboard.fields.url}
-                        </label>
-                        <input
-                          id={`url-${item.id}`}
-                          name="url"
-                          type="url"
-                          defaultValue={item.url ?? ""}
-                          className="ui-input"
-                          maxLength={2048}
-                        />
-                        <p className="ui-note">{messages.dashboard.hints.url}</p>
-                      </div>
-                      <div className="ui-field">
-                        <label className="ui-label" htmlFor={`note-${item.id}`}>
-                          {messages.dashboard.fields.note}
-                        </label>
-                        <textarea
-                          id={`note-${item.id}`}
-                          name="note"
-                          defaultValue={item.note ?? ""}
-                          className="ui-input min-h-28 resize-y"
-                          maxLength={2000}
-                        />
-                      </div>
-                      <div className="ui-field">
-                        <label className="ui-label" htmlFor={`price-${item.id}`}>
-                          {messages.dashboard.fields.price}
-                        </label>
-                        <PriceInput
-                          id={`price-${item.id}`}
-                          name="price"
-                          defaultValue={item.price ? formatPrice(item.price) : ""}
-                          className="ui-input"
-                        />
-                      </div>
-                      <div style={{ display: "flex", gap: "var(--space-3)", flexWrap: "wrap" }}>
-                        <button type="submit" className="ui-button">
-                          {messages.dashboard.updateLabel}
-                        </button>
-                      </div>
-                    </form>
                   </div>
-                </details>
-
-                {/* Delete action */}
-                <div className="item-card-actions">
-                  <form action={deleteItemAction}>
-                    <input type="hidden" name="itemId" value={item.id} />
-                    <button type="submit" className="ui-button ui-button-danger">
-                      {messages.dashboard.deleteLabel}
-                    </button>
-                  </form>
                 </div>
+
+                {/* Footer: edit toggle + delete */}
+                <ItemEditSection
+                  editLabel={messages.dashboard.editToggleLabel}
+                  deleteButton={
+                    <DeleteItemButton
+                      itemId={item.id}
+                      itemTitle={item.title}
+                      deleteAction={deleteItemAction}
+                      labels={{
+                        deleteLabel: messages.dashboard.deleteLabel,
+                        confirmTitle: messages.dashboard.deleteConfirmTitle,
+                        confirmDescription: messages.dashboard.deleteConfirmDescription,
+                        confirmLabel: messages.dashboard.deleteConfirmLabel,
+                        cancelLabel: messages.dashboard.deleteCancelLabel,
+                      }}
+                    />
+                  }
+                >
+                  <EditItemForm
+                    item={{
+                      id: item.id,
+                      title: item.title,
+                      url: item.url,
+                      note: item.note,
+                      priceFormatted: item.price ?? "",
+                      updatedAt: item.updatedAt.toISOString(),
+                    }}
+                  />
+                </ItemEditSection>
+
               </li>
             ))}
           </ul>
@@ -415,95 +311,30 @@ async function DashboardView({
 // Server actions
 // ---------------------------------------------------------------------------
 
-async function createItemAction(formData: FormData) {
-  "use server";
-
-  const user = await requireCurrentUser();
-  const result = await createCurrentWishlistItem(user.id, {
-    title: getFormValue(formData, "title"),
-    url: getFormValue(formData, "url"),
-    note: getFormValue(formData, "note"),
-    price: getFormValue(formData, "price"),
-  });
-
-  if (result.status === "success") {
-    redirect("/?status=item-created");
-  }
-
-  redirect(`/?action=create&error=${result.code}`);
-}
-
-async function updateItemAction(formData: FormData) {
-  "use server";
-
-  const user = await requireCurrentUser();
-  const result = await updateCurrentWishlistItem(user.id, getFormValue(formData, "itemId"), {
-    title: getFormValue(formData, "title"),
-    url: getFormValue(formData, "url"),
-    note: getFormValue(formData, "note"),
-    price: getFormValue(formData, "price"),
-  });
-
-  if (result.status === "success") {
-    redirect("/?status=item-updated");
-  }
-
-  redirect(`/?action=update&error=${result.code}`);
-}
-
-async function deleteItemAction(formData: FormData) {
+async function deleteItemAction(
+  prev: DeleteItemState,
+  formData: FormData,
+): Promise<DeleteItemState> {
   "use server";
 
   const user = await requireCurrentUser();
   const result = await deleteCurrentWishlistItem(user.id, getFormValue(formData, "itemId"));
 
-  if (result.status === "success") {
-    redirect("/?status=item-deleted");
-  }
-
-  redirect(`/?action=delete&error=${result.code}`);
+  if (result.status === "success") return { status: "success" };
+  return { status: "error", error: result.code };
 }
 
-async function createShareLinkAction() {
-  "use server";
-
-  const user = await requireCurrentUser();
-
-  try {
-    await getOrCreateCurrentShareLink(user.id);
-  } catch {
-    redirect("/?action=share-create&error=unknown");
-  }
-
-  redirect("/?status=share-link-created");
-}
-
-async function revokeShareLinkAction() {
-  "use server";
-
-  const user = await requireCurrentUser();
-
-  try {
-    await revokeCurrentShareLink(user.id);
-  } catch {
-    redirect("/?action=share-revoke&error=unknown");
-  }
-
-  redirect("/?status=share-link-revoked");
-}
-
-async function regenerateShareLinkAction() {
+async function regenerateShareLinkAction(prev: RegenerateState): Promise<RegenerateState> {
   "use server";
 
   const user = await requireCurrentUser();
 
   try {
     await regenerateCurrentShareLink(user.id);
+    return { status: "success" };
   } catch {
-    redirect("/?action=share-regenerate&error=unknown");
+    return { status: "error" };
   }
-
-  redirect("/?status=share-link-regenerated");
 }
 
 // ---------------------------------------------------------------------------
@@ -516,25 +347,6 @@ function getFormValue(formData: FormData, fieldName: string): string {
   return typeof value === "string" ? value : "";
 }
 
-function getActionErrorMessage(action: string | undefined, errorCode: string): string {
-  switch (errorCode) {
-    case "invalid-title":
-      return messages.dashboard.errors.invalidTitle;
-    case "invalid-url":
-      return messages.dashboard.errors.invalidUrl;
-    case "invalid-price":
-      return messages.dashboard.errors.invalidPrice;
-    case "item-not-found":
-      return messages.dashboard.errors.itemNotFound;
-    default:
-      if (action === "share-create") return messages.dashboard.share.errors.unknownCreate;
-      if (action === "share-revoke") return messages.dashboard.share.errors.unknownRevoke;
-      if (action === "share-regenerate") return messages.dashboard.share.errors.unknownRegenerate;
-      if (action === "update") return messages.dashboard.errors.unknownUpdate;
-      if (action === "delete") return messages.dashboard.errors.unknownDelete;
-      return messages.dashboard.errors.unknownCreate;
-  }
-}
 
 async function getAppOrigin(): Promise<string> {
   const headerStore = await headers();
@@ -550,12 +362,6 @@ async function getAppOrigin(): Promise<string> {
 
 function buildShareUrl(origin: string, token: string): string {
   return new URL(`/share/${token}`, origin).toString();
-}
-
-function formatPrice(price: string): string {
-  const num = parseFloat(price);
-  const amount = isNaN(num) ? price : String(Math.round(num));
-  return `${amount} ${common.currencySymbol}`;
 }
 
 function pluralize(n: number, forms: [string, string, string]): string {
