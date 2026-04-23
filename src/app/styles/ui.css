@@ -120,13 +120,13 @@
 
   .ui-button.ui-button-soft {
     background: var(--color-bg-canvas);
-    border-color: var(--color-accent);
+    border-color: var(--color-border-soft);
     color: var(--color-accent);
   }
 
   .ui-button.ui-button-soft:hover {
     background: #dbeafe;
-    border-color: var(--color-accent);
+    border-color: var(--color-border-soft);
     color: var(--color-accent);
   }
 
