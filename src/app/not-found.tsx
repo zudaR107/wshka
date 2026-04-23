@@ -11,7 +11,7 @@ export default function NotFound() {
       <p className="not-found-code" aria-hidden="true">{code}</p>
       <h1 className="not-found-title">{title}</h1>
       <p className="not-found-description">{description}</p>
-      <Link href="/" className="ui-button ui-button-secondary">
+      <Link href="/" className="ui-button">
         {backLabel}
       </Link>
     </div>
