@@ -77,6 +77,20 @@ describe("wishlist item creation validation", () => {
     ).toEqual({ status: "error", code: "invalid-price" });
   });
 
+  it("accepts a price formatted with NBSP thousands separator and currency symbol", () => {
+    expect(
+      validateCreateWishlistItemInput({
+        title: "Наушники",
+        url: "",
+        note: "",
+        price: "3 490 ₽",
+      }),
+    ).toEqual({
+      status: "valid",
+      values: { title: "Наушники", url: null, note: null, price: "3490" },
+    });
+  });
+
   it("accepts a url without protocol and prepends https://", () => {
     expect(
       validateCreateWishlistItemInput({

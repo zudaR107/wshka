@@ -6,6 +6,12 @@ The format is based on Keep a Changelog, and this project follows SemVer.
 
 ## [Unreleased]
 
+### Added
+- Price input field shows live formatting while typing: thousands are
+  separated by a non-breaking space and the currency symbol (₽) appears
+  inline right after the digits (e.g. `3 490 ₽`). The server strips
+  formatting before parsing so existing validation is unaffected.
+
 ### Fixed
 - Share page item cards now match the dashboard layout: colored status strip
   (green = available, purple = reserved), unified card body, and `item-reserve-btn`

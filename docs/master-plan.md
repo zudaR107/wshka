@@ -104,6 +104,7 @@ Bugfix batch (M9-I5+):
 6. ✅ M9-I6 Post-login redirect to share page — login link passes `?next=` param; `loginAction` redirects back after successful authentication
 7. ✅ M9-I7 Reservations page inline cancel — replace redirect-based cancel with `useActionState` + `router.refresh()`; no full-page reload
 8. ✅ M9-I8 Confirmation dialog side margins — `min(24rem, calc(100% - 2 * var(--space-4)))` ensures inset on all viewport widths
+9. ✅ M9-I9 Currency symbol in price input — live formatting with NBSP thousands separator and `₽` inline in value; `normalizePrice` strips formatting before parse
 
 Recommended issue shape:
 - `M9-I1 Multiple wishlists — create, rename, switch UI and per-wishlist share links`
