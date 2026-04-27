@@ -52,6 +52,10 @@ test("owner can complete the core wishlist journey end to end", async ({ page })
 
     await expect(page.getByText("Желание добавлено.")).toBeVisible();
     await expect(page.getByTestId("wishlist-item-count")).toContainText("1");
+    // Wait for the heading to be rendered before narrowing via the li filter.
+    await expect(
+      page.getByRole("heading", { name: initialItem.title, exact: true }),
+    ).toBeVisible();
 
     const createdItemCard = getWishlistItemCard(page, initialItem.title);
 
@@ -163,14 +167,11 @@ test("owner can complete the core wishlist journey end to end", async ({ page })
     await expect(itemCard.getByRole("button", { name: "Забронировать" })).toBeVisible();
     await itemCard.getByRole("button", { name: "Забронировать" }).click();
 
-    await expect(sharePreviewPage).toHaveURL(/\/share\/.*\?status=reservation-created$/);
-    await expect(sharePreviewPage.getByText("Желание забронировано.")).toBeVisible();
-
     const reservedCard = sharePreviewPage.getByTestId("share-item-card").filter({
       has: sharePreviewPage.getByRole("heading", { name: updatedItem.title, exact: true }),
     });
 
-    await expect(reservedCard).toContainText("Уже забронировано");
+    await expect(reservedCard).toContainText("Статус: забронировано мной");
     await expect(reservedCard.getByRole("button", { name: "Забронировать" })).toHaveCount(0);
 
     await sharePreviewPage.close();

@@ -385,6 +385,7 @@
     display: block;
     overflow-wrap: break-word;
     word-break: break-word;
+    white-space: pre-wrap;
   }
 
   /* ── Item footer: edit + delete ──────────────────────── */

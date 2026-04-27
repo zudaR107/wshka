@@ -6,6 +6,14 @@ The format is based on Keep a Changelog, and this project follows SemVer.
 
 ## [Unreleased]
 
+### Fixed
+- Share page item cards now match the dashboard layout: colored status strip
+  (green = available, purple = reserved), unified card body, and `item-reserve-btn`
+  button style.
+- Reservation on the share page no longer causes a full-page reload; the result
+  (success or error) is shown inline using `useActionState` and `router.refresh()`,
+  consistent with the dashboard mutation pattern.
+
 ### Added
 - Self-reservation: owners can reserve and cancel their own items from the
   dashboard and the share page; self-reserved items are visually distinct.

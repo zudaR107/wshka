@@ -91,13 +91,16 @@ Goal:
 - all four features are independent; DB schema is already mostly ready
 
 Status:
-- complete (pending release as v1.1.0)
+- features complete; bugfix batch in progress on branch `fix/m9-bugfixes` (single PR)
 
 Execution backlog:
 1. ✅ Self-reservation — remove owner-check from reservation logic
 2. ✅ Item starring — boolean favourite toggle, sort order, and star badge
 3. ✅ Account profile «О себе» — bio field, settings page, display on share page
 4. ✅ Multiple wishlists — create/rename/switch UI, per-wishlist share links
+
+Bugfix batch (M9-I5+):
+5. ✅ M9-I5 Share page redesign — align item card layout with dashboard; replace full-page reload on reservation with inline `useActionState` mutation
 
 Recommended issue shape:
 - `M9-I1 Multiple wishlists — create, rename, switch UI and per-wishlist share links`

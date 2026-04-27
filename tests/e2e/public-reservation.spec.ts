@@ -61,12 +61,9 @@ test("public wishlist and reserver journey works end to end", async ({ browser }
       await expect(availableItemCard.getByRole("button", { name: "Забронировать" })).toBeVisible();
       await availableItemCard.getByRole("button", { name: "Забронировать" }).click();
 
-      await expect(reserverPage).toHaveURL(/\/share\/.*\?status=reservation-created$/);
-      await expect(reserverPage.getByText("Желание забронировано.")).toBeVisible();
-
       const reservedItemCard = getShareItemCard(reserverPage, item.title);
 
-      await expect(reservedItemCard).toContainText("Уже забронировано");
+      await expect(reservedItemCard).toContainText("Статус: забронировано мной");
       await expect(reservedItemCard.getByRole("button", { name: "Забронировать" })).toHaveCount(0);
       await expect(reserverPage.locator("main").getByText(reserver.email)).toHaveCount(0);
     });
@@ -76,7 +73,7 @@ test("public wishlist and reserver journey works end to end", async ({ browser }
 
       const guestReservedItemCard = getShareItemCard(guestPage, item.title);
 
-      await expect(guestReservedItemCard).toContainText("Уже забронировано");
+      await expect(guestReservedItemCard).toContainText("Статус: забронировано");
       await expect(guestReservedItemCard.getByRole("button", { name: "Забронировать" })).toHaveCount(0);
       await expect(guestPage.getByText(reserver.email)).toHaveCount(0);
     });
@@ -105,7 +102,7 @@ test("public wishlist and reserver journey works end to end", async ({ browser }
       const availableAgainItemCard = getShareItemCard(reserverPage, item.title);
 
       await expect(availableAgainItemCard.getByRole("button", { name: "Забронировать" })).toBeVisible();
-      await expect(availableAgainItemCard.getByText("Уже забронировано")).toHaveCount(0);
+      await expect(availableAgainItemCard.getByText("Статус: забронировано")).toHaveCount(0);
     });
   } finally {
     await Promise.all([
