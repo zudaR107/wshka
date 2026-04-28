@@ -37,7 +37,7 @@ test("public wishlist and reserver journey works end to end", async ({ browser }
     await test.step("guest can view the shared wishlist but cannot reserve", async () => {
       await guestPage.goto(await shareUrl);
 
-      await expect(guestPage.getByRole("heading", { name: "Публичный вишлист" })).toBeVisible();
+      await expect(guestPage.getByRole("heading", { name: "Вишлист" })).toBeVisible();
       await expect(guestPage.getByTestId("share-guest-guard")).toContainText(
         "Войдите, чтобы забронировать доступное желание и потом управлять бронями в своём разделе.",
       );
@@ -78,7 +78,7 @@ test("public wishlist and reserver journey works end to end", async ({ browser }
         await redirectPage.getByRole("button", { name: "Войти" }).click();
 
         await expect(redirectPage).toHaveURL(/\/share\//);
-        await expect(redirectPage.getByRole("heading", { name: "Публичный вишлист" })).toBeVisible();
+        await expect(redirectPage.getByRole("heading", { name: "Вишлист" })).toBeVisible();
         await expect(redirectPage.getByRole("button", { name: "Забронировать" })).toBeVisible();
       } finally {
         await redirectCtx.close();

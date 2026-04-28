@@ -124,10 +124,10 @@ test("owner can complete the core wishlist journey end to end", async ({ page })
     const sharePreviewPage = await page.context().newPage();
 
     await sharePreviewPage.goto(firstShareUrl);
-    await expect(sharePreviewPage.getByRole("heading", { name: "Публичный вишлист" })).toBeVisible();
+    await expect(sharePreviewPage.getByRole("heading", { name: "Вишлист" })).toBeVisible();
     await expect(
       sharePreviewPage.getByText(
-        "Это ваш вишлист. Здесь можно проверить, как он выглядит, и забронировать желания, которые уже исполнены.",
+        "Это ваш вишлист. Здесь можно проверить, как он выглядит, и забронировать свои желания.",
       ),
     ).toBeVisible();
     await expect(sharePreviewPage.getByRole("heading", { name: updatedItem.title })).toBeVisible();
@@ -146,7 +146,7 @@ test("owner can complete the core wishlist journey end to end", async ({ page })
     ).toBeVisible();
 
     await sharePreviewPage.goto(regeneratedShareUrl);
-    await expect(sharePreviewPage.getByRole("heading", { name: "Публичный вишлист" })).toBeVisible();
+    await expect(sharePreviewPage.getByRole("heading", { name: "Вишлист" })).toBeVisible();
     await expect(sharePreviewPage.getByRole("heading", { name: updatedItem.title })).toBeVisible();
 
     await sharePreviewPage.close();

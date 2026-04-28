@@ -141,7 +141,7 @@ describe("public share route rendering", () => {
     const page = await SharePage({ params: Promise.resolve({ token: "opaque-token" }) });
     const html = renderToStaticMarkup(page);
 
-    expect(html).toContain("Публичный вишлист");
+    expect(html).toContain("Вишлист");
     expect(html).toContain("Этот вишлист пока пуст");
     expect(html).toContain("Владелец ещё не добавил сюда желания. Проверьте ссылку позже.");
   });
@@ -158,7 +158,7 @@ describe("public share route rendering", () => {
     const page = await SharePage({ params: Promise.resolve({ token: "opaque-token" }) });
     const html = renderToStaticMarkup(page);
 
-    expect(html).toContain("Публичный вишлист");
+    expect(html).toContain("Вишлист");
     expect(html).toContain("Желания");
     expect(html).toContain("Наушники");
     expect(html).toContain("https://example.com/item");
@@ -210,7 +210,7 @@ describe("public share route rendering", () => {
     const html = renderToStaticMarkup(page);
 
     expect(html).toContain(
-      "Это ваш вишлист. Здесь можно проверить, как он выглядит, и забронировать желания, которые уже исполнены.",
+      "Это ваш вишлист. Здесь можно проверить, как он выглядит, и забронировать свои желания.",
     );
     expect(html).toContain("Забронировать</button>");
   });
