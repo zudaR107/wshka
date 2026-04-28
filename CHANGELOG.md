@@ -23,6 +23,9 @@ The format is based on Keep a Changelog, and this project follows SemVer.
   formatting before parsing so existing validation is unaffected.
 
 ### Fixed
+- On narrow viewports (< 640 px) opening the item edit form now scrolls
+  directly to the title field instead of the card header, so the input
+  is immediately visible without a manual scroll.
 - Share page item cards now match the dashboard layout: colored status strip
   (green = available, purple = reserved), unified card body, and `item-reserve-btn`
   button style.

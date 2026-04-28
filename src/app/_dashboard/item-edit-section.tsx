@@ -29,13 +29,10 @@ type ItemEditSectionProps = {
 export function ItemEditSection({ editLabel, reserveButton, deleteButton, children }: ItemEditSectionProps) {
   const [open, setOpen] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
-  const formAreaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!open) return;
-    const card = sectionRef.current?.closest(".item-card") as HTMLElement | null;
-    (card ?? sectionRef.current)?.scrollIntoView({ behavior: "smooth", block: "start" });
-    formAreaRef.current?.querySelector<HTMLElement>('[name="title"]')?.focus({ preventScroll: true });
+    sectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [open]);
 
   return (
@@ -62,7 +59,7 @@ export function ItemEditSection({ editLabel, reserveButton, deleteButton, childr
           </div>
         </div>
         {open && (
-          <div ref={formAreaRef} className="item-edit-form-inner">
+          <div className="item-edit-form-inner">
             {children}
           </div>
         )}

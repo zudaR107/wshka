@@ -106,6 +106,7 @@ Bugfix batch (M9-I5+):
 8. ✅ M9-I8 Confirmation dialog side margins — `min(24rem, calc(100% - 2 * var(--space-4)))` ensures inset on all viewport widths
 9. ✅ M9-I9 Currency symbol in price input — live formatting with NBSP thousands separator and `₽` inline in value; `normalizePrice` strips formatting before parse
 10. ✅ M9-I10 Auto-collapse item forms on success — edit/create forms close after successful save; `ItemEditSection` uses context to expose `close` to `EditItemForm`; `CreateItemForm` receives `onSuccess` callback via ref on `<details>`
+11. ✅ M9-I11 Edit-form scroll on mobile — on viewports < 640 px, opening the edit form scrolls to the title field instead of the card header
 
 Recommended issue shape:
 - `M9-I1 Multiple wishlists — create, rename, switch UI and per-wishlist share links`
