@@ -48,9 +48,8 @@ test("owner can complete the core wishlist journey end to end", async ({ page })
     await createForm.getByLabel("Ссылка").fill(initialItem.url);
     await createForm.getByLabel("Заметка").fill(initialItem.note);
     await createForm.getByLabel("Цена").fill(initialItem.price);
-    await createForm.getByRole("button", { name: "Добавить" }).click();
+    await createForm.getByRole("button", { name: "Добавить", exact: true }).click();
 
-    await expect(page.getByText("Желание добавлено.")).toBeVisible();
     await expect(page.getByTestId("wishlist-item-count")).toContainText("1");
     // Wait for the heading to be rendered before narrowing via the li filter.
     await expect(
@@ -78,7 +77,6 @@ test("owner can complete the core wishlist journey end to end", async ({ page })
     await updateForm.getByLabel("Цена").fill(updatedItem.price);
     await updateForm.getByRole("button", { name: "Сохранить" }).click();
 
-    await expect(page.getByText("Желание обновлено.")).toBeVisible();
     await expect(page.getByRole("heading", { name: initialItem.title, exact: true })).toHaveCount(0);
 
     const updatedItemCard = getWishlistItemCard(page, updatedItem.title);

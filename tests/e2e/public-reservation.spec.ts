@@ -176,7 +176,7 @@ async function createWishlistItem(
   await createForm.getByLabel("Ссылка").fill(item.url);
   await createForm.getByLabel("Заметка").fill(item.note);
   await createForm.getByLabel("Цена").fill(item.price);
-  await createForm.getByRole("button", { name: "Добавить" }).click();
+  await createForm.getByRole("button", { name: "Добавить", exact: true }).click();
 
   await expect(page.getByTestId("wishlist-item-count")).toContainText("1");
 }

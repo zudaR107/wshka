@@ -7,6 +7,16 @@ The format is based on Keep a Changelog, and this project follows SemVer.
 ## [Unreleased]
 
 ### Added
+- Item create and edit forms auto-collapse on success: after saving, the
+  form closes and the page scrolls to the card. On create, the scroll
+  targets the newly added card regardless of its position (starred items
+  land at the top, unstarred at the bottom). Error path is unchanged —
+  the form stays open with the error message displayed.
+- Star toggle in the create-item form: a star button next to «Добавить»
+  lets owners mark an item as favourite at creation time, without a
+  separate tap after saving.
+- Deleting an item removes it from the list immediately without calling
+  `router.refresh()`, so the decorative background stays stable.
 - Price input field shows live formatting while typing: thousands are
   separated by a non-breaking space and the currency symbol (₽) appears
   inline right after the digits (e.g. `3 490 ₽`). The server strips

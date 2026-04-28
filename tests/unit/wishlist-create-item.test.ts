@@ -184,7 +184,25 @@ describe("wishlist item creation flow", () => {
       url: "https://example.com/item",
       note: "Беспроводные",
       price: "1990",
+      starred: false,
     });
+  });
+
+  it("creates a starred item when starred flag is true", async () => {
+    mocks.getWishlistForUser.mockResolvedValue({ id: "wishlist-1" });
+
+    await expect(
+      createCurrentWishlistItem(
+        "user-1",
+        "wishlist-1",
+        { title: "Наушники", url: "", note: "", price: "" },
+        true,
+      ),
+    ).resolves.toEqual({ status: "success" });
+
+    expect(mocks.insertValues).toHaveBeenCalledWith(
+      expect.objectContaining({ starred: true }),
+    );
   });
 
   it("returns error when the wishlist does not belong to the user", async () => {
