@@ -10,6 +10,10 @@ const darkCSS = readFileSync(
   resolve(__dirname, "../../src/app/styles/dark.css"),
   "utf-8",
 );
+const layoutCSS = readFileSync(
+  resolve(__dirname, "../../src/app/styles/layout.css"),
+  "utf-8",
+);
 const componentSrc = readFileSync(
   resolve(__dirname, "../../src/shared/ui/wallpaper-parallax.tsx"),
   "utf-8",
@@ -132,6 +136,26 @@ describe("parallax wallpaper", () => {
 
     it("removes the event listener on unmount", () => {
       expect(componentSrc).toContain("removeEventListener");
+    });
+  });
+
+  describe("base.css — overscroll", () => {
+    it("disables rubber-band overscroll to prevent gaps behind header and footer", () => {
+      expect(baseCSS).toContain("overscroll-behavior: none");
+    });
+  });
+
+  describe("layout.css — site header", () => {
+    it("does not use backdrop-filter (removed for performance)", () => {
+      expect(layoutCSS).not.toContain("backdrop-filter");
+    });
+  });
+
+  describe("layout.css — mobile logo", () => {
+    it("hides logo text on all nav states at <=479px", () => {
+      // Selector must be simple .site-logo-text, not scoped to auth-only
+      expect(layoutCSS).toContain(".site-logo-text");
+      expect(layoutCSS).not.toContain("site-nav--guest");
     });
   });
 });
