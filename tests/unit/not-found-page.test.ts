@@ -1,6 +1,10 @@
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+vi.mock("@/modules/i18n/server", () => ({
+  getLocale: vi.fn().mockResolvedValue("ru"),
+}));
 
 describe("not-found page", () => {
   beforeEach(() => {
@@ -9,14 +13,14 @@ describe("not-found page", () => {
 
   it("renders the 404 code", async () => {
     const { default: NotFound } = await import("../../src/app/not-found");
-    const html = renderToStaticMarkup(React.createElement(NotFound));
+    const html = renderToStaticMarkup(await NotFound());
 
     expect(html).toContain("404");
   });
 
-  it("renders the title and description", async () => {
+  it("renders the title and description in Russian by default", async () => {
     const { default: NotFound } = await import("../../src/app/not-found");
-    const html = renderToStaticMarkup(React.createElement(NotFound));
+    const html = renderToStaticMarkup(await NotFound());
 
     expect(html).toContain("Страница не найдена");
     expect(html).toContain("Такой страницы не существует или она была перемещена.");
@@ -24,7 +28,7 @@ describe("not-found page", () => {
 
   it("renders a link back to the home page", async () => {
     const { default: NotFound } = await import("../../src/app/not-found");
-    const html = renderToStaticMarkup(React.createElement(NotFound));
+    const html = renderToStaticMarkup(await NotFound());
 
     expect(html).toContain('href="/"');
     expect(html).toContain("На главную");

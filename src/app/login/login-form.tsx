@@ -1,24 +1,24 @@
 "use client";
 
 import { useActionState } from "react";
-import { getTranslations } from "@/modules/i18n";
+import { useTranslations } from "@/modules/i18n";
 import { PasswordInput } from "@/shared/ui/password-input";
 import { loginAction, type LoginState } from "./actions";
 
-const messages = getTranslations("app");
-
-function getErrorMessage(code: string): string {
-  switch (code) {
-    case "invalid-input":
-      return messages.login.errors.invalidInput;
-    case "invalid-credentials":
-      return messages.login.errors.invalidCredentials;
-    default:
-      return messages.login.errors.unknown;
-  }
-}
-
 export function LoginForm({ next }: { next?: string }) {
+  const messages = useTranslations("app");
+
+  function getErrorMessage(code: string): string {
+    switch (code) {
+      case "invalid-input":
+        return messages.login.errors.invalidInput;
+      case "invalid-credentials":
+        return messages.login.errors.invalidCredentials;
+      default:
+        return messages.login.errors.unknown;
+    }
+  }
+
   const [state, action] = useActionState<LoginState, FormData>(loginAction, null);
   const err = state?.error ?? null;
 

@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Browser, type Page } from "@playwright/test";
 
 type Credentials = {
   email: string;
@@ -24,6 +24,24 @@ async function registerAndLand(page: Page, credentials: Credentials) {
   await expect(page).toHaveURL(/\/(?:\?.*)?$/);
   await expect(page.getByRole("heading", { name: "Мой список" })).toBeVisible();
 }
+
+test("default wishlist name is 'My wishlist' for English locale on registration", async ({ browser }: { browser: Browser }) => {
+  const context = await browser.newContext();
+  await context.addCookies([{ name: "locale", value: "en", url: "http://127.0.0.1:3000" }]);
+  const page = await context.newPage();
+
+  const runId = randomUUID().slice(0, 12);
+  await page.goto("/register");
+  await page.getByLabel("Email").fill(`en-wishlist-${runId}@example.com`);
+  await page.getByLabel("Password", { exact: true }).fill(`EnWishlist!${runId}`);
+  await page.getByLabel("Confirm password").fill(`EnWishlist!${runId}`);
+  await page.locator("#consent").check();
+  await page.getByRole("button", { name: "Create account" }).click();
+  await expect(page).toHaveURL(/\/(?:\?.*)?$/);
+
+  await expect(page.getByTestId("wishlist-select")).toContainText("My wishlist");
+  await context.close();
+});
 
 test("default wishlist is created on registration and can be renamed", async ({ page }) => {
   const credentials = createCredentials();

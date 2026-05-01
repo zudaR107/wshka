@@ -3,24 +3,9 @@
 import { useActionState, useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { PriceInput } from "@/shared/ui/price-input";
-import { getTranslations } from "@/modules/i18n";
+import { useTranslations } from "@/modules/i18n";
 import { createItemAction, type ItemFormState } from "./item-actions";
 import { StarIcon } from "./star-item-button";
-
-const messages = getTranslations("app");
-
-function getErrorMessage(code: string): string {
-  switch (code) {
-    case "invalid-title":
-      return messages.dashboard.errors.invalidTitle;
-    case "invalid-url":
-      return messages.dashboard.errors.invalidUrl;
-    case "invalid-price":
-      return messages.dashboard.errors.invalidPrice;
-    default:
-      return messages.dashboard.errors.unknownCreate;
-  }
-}
 
 type CreateItemFormProps = {
   wishlistId: string;
@@ -28,11 +13,25 @@ type CreateItemFormProps = {
 };
 
 export function CreateItemForm({ wishlistId, onSuccess }: CreateItemFormProps) {
+  const messages = useTranslations("app");
   const router = useRouter();
   const [, startTransition] = useTransition();
   const [state, action] = useActionState<ItemFormState, FormData>(createItemAction, null);
   const [starred, setStarred] = useState(false);
   const err = state?.status === "error" ? state.error : undefined;
+
+  function getErrorMessage(code: string): string {
+    switch (code) {
+      case "invalid-title":
+        return messages.dashboard.errors.invalidTitle;
+      case "invalid-url":
+        return messages.dashboard.errors.invalidUrl;
+      case "invalid-price":
+        return messages.dashboard.errors.invalidPrice;
+      default:
+        return messages.dashboard.errors.unknownCreate;
+    }
+  }
 
   useEffect(() => {
     if (state?.status !== "success") return;

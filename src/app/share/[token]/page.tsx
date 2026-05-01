@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations } from "@/modules/i18n";
+import { getLocale } from "@/modules/i18n/server";
 import {
   reserveShareItemAction,
   cancelShareReservationAction,
@@ -10,9 +11,6 @@ import {
 import { ShareReserveButton } from "@/app/share/[token]/share-reserve-button";
 import { ShareCancelReservationButton } from "@/app/share/[token]/share-cancel-reservation-button";
 import { formatPrice } from "@/app/format-price";
-
-const common = getTranslations("common");
-const messages = getTranslations("app");
 
 type SharePageProps = {
   params?: Promise<{
@@ -52,7 +50,7 @@ const DEV_MOCK_WISHLIST: WishlistView = {
       title: "Беспроводные наушники Sony WH-1000XM5",
       url: "https://example.com/sony-headphones",
       note: "Чёрного цвета, если есть возможность",
-      price: "29 990 ₽",
+      price: "29990",
       starred: true,
       reservation: { status: "available" },
     },
@@ -61,7 +59,7 @@ const DEV_MOCK_WISHLIST: WishlistView = {
       title: "Книга «Мастер и Маргарита»",
       url: null,
       note: null,
-      price: "850 ₽",
+      price: "850",
       starred: false,
       reservation: {
         status: "reserved",
@@ -86,8 +84,12 @@ const DEV_MOCK_WISHLIST: WishlistView = {
 };
 
 export async function generateMetadata(props: SharePageProps): Promise<Metadata> {
-  const params = props?.params ? await props.params : undefined;
+  const [params, locale] = await Promise.all([
+    props?.params ? props.params : Promise.resolve(undefined),
+    getLocale(),
+  ]);
   const token = params?.token ?? "";
+  const messages = getTranslations("app", locale);
 
   if (token && token !== "demo-token") {
     const { getPublicWishlistViewByShareToken } = await import(
@@ -97,21 +99,24 @@ export async function generateMetadata(props: SharePageProps): Promise<Metadata>
 
     if (wishlist) {
       const count = wishlist.items.length;
-      return {
-        title: "Публичный вишлист",
-        description:
-          count > 0
-            ? `${count} ${pluralizeItems(count)} в вишлисте. Забронируй нужный подарок.`
-            : "Вишлист пока пуст.",
-        robots: { index: false },
-      };
+      const title = messages.share.title;
+      const description =
+        count > 0
+          ? `${count} ${pluralizeItems(count, locale)} ${locale === "en" ? "in the wishlist. Reserve the right gift." : "в вишлисте. Забронируй нужный подарок."}`
+          : locale === "en"
+          ? "The wishlist is empty."
+          : "Вишлист пока пуст.";
+      return { title, description, robots: { index: false } };
     }
   }
 
   return { robots: { index: false } };
 }
 
-function pluralizeItems(n: number): string {
+function pluralizeItems(n: number, locale: string): string {
+  if (locale === "en") {
+    return n === 1 ? "wish" : "wishes";
+  }
   const mod10 = n % 10;
   const mod100 = n % 100;
   if (mod10 === 1 && mod100 !== 11) return "желание";
@@ -120,8 +125,13 @@ function pluralizeItems(n: number): string {
 }
 
 export default async function SharePage(props: SharePageProps) {
-  const params = props?.params ? await props.params : undefined;
+  const [params, locale] = await Promise.all([
+    props?.params ? props.params : Promise.resolve(undefined),
+    getLocale(),
+  ]);
   const token = params?.token ?? "";
+  const common = getTranslations("common", locale);
+  const messages = getTranslations("app", locale);
 
   if (process.env.NODE_ENV === "development" && token === "demo-token") {
     return (
@@ -129,6 +139,8 @@ export default async function SharePage(props: SharePageProps) {
         wishlist={DEV_MOCK_WISHLIST}
         reserveAction={reserveShareItemAction}
         cancelAction={cancelShareReservationAction}
+        common={common}
+        messages={messages}
       />
     );
   }
@@ -193,14 +205,21 @@ export default async function SharePage(props: SharePageProps) {
       wishlist={publicWishlist}
       reserveAction={reserveShareItemAction}
       cancelAction={cancelShareReservationAction}
+      common={common}
+      messages={messages}
     />
   );
 }
+
+type CommonT = ReturnType<typeof getTranslations<"common">>;
+type MessagesT = ReturnType<typeof getTranslations<"app">>;
 
 function SharePageView({
   wishlist,
   reserveAction,
   cancelAction,
+  common,
+  messages,
 }: {
   wishlist: WishlistView;
   reserveAction: (
@@ -211,6 +230,8 @@ function SharePageView({
     prev: CancelShareReservationState,
     formData: FormData,
   ) => Promise<CancelShareReservationState>;
+  common: CommonT;
+  messages: MessagesT;
 }) {
   return (
     <div className="content-page">
@@ -302,7 +323,9 @@ function SharePageView({
                         {item.price || item.url || item.note ? (
                           <div className="item-card-meta">
                             {item.price ? (
-                              <span className="item-card-price">{formatPrice(item.price)}</span>
+                              <span className="item-card-price">
+                                {formatPrice(item.price, common.currencySymbol)}
+                              </span>
                             ) : null}
                             {item.url ? (
                               <a

@@ -2,9 +2,7 @@
 
 import { useState } from "react";
 import { MAX_PRICE } from "@/modules/wishlist/server/item-input";
-import { getTranslations } from "@/modules/i18n";
-
-const common = getTranslations("common");
+import { useTranslations } from "@/modules/i18n";
 
 type PriceInputProps = {
   id: string;
@@ -23,25 +21,25 @@ const ALLOWED_KEYS = new Set([
   "Home", "End",
 ]);
 
-const MAX_PRICE_DISPLAY = MAX_PRICE.toLocaleString("ru-RU");
-
-/** Non-breaking space + currency symbol appended after digits. */
-const SUFFIX = ` ${common.currencySymbol}`;
-
 /** Strip all formatting chars: NBSP, regular space, currency symbol. */
 function stripFormat(value: string): string {
   return value.replace(/[  ₽]/g, "");
 }
 
 /** Format raw digit string as "3 490 ₽" with NBSP thousands separator. */
-function applyFormat(raw: string): string {
+function applyFormat(raw: string, currencySymbol: string): string {
   if (!raw) return "";
   const thousands = raw.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
-  return `${thousands}${SUFFIX}`;
+  return `${thousands} ${currencySymbol}`;
 }
 
 export function PriceInput({ id, name, defaultValue, className, autoFocus, error }: PriceInputProps) {
+  const common = useTranslations("common");
   const [hint, setHint] = useState<InputHint>(null);
+
+  const currencySymbol = common.currencySymbol;
+  const suffix = ` ${currencySymbol}`;
+  const maxPriceDisplay = MAX_PRICE.toLocaleString("ru-RU");
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (ALLOWED_KEYS.has(e.key) || e.ctrlKey || e.metaKey) return;
@@ -79,19 +77,19 @@ export function PriceInput({ id, name, defaultValue, className, autoFocus, error
     }
 
     if (Number(raw) > MAX_PRICE) {
-      const formatted = applyFormat(String(MAX_PRICE));
+      const formatted = applyFormat(String(MAX_PRICE), currencySymbol);
       input.value = formatted;
-      const pos = formatted.length - SUFFIX.length;
+      const pos = formatted.length - suffix.length;
       input.setSelectionRange(pos, pos);
       setHint("too-large");
       return;
     }
 
-    const formatted = applyFormat(raw);
+    const formatted = applyFormat(raw, currencySymbol);
     input.value = formatted;
 
     // Restore cursor: find position after the same number of digits as before.
-    let newPos = formatted.length - SUFFIX.length; // default: right before suffix
+    let newPos = formatted.length - suffix.length; // default: right before suffix
     if (digitsBeforeCursor === 0) {
       newPos = 0;
     } else {
@@ -120,7 +118,7 @@ export function PriceInput({ id, name, defaultValue, className, autoFocus, error
       <input
         id={id}
         name={name}
-        defaultValue={applyFormat(stripFormat(defaultValue ?? ""))}
+        defaultValue={applyFormat(stripFormat(defaultValue ?? ""), currencySymbol)}
         className={error ? `${className ?? ""} ui-input-error`.trim() : className}
         inputMode="numeric"
         autoComplete="off"
@@ -131,11 +129,11 @@ export function PriceInput({ id, name, defaultValue, className, autoFocus, error
       />
       {hint === "non-numeric" ? (
         <p className="ui-note" style={{ color: "var(--color-status-reserved)" }}>
-          Только целые числа, например 1990.
+          {common.priceInput.nonNumericHint}
         </p>
       ) : hint === "too-large" ? (
         <p className="ui-note" style={{ color: "var(--color-status-reserved)" }}>
-          Слишком большое число. Максимум: {MAX_PRICE_DISPLAY}.
+          {common.priceInput.tooLargeHint}: {maxPriceDisplay}.
         </p>
       ) : null}
     </>

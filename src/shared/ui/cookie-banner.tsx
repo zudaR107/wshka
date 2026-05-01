@@ -2,13 +2,12 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { getTranslations } from "@/modules/i18n";
-
-const messages = getTranslations("common");
+import { useTranslations } from "@/modules/i18n";
 
 const STORAGE_KEY = "cookie-notice-dismissed";
 
 export function CookieBanner() {
+  const messages = useTranslations("common");
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -25,7 +24,7 @@ export function CookieBanner() {
   if (!visible) return null;
 
   return (
-    <div className="cookie-banner" role="region" aria-label="Уведомление об использовании cookie">
+    <div className="cookie-banner" role="region" aria-label={messages.cookieBanner.ariaLabel}>
       <div className="cookie-banner-inner">
         <p className="cookie-banner-text">
           {messages.cookieBanner.text}{" "}

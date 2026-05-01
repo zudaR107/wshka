@@ -1,20 +1,12 @@
-import { app } from "@/modules/i18n/dictionaries/ru/app";
-import { common } from "@/modules/i18n/dictionaries/ru/common";
-import { metadata } from "@/modules/i18n/dictionaries/ru/metadata";
+import { cookies } from "next/headers";
+import { type I18nLocale, locales, defaultLocale } from "@/modules/i18n/get-dictionary";
 
-const dictionaries = {
-  ru: {
-    app,
-    common,
-    metadata,
-  },
-} as const;
-
-export const defaultLocale = "ru";
-
-export type I18nLocale = keyof typeof dictionaries;
-export type I18nNamespace = keyof (typeof dictionaries)[typeof defaultLocale];
-
-export function getTranslations<TNamespace extends I18nNamespace>(namespace: TNamespace) {
-  return dictionaries[defaultLocale][namespace];
+export async function getLocale(): Promise<I18nLocale> {
+  try {
+    const store = await cookies();
+    const value = store.get("locale")?.value;
+    return locales.includes(value as I18nLocale) ? (value as I18nLocale) : defaultLocale;
+  } catch {
+    return defaultLocale;
+  }
 }

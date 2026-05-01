@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { getTranslations } from "@/modules/i18n";
+import { useTranslations } from "@/modules/i18n";
 import { WishlistSelector } from "./wishlist-selector";
 import { StarButton } from "./star-item-button";
 import { CreateItemForm } from "./create-item-form";
@@ -21,9 +21,6 @@ import type {
   RegenerateState,
 } from "./item-actions";
 import type { OwnerWishlistItem } from "@/modules/reservation";
-
-const common = getTranslations("common");
-const messages = getTranslations("app");
 
 export type DashboardWishlist = {
   id: string;
@@ -53,6 +50,8 @@ export function WishlistManager({
   cancelItemReservationAction,
   regenerateShareLinkAction,
 }: WishlistManagerProps) {
+  const common = useTranslations("common");
+  const messages = useTranslations("app");
   const [selectedId, setSelectedId] = useState(wishlists[0]?.id ?? "");
 
   // After router.refresh(): if the selected wishlist was deleted, fall back to first.
@@ -74,17 +73,12 @@ export function WishlistManager({
   const knownItemIdsRef = useRef<Set<string>>(new Set(wishlist?.items.map((i) => i.id) ?? []));
 
   // Sync local items whenever RSC delivers new wishlist data (create/edit/star/reserve).
-  // Dependency on `wishlist` (object reference) — changes only when RSC sends new props.
-  // Does NOT run after optimistic delete (no router.refresh() there → same wishlist ref).
   useEffect(() => {
     if (!wishlist) return;
     setLocalItems(wishlist.items);
-    // pendingScrollToNewRef stays set; useEffect([localItems]) will scroll after DOM update.
   }, [wishlist]);
 
   // Scroll to new item AFTER React has committed updated localItems to the DOM.
-  // Finds the newly added item by diffing against knownItemIdsRef, so it works
-  // whether the item landed at the top (starred) or at the bottom (unstarred).
   useEffect(() => {
     if (!pendingScrollToNewRef.current) {
       knownItemIdsRef.current = new Set(localItems.map((i) => i.id));
@@ -240,7 +234,9 @@ export function WishlistManager({
                       {item.price || item.url || item.note ? (
                         <div className="item-card-meta">
                           {item.price ? (
-                            <span className="item-card-price">{formatPrice(item.price)}</span>
+                            <span className="item-card-price">
+                              {formatPrice(item.price, common.currencySymbol)}
+                            </span>
                           ) : null}
                           {item.url ? (
                             <span className="item-card-url-row">
@@ -331,4 +327,3 @@ export function WishlistManager({
     </>
   );
 }
-

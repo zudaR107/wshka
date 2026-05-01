@@ -1,12 +1,10 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { getTranslations } from "@/modules/i18n";
+import { useTranslations, useLocale } from "@/modules/i18n";
 import { CreateWishlistForm } from "./create-wishlist-form";
 import { RenameWishlistForm } from "./rename-wishlist-form";
 import { DeleteWishlistButton } from "./delete-wishlist-button";
-
-const messages = getTranslations("app");
 
 function PlusIcon() {
   return (
@@ -86,6 +84,8 @@ export function WishlistSelector({
   onSelect,
   onCreated,
 }: WishlistSelectorProps) {
+  const messages = useTranslations("app");
+  const locale = useLocale();
   const [mode, setMode] = useState<"idle" | "renaming" | "creating">("idle");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -109,7 +109,7 @@ export function WishlistSelector({
   }
 
   const pluralForms = messages.dashboard.itemCountForms;
-  const countLabel = `${itemCount} ${pluralize(itemCount, pluralForms)}`;
+  const countLabel = `${itemCount} ${pluralize(itemCount, pluralForms, locale)}`;
 
   // ── Title row (always visible) ───────────────────────────────────────────
   const titleRow = (
@@ -199,7 +199,11 @@ export function WishlistSelector({
   );
 }
 
-function pluralize(n: number, forms: [string, string, string]): string {
+function pluralize(n: number, forms: [string, string, string], locale: string): string {
+  if (locale === "en") {
+    return n === 1 ? forms[0] : forms[1];
+  }
+  // Russian grammatical pluralization rules
   const mod10 = n % 10;
   const mod100 = n % 100;
   if (mod10 === 1 && mod100 !== 11) return forms[0];

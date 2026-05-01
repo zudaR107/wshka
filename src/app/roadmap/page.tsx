@@ -1,12 +1,15 @@
 import type { Metadata } from "next";
 import { getTranslations } from "@/modules/i18n";
+import { getLocale } from "@/modules/i18n/server";
 
-export const metadata: Metadata = {
-  title: "Дорожная карта",
-  description: "Публичная дорожная карта WSHKA — что уже сделано и что планируется.",
-};
-
-const messages = getTranslations("app");
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale();
+  const m = getTranslations("app", locale);
+  return {
+    title: m.roadmap.title,
+    description: m.roadmap.description,
+  };
+}
 
 const STATUS_CONFIG = {
   released: {
@@ -26,7 +29,9 @@ const STATUS_CONFIG = {
   },
 } as const;
 
-export default function RoadmapPage() {
+export default async function RoadmapPage() {
+  const locale = await getLocale();
+  const messages = getTranslations("app", locale);
   const { title, description, statusLabels, milestones } = messages.roadmap;
 
   return (

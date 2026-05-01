@@ -1,25 +1,27 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-
-export const metadata: Metadata = {
-  title: "Войти",
-  robots: { index: false },
-};
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/modules/auth/server/current-user";
 import { getTranslations } from "@/modules/i18n";
+import { getLocale } from "@/modules/i18n/server";
 import { isSafeNextUrl } from "./login-utils";
 import { LoginForm } from "./login-form";
 
-const common = getTranslations("common");
-const messages = getTranslations("app");
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale();
+  const m = getTranslations("app", locale);
+  return {
+    title: m.login.title,
+    robots: { index: false },
+  };
+}
 
 type LoginPageProps = {
   searchParams?: Promise<{ next?: string }>;
 };
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
-  const currentUser = await getCurrentUser();
+  const [currentUser, locale] = await Promise.all([getCurrentUser(), getLocale()]);
   const params = searchParams ? await searchParams : undefined;
   const next = typeof params?.next === "string" && isSafeNextUrl(params.next)
     ? params.next
@@ -28,6 +30,9 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   if (currentUser) {
     redirect(next ?? "/");
   }
+
+  const common = getTranslations("common", locale);
+  const messages = getTranslations("app", locale);
 
   return (
     <div className="auth-page">

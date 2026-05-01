@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { getTranslations } from "@/modules/i18n";
+import { getLocale } from "@/modules/i18n/server";
 import { NavLinks, GuestLinks } from "@/shared/ui/nav-links";
-
-const common = getTranslations("common");
 
 type HeaderUser = {
   id: string;
@@ -14,7 +13,10 @@ type HeaderProps = {
   onLogout: () => Promise<void>;
 };
 
-export function Header({ user, onLogout }: HeaderProps) {
+export async function Header({ user, onLogout }: HeaderProps) {
+  const locale = await getLocale();
+  const common = getTranslations("common", locale);
+
   return (
     <header className="site-header">
       <div className="site-header-inner">

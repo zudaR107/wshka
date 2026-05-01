@@ -13,5 +13,7 @@ export async function logoutAction() {
   await logoutUser(cookieStore.get(AUTH_SESSION_COOKIE_NAME)?.value);
   await clearSessionCookie();
 
+  const { revalidatePath } = await import("next/cache");
+  revalidatePath("/", "layout");
   redirect("/");
 }

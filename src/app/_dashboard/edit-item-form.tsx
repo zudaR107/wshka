@@ -3,11 +3,9 @@
 import { useActionState, useEffect, useRef, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { PriceInput } from "@/shared/ui/price-input";
-import { getTranslations } from "@/modules/i18n";
+import { useTranslations } from "@/modules/i18n";
 import { updateItemAction, type ItemFormState } from "./item-actions";
 import { useItemEditClose } from "./item-edit-section";
-
-const messages = getTranslations("app");
 
 type EditItemFormProps = {
   item: {
@@ -21,26 +19,11 @@ type EditItemFormProps = {
   wishlistId: string;
 };
 
-function getErrorMessage(code: string): string {
-  switch (code) {
-    case "invalid-title":
-      return messages.dashboard.errors.invalidTitle;
-    case "invalid-url":
-      return messages.dashboard.errors.invalidUrl;
-    case "invalid-price":
-      return messages.dashboard.errors.invalidPrice;
-    case "item-not-found":
-      return messages.dashboard.errors.itemNotFound;
-    default:
-      return messages.dashboard.errors.unknownUpdate;
-  }
-}
-
 export function EditItemForm({ item, wishlistId }: EditItemFormProps) {
+  const messages = useTranslations("app");
   const router = useRouter();
   const [, startTransition] = useTransition();
   const formRef = useRef<HTMLFormElement>(null);
-  // Tracks whether this is the first render so the reset effect skips mount.
   const isMountedRef = useRef(false);
   const [state, action] = useActionState<ItemFormState, FormData>(updateItemAction, null);
   const closeEditSection = useItemEditClose();
@@ -48,13 +31,26 @@ export function EditItemForm({ item, wishlistId }: EditItemFormProps) {
   const v = state?.values;
   const err = state?.status === "error" ? state.error : undefined;
 
+  function getErrorMessage(code: string): string {
+    switch (code) {
+      case "invalid-title":
+        return messages.dashboard.errors.invalidTitle;
+      case "invalid-url":
+        return messages.dashboard.errors.invalidUrl;
+      case "invalid-price":
+        return messages.dashboard.errors.invalidPrice;
+      case "item-not-found":
+        return messages.dashboard.errors.itemNotFound;
+      default:
+        return messages.dashboard.errors.unknownUpdate;
+    }
+  }
+
   // On success: capture card ref before collapse, close, then scroll after repaint.
   useEffect(() => {
     if (state?.status !== "success") return;
     const card = formRef.current?.closest(".item-card") as HTMLElement | null;
     closeEditSection();
-    // requestAnimationFrame fires after React collapses the form and repaints,
-    // so scrollIntoView runs on the already-collapsed, shorter card.
     requestAnimationFrame(() => {
       (card ?? formRef.current)?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
@@ -74,7 +70,9 @@ export function EditItemForm({ item, wishlistId }: EditItemFormProps) {
   return (
     <>
       {err ? (
-        <p className="ui-message ui-message-error" style={{ marginBottom: "var(--space-4)" }}>{getErrorMessage(err ?? "")}</p>
+        <p className="ui-message ui-message-error" style={{ marginBottom: "var(--space-4)" }}>
+          {getErrorMessage(err ?? "")}
+        </p>
       ) : null}
       <form ref={formRef} action={action} className="ui-form" style={{ maxWidth: "none" }} noValidate>
         <input type="hidden" name="itemId" value={item.id} />

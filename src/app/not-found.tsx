@@ -1,14 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations } from "@/modules/i18n";
+import { getLocale } from "@/modules/i18n/server";
 
 export const metadata: Metadata = {
   robots: { index: false },
 };
 
-const messages = getTranslations("app");
-
-export default function NotFound() {
+export default async function NotFound() {
+  const locale = await getLocale();
+  const messages = getTranslations("app", locale);
   const { code, title, description, backLabel } = messages.notFound;
 
   return (

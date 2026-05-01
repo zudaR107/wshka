@@ -3,6 +3,7 @@ import Link from "next/link";
 import { headers } from "next/headers";
 import { getCurrentUser, requireCurrentUser } from "@/modules/auth/server/current-user";
 import { getTranslations } from "@/modules/i18n";
+import { getLocale } from "@/modules/i18n/server";
 import {
   getOrCreateShareLinkForWishlist,
   regenerateShareLinkForWishlist,
@@ -12,29 +13,31 @@ import { getAllOwnerWishlistsWithReservations, createReservation, cancelReservat
 import { deleteCurrentWishlistItem } from "@/modules/wishlist/server/manage-item";
 import { WishlistManager, type DashboardWishlist } from "./_dashboard/wishlist-manager";
 
-const common = getTranslations("common");
-const messages = getTranslations("app");
-
-const devLinks = [
-  { href: "/login", label: messages.home.devLinks.login },
-  { href: "/register", label: messages.home.devLinks.register },
-  { href: "/", label: messages.home.devLinks.app },
-  { href: "/reservations", label: messages.home.devLinks.reservations },
-  { href: "/share/demo-token", label: messages.home.devLinks.share },
-];
-
-export const metadata: Metadata = {
-  title: "WSHKA — вишлист с бронированием подарков",
-  description: "Создай список желаний, отправь ссылку близким — и получи именно то, о чём мечтал. Каждый видит, что уже забронировано.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale();
+  const m = getTranslations("app", locale);
+  return {
+    title: m.home.heroTitle,
+    description: m.home.heroDescription,
+  };
+}
 
 export default async function RootPage() {
-  const user = await getCurrentUser();
+  const [user, locale] = await Promise.all([getCurrentUser(), getLocale()]);
   const isDev = process.env.NODE_ENV === "development";
 
   if (user) {
     return <DashboardView userId={user.id} />;
   }
+
+  const messages = getTranslations("app", locale);
+  const devLinks = [
+    { href: "/login", label: messages.home.devLinks.login },
+    { href: "/register", label: messages.home.devLinks.register },
+    { href: "/", label: messages.home.devLinks.app },
+    { href: "/reservations", label: messages.home.devLinks.reservations },
+    { href: "/share/demo-token", label: messages.home.devLinks.share },
+  ];
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -43,9 +46,9 @@ export default async function RootPage() {
     url: "https://wshka.ru",
     applicationCategory: "LifestyleApplication",
     operatingSystem: "Web",
-    description: "Создай список желаний, поделись ссылкой — близкие забронируют подарки без спойлеров.",
+    description: messages.home.heroDescription,
     offers: { "@type": "Offer", price: "0", priceCurrency: "RUB" },
-    inLanguage: "ru",
+    inLanguage: locale,
   };
 
   return (

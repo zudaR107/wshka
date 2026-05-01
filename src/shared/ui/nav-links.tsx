@@ -1,11 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { getTranslations } from "@/modules/i18n";
-
-const common = getTranslations("common");
+import { useTranslations, useLocale } from "@/modules/i18n";
 
 function SunIcon() {
   return (
@@ -97,6 +96,26 @@ function MoonIcon() {
   );
 }
 
+function GlobeIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="10" />
+      <line x1="2" y1="12" x2="22" y2="12" />
+      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+    </svg>
+  );
+}
+
 function useTheme() {
   const [theme, setTheme] = useState<"light" | "dark">("light");
 
@@ -123,10 +142,19 @@ type NavLinksProps = {
 
 export function NavLinks({ email, onLogout }: NavLinksProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
+  const locale = useLocale();
+  const common = useTranslations("common");
   const isSettingsActive = pathname === "/settings";
   const menuRef = useRef<HTMLDivElement>(null);
+
+  function handleLocaleSwitch() {
+    const next = locale === "ru" ? "en" : "ru";
+    document.cookie = `locale=${next}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax`;
+    router.refresh();
+  }
 
   useEffect(() => {
     if (!open) return;
@@ -196,6 +224,15 @@ export function NavLinks({ email, onLogout }: NavLinksProps) {
               {theme === "dark" ? <SunIcon /> : <MoonIcon />}
               {theme === "dark" ? common.nav.themeLight : common.nav.themeDark}
             </button>
+            <button
+              type="button"
+              className="site-nav-dropdown-item site-nav-dropdown-item--icon"
+              aria-label={common.nav.localeSwitcherLabel}
+              onClick={handleLocaleSwitch}
+            >
+              <GlobeIcon />
+              {locale === "ru" ? common.nav.localeEn : common.nav.localeRu}
+            </button>
             <form action={onLogout}>
               <button type="submit" className="site-nav-dropdown-item site-nav-dropdown-item--icon">
                 <LogoutIcon />
@@ -211,7 +248,16 @@ export function NavLinks({ email, onLogout }: NavLinksProps) {
 
 export function GuestLinks() {
   const pathname = usePathname();
+  const router = useRouter();
   const { theme, toggleTheme } = useTheme();
+  const locale = useLocale();
+  const common = useTranslations("common");
+
+  function handleLocaleSwitch() {
+    const next = locale === "ru" ? "en" : "ru";
+    document.cookie = `locale=${next}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax`;
+    router.refresh();
+  }
 
   return (
     <nav className="site-nav site-nav--guest">
@@ -258,6 +304,28 @@ export function GuestLinks() {
             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
           </svg>
         )}
+      </button>
+      <button
+        type="button"
+        className="site-nav-gear"
+        aria-label={common.nav.localeSwitcherLabel}
+        onClick={handleLocaleSwitch}
+      >
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <line x1="2" y1="12" x2="22" y2="12" />
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+        </svg>
       </button>
       <Link
         href="/login"

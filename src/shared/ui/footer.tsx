@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { getTranslations } from "@/modules/i18n";
+import { getLocale } from "@/modules/i18n/server";
 import pkg from "../../../package.json";
 
-const common = getTranslations("common");
+export async function Footer() {
+  const locale = await getLocale();
+  const common = getTranslations("common", locale);
 
-export function Footer() {
   return (
     <footer className="site-footer">
       <div className="site-footer-inner">

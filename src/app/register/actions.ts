@@ -28,8 +28,14 @@ export async function registerAction(
 
   const { registerUser } = await import("@/modules/auth/server/register");
   const { createSession, setSessionCookie } = await import("@/modules/auth/server/session");
+  const { getLocale } = await import("@/modules/i18n/server");
+  const { getTranslations } = await import("@/modules/i18n");
 
-  const result = await registerUser({ email, password });
+  const locale = await getLocale();
+  const app = getTranslations("app", locale);
+  const defaultWishlistName = app.dashboard.wishlists.defaultName;
+
+  const result = await registerUser({ email, password, defaultWishlistName });
 
   if (result.status === "success") {
     const session = await createSession(result.userId);

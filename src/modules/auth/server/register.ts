@@ -15,9 +15,10 @@ import { db } from "@/shared/db";
 type RegisterUserInput = {
   email: string;
   password: string;
+  defaultWishlistName?: string;
 };
 
-export async function registerUser({ email, password }: RegisterUserInput): Promise<RegisterUserResult> {
+export async function registerUser({ email, password, defaultWishlistName = "Мой список" }: RegisterUserInput): Promise<RegisterUserResult> {
   const normalizedEmail = normalizeEmail(email);
   const validationResult = validateRegisterUserInput({
     email: normalizedEmail,
@@ -48,7 +49,7 @@ export async function registerUser({ email, password }: RegisterUserInput): Prom
 
       await tx.insert(wishlists).values({
         userId: user.id,
-        name: "Мой список",
+        name: defaultWishlistName,
         isActive: true,
       });
 

@@ -29,4 +29,9 @@ describe("formatPrice", () => {
   it("formats a large price stored as a string from the database", () => {
     expect(formatPrice("9990")).toBe("9\u00a0990\u00a0₽");
   });
+
+  it("uses the provided currency symbol instead of the default", () => {
+    expect(formatPrice("1990", "$")).toBe("1\u00a0990\u00a0$");
+    expect(formatPrice("500", "€")).toBe("500\u00a0€");
+  });
 });
