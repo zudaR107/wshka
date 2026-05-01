@@ -2,33 +2,33 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
-import { getTranslations } from "@/modules/i18n";
+import { useTranslations } from "@/modules/i18n";
 import { PasswordInput } from "@/shared/ui/password-input";
 import { registerAction, type RegisterState } from "./actions";
 
-const messages = getTranslations("app");
-
 const MIN_PASSWORD_LENGTH = 8;
 
-function getErrorMessage(code: string): string {
-  const errs = messages.register.errors;
-  switch (code) {
-    case "invalid-email":
-      return errs.invalidEmail;
-    case "password-too-short":
-      return errs.passwordTooShort;
-    case "passwords-dont-match":
-      return errs.passwordMismatch;
-    case "email-taken":
-      return errs.emailTaken;
-    case "consent-required":
-      return errs.consentRequired;
-    default:
-      return errs.unknown;
-  }
-}
-
 export function RegisterForm() {
+  const messages = useTranslations("app");
+
+  function getErrorMessage(code: string): string {
+    const errs = messages.register.errors;
+    switch (code) {
+      case "invalid-email":
+        return errs.invalidEmail;
+      case "password-too-short":
+        return errs.passwordTooShort;
+      case "passwords-dont-match":
+        return errs.passwordMismatch;
+      case "email-taken":
+        return errs.emailTaken;
+      case "consent-required":
+        return errs.consentRequired;
+      default:
+        return errs.unknown;
+    }
+  }
+
   const [state, action] = useActionState<RegisterState, FormData>(registerAction, null);
   const err = state?.error ?? null;
 

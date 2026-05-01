@@ -42,6 +42,8 @@ test("authenticated users are redirected away from auth pages and logout revokes
   await page.getByRole("button", { name: "Меню аккаунта" }).click();
   await page.getByRole("button", { name: "Выйти" }).click();
   await expect(page).toHaveURL(/\/(?:\?.*)?$/);
+  // Wait for guest nav to confirm the session is fully cleared before navigating.
+  await expect(page.getByRole("banner").getByRole("link", { name: "Войти" })).toBeVisible();
 
   await page.goto("/reservations");
   await expect(page).toHaveURL(/\/login$/);

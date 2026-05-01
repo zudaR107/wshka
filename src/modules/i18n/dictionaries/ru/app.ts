@@ -178,6 +178,7 @@ export const app = {
     emptyActionLabel: "Добавить первое желание",
     itemsTitle: "Желания",
     wishlists: {
+      defaultName: "Мой список",
       createLabel: "Новый список",
       createPlaceholder: "Название вишлиста",
       createSubmitLabel: "Создать",

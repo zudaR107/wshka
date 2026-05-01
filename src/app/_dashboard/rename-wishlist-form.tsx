@@ -2,10 +2,8 @@
 
 import { useEffect, useRef, useActionState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { getTranslations } from "@/modules/i18n";
+import { useTranslations } from "@/modules/i18n";
 import { renameWishlistAction, type RenameWishlistState } from "./item-actions";
-
-const messages = getTranslations("app");
 
 type RenameWishlistFormProps = {
   wishlistId: string;
@@ -14,6 +12,7 @@ type RenameWishlistFormProps = {
 };
 
 export function RenameWishlistForm({ wishlistId, currentName, onCancel }: RenameWishlistFormProps) {
+  const messages = useTranslations("app");
   const router = useRouter();
   const [, startTransition] = useTransition();
   const inputRef = useRef<HTMLInputElement>(null);

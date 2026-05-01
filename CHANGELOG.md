@@ -7,6 +7,34 @@ The format is based on Keep a Changelog, and this project follows SemVer.
 ## [Unreleased]
 
 ### Added
+- English locale: complete `en/` i18n dictionary (all three namespaces:
+  `app`, `common`, `metadata`) with natural idiomatic English translations.
+- Locale switcher in the header: authenticated users toggle via the gear
+  dropdown; guests toggle via a globe icon button next to the theme toggle.
+  Switching sets a `locale` cookie and calls `router.refresh()` (no full
+  page reload — server components re-render with the new locale in place).
+- Default wishlist name on registration is locale-aware: English users get
+  "My wishlist"; Russian users get "Мой список". The name is resolved from
+  the active locale cookie at registration time and passed to `registerUser()`.
+- Privacy Policy and Terms of Use pages are now fully bilingual: switching
+  to English renders a complete English translation of both legal pages;
+  page `<title>` is also locale-aware via `generateMetadata()`.
+- Browser auto-detect: a Next.js middleware reads `Accept-Language` on first
+  visit (no `locale` cookie yet) and sets `locale=en` or `locale=ru`
+  accordingly; falls back to `ru` for unlisted languages.
+- `LocaleProvider` + `useTranslations()`: React context that propagates the
+  server-resolved locale to all client components without prop drilling.
+  Server components call `getLocale()` + `getTranslations(ns, locale)` directly.
+- `getLocale()` server helper: reads the `locale` cookie via `next/headers`.
+- `lang` attribute on `<html>` now reflects the active locale (`ru` or `en`).
+- `<html lang>` and OpenGraph `locale` in page metadata are locale-aware.
+- `formatPrice()` now accepts an optional `currencySymbol` parameter,
+  decoupling price formatting from the i18n module (preparation for M10-I4).
+- Price-input inline hints (`priceInput.nonNumericHint`, `priceInput.tooLargeHint`)
+  moved from hardcoded Russian strings into the i18n `common` namespace.
+- Cookie-banner `aria-label` moved into i18n `common.cookieBanner.ariaLabel`.
+
+### Changed
 - Background parallax: wallpaper pattern is rendered on a viewport-fixed
   `body::before` pseudo-element. A `WallpaperParallax` client component
   drives two combined inputs — `pointermove` shifts the layer ±20 px

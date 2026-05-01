@@ -1,23 +1,28 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-
-export const metadata: Metadata = {
-  title: "Бронирования",
-  robots: { index: false },
-};
 import { requireCurrentUser } from "@/modules/auth/server/current-user";
 import { getTranslations } from "@/modules/i18n";
+import { getLocale } from "@/modules/i18n/server";
 import { listCurrentUserActiveReservations } from "@/modules/reservation";
 import { cancelReservationAction } from "@/app/reservations/actions";
 import { CancelReservationButton } from "@/app/reservations/cancel-reservation-button";
 import { formatPrice } from "@/app/format-price";
 
-const common = getTranslations("common");
-const messages = getTranslations("app");
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale();
+  const m = getTranslations("app", locale);
+  return {
+    title: m.reservations.title,
+    robots: { index: false },
+  };
+}
 
 export default async function ReservationsPage() {
-  const user = await requireCurrentUser();
+  const [user, locale] = await Promise.all([requireCurrentUser(), getLocale()]);
   const reservations = await listCurrentUserActiveReservations(user.id);
+
+  const common = getTranslations("common", locale);
+  const messages = getTranslations("app", locale);
 
   return (
     <div className="content-page">
@@ -69,7 +74,7 @@ export default async function ReservationsPage() {
                     <div className="reservation-card-meta">
                       {reservation.item.price ? (
                         <span style={{ fontWeight: 600, color: "var(--color-text-strong)" }}>
-                          {formatPrice(reservation.item.price)}
+                          {formatPrice(reservation.item.price, common.currencySymbol)}
                         </span>
                       ) : null}
                       {reservation.item.url ? (

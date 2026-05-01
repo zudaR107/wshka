@@ -2,10 +2,8 @@
 
 import { useRef, useEffect, useActionState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { getTranslations } from "@/modules/i18n";
+import { useTranslations } from "@/modules/i18n";
 import { deleteWishlistAction, type DeleteWishlistState } from "./item-actions";
-
-const messages = getTranslations("app");
 
 function TrashIcon() {
   return (
@@ -34,6 +32,7 @@ type DeleteWishlistButtonProps = {
 };
 
 export function DeleteWishlistButton({ wishlistId, disabled }: DeleteWishlistButtonProps) {
+  const messages = useTranslations("app");
   const router = useRouter();
   const [, startTransition] = useTransition();
   const dialogRef = useRef<HTMLDialogElement>(null);

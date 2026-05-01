@@ -3,24 +3,29 @@ import { redirect } from "next/navigation";
 import { requireCurrentUser } from "@/modules/auth/server/current-user";
 import { getUserProfile, updateUserBio } from "@/modules/auth/server/update-bio";
 import { getTranslations } from "@/modules/i18n";
+import { getLocale } from "@/modules/i18n/server";
 
-const common = getTranslations("common");
-const messages = getTranslations("app");
-
-export const metadata: Metadata = {
-  title: "Настройки",
-  robots: { index: false },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale();
+  const m = getTranslations("app", locale);
+  return {
+    title: m.settings.title,
+    robots: { index: false },
+  };
+}
 
 type SettingsPageProps = {
   searchParams?: Promise<{ status?: string }>;
 };
 
 export default async function SettingsPage(props: SettingsPageProps) {
-  const user = await requireCurrentUser();
+  const [user, locale] = await Promise.all([requireCurrentUser(), getLocale()]);
   const profile = await getUserProfile(user.id);
   const search = props.searchParams ? await props.searchParams : undefined;
   const status = search?.status;
+
+  const common = getTranslations("common", locale);
+  const messages = getTranslations("app", locale);
 
   return (
     <div className="content-page">

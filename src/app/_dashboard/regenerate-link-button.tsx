@@ -2,10 +2,8 @@
 
 import { useRef, useEffect, useActionState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { getTranslations } from "@/modules/i18n";
+import { useTranslations } from "@/modules/i18n";
 import type { RegenerateState } from "./item-actions";
-
-const messages = getTranslations("app");
 
 type RegenerateLinkButtonLabels = {
   regenerateLabel: string;
@@ -22,6 +20,7 @@ type RegenerateLinkButtonProps = {
 };
 
 export function RegenerateLinkButton({ wishlistId, regenerateAction, labels }: RegenerateLinkButtonProps) {
+  const messages = useTranslations("app");
   const router = useRouter();
   const [, startTransition] = useTransition();
   const dialogRef = useRef<HTMLDialogElement>(null);

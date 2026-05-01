@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { defaultLocale, getTranslations } from "@/modules/i18n";
+import { getTranslations } from "@/modules/i18n";
+import { getLocale } from "@/modules/i18n/server";
+import { LocaleProvider } from "@/modules/i18n/locale-provider";
 import { getCurrentUser } from "@/modules/auth/server/current-user";
 import { Header } from "@/shared/ui/header";
 import { Footer } from "@/shared/ui/footer";
@@ -9,30 +11,33 @@ import { WallpaperParallax } from "@/shared/ui/wallpaper-parallax";
 import { logoutAction } from "@/app/auth-actions";
 import "./globals.css";
 
-const metadataMessages = getTranslations("metadata");
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale();
+  const m = getTranslations("metadata", locale);
 
-export const metadata: Metadata = {
-  metadataBase: new URL("https://wshka.ru"),
-  title: {
-    default: metadataMessages.title,
-    template: "%s | WSHKA",
-  },
-  description: metadataMessages.description,
-  openGraph: {
-    type: "website",
-    locale: "ru_RU",
-    siteName: "WSHKA",
-  },
-  twitter: {
-    card: "summary",
-  },
-};
+  return {
+    metadataBase: new URL("https://wshka.ru"),
+    title: {
+      default: m.title,
+      template: "%s | WSHKA",
+    },
+    description: m.description,
+    openGraph: {
+      type: "website",
+      locale: locale === "en" ? "en_US" : "ru_RU",
+      siteName: "WSHKA",
+    },
+    twitter: {
+      card: "summary",
+    },
+  };
+}
 
 export default async function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
-  const user = await getCurrentUser();
+  const [user, locale] = await Promise.all([getCurrentUser(), getLocale()]);
 
   return (
-    <html lang={defaultLocale} suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <head>
         {/* Prevent flash of wrong theme before hydration */}
         <script
@@ -42,13 +47,15 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         />
       </head>
       <body>
-        <WallpaperParallax />
-        <div className="app-layout">
-          <Header user={user} onLogout={logoutAction} />
-          <main className="app-main">{children}</main>
-          <Footer />
-          <CookieBanner />
-        </div>
+        <LocaleProvider locale={locale}>
+          <WallpaperParallax />
+          <div className="app-layout">
+            <Header user={user} onLogout={logoutAction} />
+            <main className="app-main">{children}</main>
+            <Footer />
+            <CookieBanner />
+          </div>
+        </LocaleProvider>
       </body>
     </html>
   );

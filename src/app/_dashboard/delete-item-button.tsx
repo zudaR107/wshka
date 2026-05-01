@@ -1,10 +1,8 @@
 "use client";
 
 import { useRef, useEffect, useActionState } from "react";
-import { getTranslations } from "@/modules/i18n";
+import { useTranslations } from "@/modules/i18n";
 import type { DeleteItemState } from "./item-actions";
-
-const messages = getTranslations("app");
 
 function TrashIcon() {
   return (
@@ -43,6 +41,7 @@ export function DeleteItemButton({
   labels,
   onSuccess,
 }: DeleteItemButtonProps) {
+  const messages = useTranslations("app");
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [state, formAction] = useActionState(deleteAction, null);
 

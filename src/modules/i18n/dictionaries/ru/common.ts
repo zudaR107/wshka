@@ -12,6 +12,9 @@ export const common = {
     logout: "Выйти",
     login: "Войти",
     register: "Создать аккаунт",
+    localeSwitcherLabel: "Сменить язык",
+    localeRu: "RU",
+    localeEn: "EN",
   },
   footer: {
     copyright: "© 2026 Wshka",
@@ -22,5 +25,10 @@ export const common = {
     text: "Мы используем файлы cookie исключительно для хранения сессии авторизации.",
     linkLabel: "Подробнее",
     dismissLabel: "Понятно",
+    ariaLabel: "Уведомление об использовании cookie",
+  },
+  priceInput: {
+    nonNumericHint: "Только целые числа, например 1990.",
+    tooLargeHint: "Слишком большое число. Максимум",
   },
 } as const;

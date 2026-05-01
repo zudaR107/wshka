@@ -1,0 +1,34 @@
+export const common = {
+  brand: "Wshka",
+  currencySymbol: "₽",
+  routeSkeleton: "Route skeleton",
+  nav: {
+    wishlist: "My wishlist",
+    reservations: "My reservations",
+    settings: "Settings",
+    accountMenu: "Account menu",
+    themeDark: "Dark theme",
+    themeLight: "Light theme",
+    logout: "Log out",
+    login: "Log in",
+    register: "Create account",
+    localeSwitcherLabel: "Switch language",
+    localeRu: "RU",
+    localeEn: "EN",
+  },
+  footer: {
+    copyright: "© 2026 Wshka",
+    privacy: "Privacy Policy",
+    terms: "Terms of Use",
+  },
+  cookieBanner: {
+    text: "We use cookies solely to store your authentication session.",
+    linkLabel: "Learn more",
+    dismissLabel: "Got it",
+    ariaLabel: "Cookie notice",
+  },
+  priceInput: {
+    nonNumericHint: "Whole numbers only, e.g. 1990.",
+    tooLargeHint: "Too large. Maximum",
+  },
+} as const;

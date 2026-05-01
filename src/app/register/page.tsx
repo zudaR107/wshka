@@ -1,24 +1,29 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-
-export const metadata: Metadata = {
-  title: "Регистрация",
-  robots: { index: false },
-};
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/modules/auth/server/current-user";
 import { getTranslations } from "@/modules/i18n";
+import { getLocale } from "@/modules/i18n/server";
 import { RegisterForm } from "./register-form";
 
-const common = getTranslations("common");
-const messages = getTranslations("app");
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale();
+  const m = getTranslations("app", locale);
+  return {
+    title: m.register.title,
+    robots: { index: false },
+  };
+}
 
 export default async function RegisterPage() {
-  const currentUser = await getCurrentUser();
+  const [currentUser, locale] = await Promise.all([getCurrentUser(), getLocale()]);
 
   if (currentUser) {
     redirect("/");
   }
+
+  const common = getTranslations("common", locale);
+  const messages = getTranslations("app", locale);
 
   return (
     <div className="auth-page">
