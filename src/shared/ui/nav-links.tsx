@@ -279,12 +279,45 @@ export function NavLinks({
   const [localUnreadCount, setLocalUnreadCount] = useState(unreadCount);
   const [localRecent, setLocalRecent] = useState(recentNotifications);
 
+  // Sync local state when server props actually change (e.g. after visibilitychange
+  // triggers router.refresh()). Intentionally excludes pathname: we don't want
+  // to restore a stale unreadCount when navigating away from /notifications.
+  useEffect(() => {
+    if (pathname !== "/notifications") {
+      setLocalUnreadCount(unreadCount);
+      setLocalRecent(recentNotifications);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [unreadCount, recentNotifications]);
+
   // Reset badge when user visits the notifications page
   useEffect(() => {
     if (pathname === "/notifications") {
       setLocalUnreadCount(0);
       setLocalRecent([]);
     }
+  }, [pathname]);
+
+  // Poll for new notifications every 30 s via a direct API call so the badge
+  // updates even when the user is idle (router.refresh() defers DOM updates
+  // until the next user interaction in React 18 concurrent mode).
+  useEffect(() => {
+    if (pathname === "/notifications") return;
+
+    async function pollNotifications() {
+      try {
+        const res = await fetch("/api/notifications/poll");
+        if (!res.ok) return;
+        const data = await res.json() as { unreadCount: number; recent: RecentNotification[] };
+        setLocalUnreadCount(data.unreadCount);
+        setLocalRecent(data.recent);
+      } catch {
+        // Network error — silently skip, next tick will retry.
+      }
+    }
+
+    const interval = setInterval(pollNotifications, 30_000);
+    return () => clearInterval(interval);
   }, [pathname]);
 
   function handleLocaleSwitch() {

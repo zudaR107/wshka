@@ -10,6 +10,7 @@ import { markAllReadAction } from "@/app/notification-actions";
 import { Header } from "@/shared/ui/header";
 import { Footer } from "@/shared/ui/footer";
 import { CookieBanner } from "@/shared/ui/cookie-banner";
+import { SessionSync } from "@/shared/ui/session-sync";
 import { WallpaperParallax } from "@/shared/ui/wallpaper-parallax";
 import { logoutAction } from "@/app/auth-actions";
 import "./globals.css";
@@ -79,6 +80,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
             <main className="app-main">{children}</main>
             <Footer />
             <CookieBanner />
+            <SessionSync />
           </div>
         </LocaleProvider>
       </body>
