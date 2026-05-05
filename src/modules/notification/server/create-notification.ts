@@ -8,6 +8,12 @@ export type CreateNotificationInput = {
   itemTitle: string;
   /** null for profile-level events (owner_updated) */
   wishlistId: string | null;
+  /**
+   * Snapshot of the active share token at creation time.
+   * Stored statically — link regeneration revokes old notification links.
+   * null for types that don't navigate to a share page.
+   */
+  shareToken: string | null;
 };
 
 /**
@@ -24,6 +30,7 @@ export async function createNotification(input: CreateNotificationInput): Promis
       itemId: input.itemId,
       itemTitle: input.itemTitle,
       wishlistId: input.wishlistId,
+      shareToken: input.shareToken,
     });
   } catch {
     // Notifications are best-effort; do not block the main operation.

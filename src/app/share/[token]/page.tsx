@@ -161,48 +161,16 @@ export default async function SharePage(props: SharePageProps) {
 
   if (!publicWishlist) {
     return (
-      <div className="share-unavailable">
-        <div className="content-page-header">
-          <p className="page-brand-label">{common.brand}</p>
-          <h1 className="content-page-title">{messages.share.unavailableTitle}</h1>
-        </div>
-        <div
-          className="ui-surface"
-          style={{
-            padding: "var(--space-6)",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: "var(--space-4)",
-            textAlign: "center",
-          }}
-        >
-          <p
-            style={{
-              color: "var(--color-text-strong)",
-              fontSize: "var(--font-size-label)",
-              margin: 0,
-            }}
-          >
-            {messages.share.unavailableHint}
-          </p>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              gap: "var(--space-3)",
-              flexWrap: "wrap",
-            }}
-          >
-            <Link
-              href="/"
-              className="ui-button ui-button-secondary"
-              style={{ background: "var(--color-bg-canvas)" }}
-            >
-              {messages.share.unavailableHomeLabel}
-            </Link>
-          </div>
-        </div>
+      <div className="not-found-page">
+        <h1 className="not-found-title">{messages.share.unavailableTitle}</h1>
+        <p className="not-found-description">
+          {messages.share.unavailableDescription}
+          <br />
+          {messages.share.unavailableHint}
+        </p>
+        <Link href="/" className="ui-button">
+          {messages.share.unavailableHomeLabel}
+        </Link>
       </div>
     );
   }

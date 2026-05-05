@@ -358,6 +358,7 @@ async function notifyOwner(
       itemId: ctx.itemId,
       itemTitle: ctx.itemTitle,
       wishlistId: ctx.wishlistId,
+      shareToken: null,
     });
   } catch {
     // best-effort

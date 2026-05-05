@@ -1,7 +1,6 @@
-import { and, desc, eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { notifications } from "@/modules/notification/db/schema";
 import type { NotificationType } from "@/modules/notification/db/schema";
-import { shareLinks } from "@/modules/share/db/schema";
 
 export type UserNotification = {
   id: string;
@@ -9,7 +8,7 @@ export type UserNotification = {
   itemId: string | null;
   itemTitle: string;
   wishlistId: string | null;
-  /** Active share token for the related wishlist, if available. */
+  /** Snapshot of the share token at notification creation time. */
   shareToken: string | null;
   readAt: Date | null;
   createdAt: Date;
@@ -25,18 +24,11 @@ export async function getUserNotifications(userId: string): Promise<UserNotifica
       itemId: notifications.itemId,
       itemTitle: notifications.itemTitle,
       wishlistId: notifications.wishlistId,
-      shareToken: shareLinks.token,
+      shareToken: notifications.shareToken,
       readAt: notifications.readAt,
       createdAt: notifications.createdAt,
     })
     .from(notifications)
-    .leftJoin(
-      shareLinks,
-      and(
-        eq(shareLinks.wishlistId, notifications.wishlistId),
-        eq(shareLinks.isActive, true),
-      ),
-    )
     .where(eq(notifications.userId, userId))
     .orderBy(desc(notifications.createdAt));
 

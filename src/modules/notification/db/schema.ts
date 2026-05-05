@@ -27,6 +27,12 @@ export const notifications = pgTable(
     /** null for profile-level events (e.g. owner_updated) */
     wishlistId: uuid("wishlist_id")
       .references(() => wishlists.id, { onDelete: "cascade" }),
+    /**
+     * Snapshot of the active share token at the time the event occurred.
+     * Stored statically so link regeneration revokes navigation from old notifications.
+     * null for notification types that don't navigate to a share page.
+     */
+    shareToken: varchar("share_token", { length: 255 }),
     readAt: timestamp("read_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },

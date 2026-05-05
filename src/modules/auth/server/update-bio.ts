@@ -70,16 +70,29 @@ async function notifyBioReservers(ownerId: string): Promise<void> {
       if (!byUser.has(r.userId)) byUser.set(r.userId, r.wishlistId);
     }
 
+    const { shareLinks } = await import("@/modules/share/db/schema");
     const { createNotification } = await import(
       "@/modules/notification/server/create-notification"
     );
+
+    // Cache share token lookups per wishlistId (multiple reservers may share one wishlist).
+    const tokenCache = new Map<string, string | null>();
+
     for (const [userId, wishlistId] of byUser) {
+      if (!tokenCache.has(wishlistId)) {
+        const link = await db.query.shareLinks.findFirst({
+          columns: { token: true },
+          where: and(eq(shareLinks.wishlistId, wishlistId), eq(shareLinks.isActive, true)),
+        });
+        tokenCache.set(wishlistId, link?.token ?? null);
+      }
       await createNotification({
         userId,
         type: "owner_updated",
         itemId: null,
         itemTitle: owner.email,
         wishlistId,
+        shareToken: tokenCache.get(wishlistId) ?? null,
       });
     }
   } catch {

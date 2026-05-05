@@ -199,15 +199,5 @@
     word-break: break-word;
   }
 
-  .share-unavailable {
-    max-width: 44rem;
-    margin: 0 auto;
-    padding: var(--space-8) var(--space-4) var(--space-16);
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-6);
-    text-align: center;
-    align-items: center;
-  }
 
 }

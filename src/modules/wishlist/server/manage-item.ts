@@ -117,6 +117,7 @@ export async function deleteCurrentWishlistItem(
       itemId: null,
       itemTitle: existing.title,
       wishlistId: existing.wishlistId,
+      shareToken: null,
     });
 
     return { status: "success" };
@@ -181,10 +182,22 @@ async function notifyReservers(
 
   const reserverIds = activeReservers.map((r) => r.userId);
 
+  // Snapshot the active share token now so link regeneration revokes old links.
+  let shareToken: string | null = null;
+  if (type === "item_updated") {
+    const { shareLinks } = await import("@/modules/share/db/schema");
+    const link = await db.query.shareLinks.findFirst({
+      columns: { token: true },
+      where: and(eq(shareLinks.wishlistId, wishlistId), eq(shareLinks.isActive, true)),
+    });
+    shareToken = link?.token ?? null;
+  }
+
   await fanOutNotifications(reserverIds, {
     type,
     itemId: type === "item_deleted" ? null : itemId,
     itemTitle,
     wishlistId,
+    shareToken,
   });
 }
