@@ -52,6 +52,7 @@ type ReservationRecord = {
 
 type ReservationItemContext = {
   itemId: string;
+  itemTitle: string;
   wishlistId: string;
   ownerUserId: string;
 };
@@ -191,6 +192,13 @@ export async function createReservation(
       return { status: "error", code: "unknown" };
     }
 
+    // Notify wishlist owner (best-effort)
+    void notifyOwner(itemContext.ownerUserId, "reservation_created", {
+      itemId: itemContext.itemId,
+      itemTitle: itemContext.itemTitle,
+      wishlistId: itemContext.wishlistId,
+    });
+
     return {
       status: "success",
       reservation: toActiveReservation(createdReservation),
@@ -238,6 +246,16 @@ export async function cancelReservation(
       return { status: "error", code: "reservation-not-found" };
     }
 
+    // Notify wishlist owner (best-effort)
+    void findReservationItemContext(currentReservation.wishlistItemId).then((ctx) => {
+      if (!ctx) return;
+      notifyOwner(ctx.ownerUserId, "reservation_cancelled", {
+        itemId: ctx.itemId,
+        itemTitle: ctx.itemTitle,
+        wishlistId: ctx.wishlistId,
+      });
+    });
+
     return { status: "success" };
   } catch {
     return { status: "error", code: "unknown" };
@@ -255,6 +273,7 @@ async function findReservationItemContext(itemId: string): Promise<ReservationIt
   const item = await db.query.wishlistItems.findFirst({
     columns: {
       id: true,
+      title: true,
       wishlistId: true,
     },
     where: eq(wishlistItems.id, normalizedItemId),
@@ -278,6 +297,7 @@ async function findReservationItemContext(itemId: string): Promise<ReservationIt
 
   return {
     itemId: item.id,
+    itemTitle: item.title,
     wishlistId: wishlist.id,
     ownerUserId: wishlist.userId,
   };
@@ -321,4 +341,25 @@ async function getDb() {
   const { db } = await import("@/shared/db");
 
   return db;
+}
+
+async function notifyOwner(
+  ownerUserId: string,
+  type: "reservation_created" | "reservation_cancelled",
+  ctx: { itemId: string; itemTitle: string; wishlistId: string },
+): Promise<void> {
+  try {
+    const { createNotification } = await import(
+      "@/modules/notification/server/create-notification"
+    );
+    await createNotification({
+      userId: ownerUserId,
+      type,
+      itemId: ctx.itemId,
+      itemTitle: ctx.itemTitle,
+      wishlistId: ctx.wishlistId,
+    });
+  } catch {
+    // best-effort
+  }
 }

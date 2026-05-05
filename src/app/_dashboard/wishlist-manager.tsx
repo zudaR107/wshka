@@ -212,7 +212,7 @@ export function WishlistManager({
             }}
           >
             {localItems.map((item) => (
-              <li key={item.id} data-item-id={item.id} className="item-card">
+              <li key={item.id} id={`item-${item.id}`} data-item-id={item.id} className="item-card">
                 {/* Status strip */}
                 {item.reservation.status === "reserved" ? (
                   <div

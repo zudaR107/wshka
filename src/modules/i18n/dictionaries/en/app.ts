@@ -311,6 +311,11 @@ export const app = {
     unreadBadgeLabel: "Unread notifications: {{count}}",
     noUnread: "No new notifications",
     goToWishlist: "Go to wishlist",
+    deleteLabel: "Delete",
+    clearAll: "Clear all",
+    reservationCreated: "Wish reserved",
+    reservationCancelled: "Reservation cancelled",
+    goToItem: "Go to wish",
   },
   share: {
     title: "Wishlist",

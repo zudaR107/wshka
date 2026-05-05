@@ -11,4 +11,6 @@ export { getUnreadNotificationCount } from "@/modules/notification/server/get-un
 export {
   markAllNotificationsRead,
   markNotificationsRead,
+  deleteNotification,
+  deleteAllNotifications,
 } from "@/modules/notification/server/mark-notifications-read";

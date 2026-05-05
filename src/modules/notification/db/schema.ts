@@ -3,7 +3,12 @@ import { users } from "@/modules/auth/db/schema";
 import { wishlistItems } from "@/modules/wishlist/db/schema";
 import { wishlists } from "@/modules/wishlist/db/schema";
 
-export const NOTIFICATION_TYPES = ["item_updated", "item_deleted"] as const;
+export const NOTIFICATION_TYPES = [
+  "item_updated",
+  "item_deleted",
+  "reservation_created",
+  "reservation_cancelled",
+] as const;
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
 
 export const notifications = pgTable(

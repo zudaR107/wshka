@@ -302,6 +302,11 @@ export const app = {
     unreadBadgeLabel: "Непрочитанных уведомлений: {{count}}",
     noUnread: "Нет новых уведомлений",
     goToWishlist: "Перейти к вишлисту",
+    deleteLabel: "Удалить",
+    clearAll: "Очистить всё",
+    reservationCreated: "Желание забронировали",
+    reservationCancelled: "Бронь отменена",
+    goToItem: "Перейти к желанию",
   },
   share: {
     title: "Вишлист",

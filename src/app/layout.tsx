@@ -45,7 +45,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
       ])
     : [0, []];
 
-  const recentNotifications = allNotifications.slice(0, 5).map((n) => ({
+  const recentNotifications = allNotifications.filter((n) => !n.readAt).slice(0, 5).map((n) => ({
     id: n.id,
     type: n.type,
     itemId: n.itemId ?? null,

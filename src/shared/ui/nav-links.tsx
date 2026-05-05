@@ -135,6 +135,46 @@ function BellIcon() {
   );
 }
 
+function NavEditIcon() {
+  return (
+    <svg
+      width="13"
+      height="13"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+    </svg>
+  );
+}
+
+function NavTrashIcon() {
+  return (
+    <svg
+      width="13"
+      height="13"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <polyline points="3 6 5 6 21 6" />
+      <path d="M19 6l-1 14H6L5 6" />
+      <path d="M10 11v6M14 11v6" />
+      <path d="M9 6V4h6v2" />
+    </svg>
+  );
+}
+
 function formatNotificationDate(iso: string, locale: string): string {
   const date = new Date(iso);
   const now = new Date();
@@ -179,7 +219,7 @@ function useTheme() {
 
 export type RecentNotification = {
   id: string;
-  type: "item_updated" | "item_deleted";
+  type: "item_updated" | "item_deleted" | "reservation_created" | "reservation_cancelled";
   itemId: string | null;
   itemTitle: string;
   wishlistId: string;
@@ -215,10 +255,30 @@ export function NavLinks({
   const menuRef = useRef<HTMLDivElement>(null);
   const bellRef = useRef<HTMLDivElement>(null);
 
+  // Local state so badge and dropdown update immediately after "mark all read"
+  // or when the user navigates to /notifications.
+  const [localUnreadCount, setLocalUnreadCount] = useState(unreadCount);
+  const [localRecent, setLocalRecent] = useState(recentNotifications);
+
+  // Reset badge when user visits the notifications page
+  useEffect(() => {
+    if (pathname === "/notifications") {
+      setLocalUnreadCount(0);
+      setLocalRecent([]);
+    }
+  }, [pathname]);
+
   function handleLocaleSwitch() {
     const next = locale === "ru" ? "en" : "ru";
     document.cookie = `locale=${next}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax`;
     router.refresh();
+  }
+
+  async function handleMarkAllRead() {
+    await onMarkAllRead();
+    setLocalUnreadCount(0);
+    setLocalRecent([]);
+    setBellOpen(false);
   }
 
   useEffect(() => {
@@ -269,9 +329,9 @@ export function NavLinks({
         >
           <span className="site-nav-bell-wrapper">
             <BellIcon />
-            {unreadCount > 0 && (
+            {localUnreadCount > 0 && (
               <span className="site-nav-bell-badge" aria-hidden="true">
-                {unreadCount > 99 ? "99+" : unreadCount}
+                {localUnreadCount > 99 ? "99+" : localUnreadCount}
               </span>
             )}
           </span>
@@ -282,39 +342,41 @@ export function NavLinks({
               <span className="site-nav-dropdown-notifications-title">
                 {common.nav.notifications}
               </span>
-              {unreadCount > 0 && (
-                <form action={onMarkAllRead}>
-                  <button
-                    type="submit"
-                    className="site-nav-dropdown-notifications-mark-read"
-                    onClick={() => setBellOpen(false)}
-                  >
-                    {app.notifications.markAllRead}
-                  </button>
-                </form>
+              {localUnreadCount > 0 && (
+                <button
+                  type="button"
+                  className="site-nav-dropdown-notifications-mark-read"
+                  onClick={handleMarkAllRead}
+                >
+                  {app.notifications.markAllRead}
+                </button>
               )}
             </div>
             <div className="site-nav-dropdown-divider" />
-            {recentNotifications.length === 0 ? (
+            {localRecent.length === 0 ? (
               <p className="site-nav-dropdown-notifications-empty">
                 {app.notifications.noUnread}
               </p>
             ) : (
-              recentNotifications.map((n) => (
+              localRecent.map((n) => (
                 <Link
                   key={n.id}
                   href="/notifications"
-                  className={`site-nav-dropdown-notification${n.readAt ? "" : " site-nav-dropdown-notification--unread"}`}
+                  className="site-nav-dropdown-notification site-nav-dropdown-notification--unread"
                   onClick={() => setBellOpen(false)}
                 >
                   <span className="site-nav-dropdown-notification-icon" aria-hidden="true">
-                    {n.type === "item_updated" ? "✏️" : "🗑️"}
+                    {n.type === "item_updated" ? <NavEditIcon /> : <NavTrashIcon />}
                   </span>
                   <span className="site-nav-dropdown-notification-body">
                     <span className="site-nav-dropdown-notification-type">
                       {n.type === "item_updated"
                         ? app.notifications.itemUpdated
-                        : app.notifications.itemDeleted}
+                        : n.type === "item_deleted"
+                          ? app.notifications.itemDeleted
+                          : n.type === "reservation_created"
+                            ? app.notifications.reservationCreated
+                            : app.notifications.reservationCancelled}
                     </span>
                     <span className="site-nav-dropdown-notification-name">{n.itemTitle}</span>
                     <span className="site-nav-dropdown-notification-date">
