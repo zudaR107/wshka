@@ -1,0 +1,1 @@
+ALTER TABLE "notifications" ALTER COLUMN "wishlist_id" DROP NOT NULL;

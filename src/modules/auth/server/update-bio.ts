@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq, isNull, ne } from "drizzle-orm";
 import { users } from "@/modules/auth/db/schema";
 
 const BIO_MAX_LENGTH = 500;
@@ -25,9 +25,65 @@ export async function updateUserBio(
       .set({ bio, updatedAt: new Date() })
       .where(eq(users.id, userId));
 
+    void notifyBioReservers(userId);
     return { status: "success" };
   } catch {
     return { status: "error", code: "db-error" };
+  }
+}
+
+/**
+ * Best-effort: notify all users with active reservations on the owner's
+ * wishlists that the owner updated their profile ("About me").
+ */
+async function notifyBioReservers(ownerId: string): Promise<void> {
+  try {
+    const { db } = await import("@/shared/db");
+
+    const owner = await db.query.users.findFirst({
+      columns: { email: true },
+      where: eq(users.id, ownerId),
+    });
+    if (!owner) return;
+
+    const { reservations } = await import("@/modules/reservation/db/schema");
+    const { wishlistItems, wishlists } = await import("@/modules/wishlist/db/schema");
+
+    const rows = await db
+      .select({ userId: reservations.userId, wishlistId: wishlists.id })
+      .from(reservations)
+      .innerJoin(wishlistItems, eq(reservations.wishlistItemId, wishlistItems.id))
+      .innerJoin(wishlists, eq(wishlistItems.wishlistId, wishlists.id))
+      .where(
+        and(
+          eq(wishlists.userId, ownerId),
+          isNull(reservations.cancelledAt),
+          ne(reservations.userId, ownerId),
+        ),
+      );
+
+    if (rows.length === 0) return;
+
+    // Deduplicate: one notification per reserver, keeping first wishlistId seen.
+    const byUser = new Map<string, string>();
+    for (const r of rows) {
+      if (!byUser.has(r.userId)) byUser.set(r.userId, r.wishlistId);
+    }
+
+    const { createNotification } = await import(
+      "@/modules/notification/server/create-notification"
+    );
+    for (const [userId, wishlistId] of byUser) {
+      await createNotification({
+        userId,
+        type: "owner_updated",
+        itemId: null,
+        itemTitle: owner.email,
+        wishlistId,
+      });
+    }
+  } catch {
+    // Notifications are best-effort; do not block the main operation.
   }
 }
 

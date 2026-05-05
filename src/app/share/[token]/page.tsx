@@ -10,6 +10,8 @@ import {
 } from "@/app/share/[token]/actions";
 import { ShareReserveButton } from "@/app/share/[token]/share-reserve-button";
 import { ShareCancelReservationButton } from "@/app/share/[token]/share-cancel-reservation-button";
+import { BioHighlight } from "@/app/share/[token]/bio-highlight";
+import { ScrollHighlight } from "@/app/_dashboard/scroll-highlight";
 import { formatPrice } from "@/app/format-price";
 import { parseCurrency } from "@/shared/lib/currency";
 
@@ -240,6 +242,7 @@ function SharePageView({
 }) {
   return (
     <div className="content-page">
+      <ScrollHighlight />
       <div className="content-page-header">
         <p className="page-brand-label">{common.brand}</p>
         <div className="share-page-title-row">
@@ -250,7 +253,8 @@ function SharePageView({
       </div>
 
       {wishlist.viewer.isAuthenticated && wishlist.owner.bio ? (
-        <div className="share-owner-card" data-testid="share-owner-card">
+        <div id="owner-bio" className="share-owner-card" data-testid="share-owner-card">
+          <BioHighlight />
           <p className="content-section-label">{messages.share.ownerSection}</p>
           <p className="share-owner-bio">{wishlist.owner.bio}</p>
         </div>
@@ -313,7 +317,7 @@ function SharePageView({
                   : messages.dashboard.itemReservation.availableLabel;
 
               return (
-                <li key={item.id} className="item-card" data-testid="share-item-card">
+                <li key={item.id} id={`item-${item.id}`} className="item-card" data-testid="share-item-card">
                   {/* Status strip */}
                   <div className={`item-card-status ${statusClass}`}>
                     <span className="item-card-status-dot" />

@@ -44,6 +44,7 @@ export default async function NotificationsPage() {
           itemDeleted: messages.notifications.itemDeleted,
           reservationCreated: messages.notifications.reservationCreated,
           reservationCancelled: messages.notifications.reservationCancelled,
+          ownerUpdated: messages.notifications.ownerUpdated,
           goToWishlist: messages.notifications.goToWishlist,
           goToItem: messages.notifications.goToItem,
           deleteLabel: messages.notifications.deleteLabel,

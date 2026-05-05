@@ -8,6 +8,7 @@ export const NOTIFICATION_TYPES = [
   "item_deleted",
   "reservation_created",
   "reservation_cancelled",
+  "owner_updated",
 ] as const;
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
 
@@ -23,8 +24,8 @@ export const notifications = pgTable(
     itemId: uuid("item_id").references(() => wishlistItems.id, { onDelete: "set null" }),
     /** snapshot of item title at the moment the event occurred */
     itemTitle: varchar("item_title", { length: 255 }).notNull(),
+    /** null for profile-level events (e.g. owner_updated) */
     wishlistId: uuid("wishlist_id")
-      .notNull()
       .references(() => wishlists.id, { onDelete: "cascade" }),
     readAt: timestamp("read_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),

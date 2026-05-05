@@ -315,6 +315,7 @@ export const app = {
     clearAll: "Clear all",
     reservationCreated: "Wish reserved",
     reservationCancelled: "Reservation cancelled",
+    ownerUpdated: "Owner profile updated",
     goToItem: "Go to wish",
   },
   share: {

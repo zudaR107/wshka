@@ -6,7 +6,8 @@ export type CreateNotificationInput = {
   type: NotificationType;
   itemId: string | null;
   itemTitle: string;
-  wishlistId: string;
+  /** null for profile-level events (owner_updated) */
+  wishlistId: string | null;
 };
 
 /**

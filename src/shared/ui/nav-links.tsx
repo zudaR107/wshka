@@ -154,6 +154,25 @@ function NavEditIcon() {
   );
 }
 
+function NavUserIcon() {
+  return (
+    <svg
+      width="13"
+      height="13"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+      <circle cx="12" cy="7" r="4" />
+    </svg>
+  );
+}
+
 function NavTrashIcon() {
   return (
     <svg
@@ -219,10 +238,10 @@ function useTheme() {
 
 export type RecentNotification = {
   id: string;
-  type: "item_updated" | "item_deleted" | "reservation_created" | "reservation_cancelled";
+  type: "item_updated" | "item_deleted" | "reservation_created" | "reservation_cancelled" | "owner_updated";
   itemId: string | null;
   itemTitle: string;
-  wishlistId: string;
+  wishlistId: string | null;
   readAt: string | null;
   createdAt: string;
 };
@@ -369,7 +388,11 @@ export function NavLinks({
                   }}
                 >
                   <span className="site-nav-dropdown-notification-icon" aria-hidden="true">
-                    {n.type === "item_updated" ? <NavEditIcon /> : <NavTrashIcon />}
+                    {n.type === "item_updated"
+                      ? <NavEditIcon />
+                      : n.type === "owner_updated"
+                        ? <NavUserIcon />
+                        : <NavTrashIcon />}
                   </span>
                   <span className="site-nav-dropdown-notification-body">
                     <span className="site-nav-dropdown-notification-type">
@@ -379,7 +402,9 @@ export function NavLinks({
                           ? app.notifications.itemDeleted
                           : n.type === "reservation_created"
                             ? app.notifications.reservationCreated
-                            : app.notifications.reservationCancelled}
+                            : n.type === "reservation_cancelled"
+                              ? app.notifications.reservationCancelled
+                              : app.notifications.ownerUpdated}
                     </span>
                     <span className="site-nav-dropdown-notification-name">{n.itemTitle}</span>
                     <span className="site-nav-dropdown-notification-date">

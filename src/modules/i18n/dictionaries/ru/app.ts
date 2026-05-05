@@ -306,6 +306,7 @@ export const app = {
     clearAll: "Очистить всё",
     reservationCreated: "Желание забронировали",
     reservationCancelled: "Бронь отменена",
+    ownerUpdated: "Профиль владельца обновлён",
     goToItem: "Перейти к желанию",
   },
   share: {

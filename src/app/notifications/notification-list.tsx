@@ -72,6 +72,7 @@ type Messages = {
   emptyDescription: string;
   reservationCreated: string;
   reservationCancelled: string;
+  ownerUpdated: string;
 };
 
 type Props = {
@@ -171,7 +172,9 @@ export function NotificationList({
                       ? messages.itemDeleted
                       : n.type === "reservation_created"
                         ? messages.reservationCreated
-                        : messages.reservationCancelled}
+                        : n.type === "reservation_cancelled"
+                          ? messages.reservationCancelled
+                          : messages.ownerUpdated}
                 </span>
                 <span className="notification-item-name">{n.itemTitle}</span>
                 <span className="notification-item-date">
@@ -179,10 +182,13 @@ export function NotificationList({
                 </span>
               </div>
               <div className="notification-item-actions">
-                {n.itemId && (n.type === "item_updated") ? (
+                {n.itemId && n.type === "item_updated" && n.shareToken ? (
                   <Link
-                    href="/reservations"
+                    href={`/share/${n.shareToken}`}
                     className="notification-item-link ui-button ui-button-ghost"
+                    onClick={() => {
+                      if (n.itemId) sessionStorage.setItem("scroll-to-item", n.itemId);
+                    }}
                   >
                     {messages.goToWishlist}
                   </Link>
@@ -195,6 +201,14 @@ export function NotificationList({
                     }}
                   >
                     {messages.goToItem}
+                  </Link>
+                ) : n.type === "owner_updated" && n.shareToken ? (
+                  <Link
+                    href={`/share/${n.shareToken}`}
+                    className="notification-item-link ui-button ui-button-ghost"
+                    onClick={() => sessionStorage.setItem("highlight-bio", "1")}
+                  >
+                    {messages.goToWishlist}
                   </Link>
                 ) : null}
                 <button

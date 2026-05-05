@@ -155,6 +155,16 @@
     gap: 0;
   }
 
+  @keyframes bio-highlight-pulse {
+    0%   { box-shadow: 0 0 0 2px var(--color-accent); background: var(--color-accent-surface); }
+    60%  { box-shadow: 0 0 0 2px var(--color-accent); background: var(--color-accent-surface); }
+    100% { box-shadow: 0 0 0 0px transparent; background: var(--color-bg-subtle); }
+  }
+
+  .share-owner-card--highlight {
+    animation: bio-highlight-pulse 1.8s ease-out forwards;
+  }
+
   .share-page-title-row {
     display: flex;
     flex-wrap: wrap;
