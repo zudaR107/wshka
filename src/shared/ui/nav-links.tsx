@@ -361,9 +361,12 @@ export function NavLinks({
               localRecent.map((n) => (
                 <Link
                   key={n.id}
-                  href={`/notifications?highlight=${n.id}`}
+                  href="/notifications"
                   className="site-nav-dropdown-notification site-nav-dropdown-notification--unread"
-                  onClick={() => setBellOpen(false)}
+                  onClick={() => {
+                    sessionStorage.setItem("notif-highlight", n.id);
+                    setBellOpen(false);
+                  }}
                 >
                   <span className="site-nav-dropdown-notification-icon" aria-hidden="true">
                     {n.type === "item_updated" ? <NavEditIcon /> : <NavTrashIcon />}

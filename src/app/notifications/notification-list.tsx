@@ -79,8 +79,6 @@ type Props = {
   initialNotifications: UserNotification[];
   messages: Messages;
   locale: string;
-  /** If set, only this notification gets the unread highlight animation. */
-  highlightId?: string;
   emptyAction: React.ReactNode;
 };
 
@@ -89,16 +87,22 @@ export function NotificationList({
   initialNotifications,
   messages,
   locale,
-  highlightId,
   emptyAction,
 }: Props) {
   const router = useRouter();
   const [items, setItems] = useState(initialNotifications);
   // Which items get the unread highlight animation on first render.
-  // If highlightId is provided (navigation from a specific bell item),
-  // only that notification is animated; otherwise all unread are animated.
+  // If sessionStorage has a "notif-highlight" id (set by the bell dropdown
+  // before navigating), only that notification is animated; otherwise all
+  // unread are animated (navigation via "All notifications").
   const [unreadIds] = useState(() => {
-    if (highlightId) return new Set([highlightId]);
+    if (typeof window !== "undefined") {
+      const id = sessionStorage.getItem("notif-highlight");
+      if (id) {
+        sessionStorage.removeItem("notif-highlight");
+        return new Set([id]);
+      }
+    }
     return new Set(initialNotifications.filter((n) => !n.readAt).map((n) => n.id));
   });
   // After mount, animate unread → read
@@ -184,8 +188,11 @@ export function NotificationList({
                   </Link>
                 ) : n.itemId && (n.type === "reservation_created" || n.type === "reservation_cancelled") ? (
                   <Link
-                    href={`/#item-${n.itemId}`}
+                    href="/"
                     className="notification-item-link ui-button ui-button-ghost"
+                    onClick={() => {
+                      if (n.itemId) sessionStorage.setItem("scroll-to-item", n.itemId);
+                    }}
                   >
                     {messages.goToItem}
                   </Link>
