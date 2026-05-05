@@ -42,6 +42,15 @@ The format is based on Keep a Changelog, and this project follows SemVer.
   the item forms and Settings page. Opens upward (above the trigger button) with
   a rotating chevron indicator; left/right alignment is configurable via `align` prop.
 
+- In-app notification system (M10-I5): authenticated users receive a
+  notification when an item they have reserved is updated or deleted by the
+  owner. A bell icon with an unread badge appears in the navigation bar.
+  Clicking it opens a dropdown with the five most recent notifications and
+  a "Mark all as read" button. All notifications are listed on a new
+  `/notifications` page, which also auto-marks them as read on visit.
+  Notifications are stored in a new `notifications` DB table (Drizzle
+  migration generated). `--color-error` design token added to `base.css`.
+
 ### Changed
 - Background parallax: wallpaper pattern is rendered on a viewport-fixed
   `body::before` pseudo-element. A `WallpaperParallax` client component

@@ -3,6 +3,8 @@ import { getTranslations } from "@/modules/i18n";
 import { getLocale } from "@/modules/i18n/server";
 import { NavLinks, GuestLinks } from "@/shared/ui/nav-links";
 
+import type { RecentNotification } from "@/shared/ui/nav-links";
+
 type HeaderUser = {
   id: string;
   email: string;
@@ -10,10 +12,19 @@ type HeaderUser = {
 
 type HeaderProps = {
   user: HeaderUser | null;
+  unreadNotificationCount: number;
+  recentNotifications: RecentNotification[];
   onLogout: () => Promise<void>;
+  onMarkAllRead: () => Promise<void>;
 };
 
-export async function Header({ user, onLogout }: HeaderProps) {
+export async function Header({
+  user,
+  unreadNotificationCount,
+  recentNotifications,
+  onLogout,
+  onMarkAllRead,
+}: HeaderProps) {
   const locale = await getLocale();
   const common = getTranslations("common", locale);
 
@@ -37,7 +48,17 @@ export async function Header({ user, onLogout }: HeaderProps) {
           </svg>
           <span className="site-logo-text">{common.brand}</span>
         </Link>
-        {user ? <NavLinks email={user.email} onLogout={onLogout} /> : <GuestLinks />}
+        {user ? (
+          <NavLinks
+            email={user.email}
+            unreadCount={unreadNotificationCount}
+            recentNotifications={recentNotifications}
+            onLogout={onLogout}
+            onMarkAllRead={onMarkAllRead}
+          />
+        ) : (
+          <GuestLinks />
+        )}
       </div>
     </header>
   );

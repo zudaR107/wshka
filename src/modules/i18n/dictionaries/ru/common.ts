@@ -11,6 +11,8 @@ export const common = {
   nav: {
     wishlist: "Мой вишлист",
     reservations: "Мои брони",
+    notifications: "Уведомления",
+    notificationsLabel: "Уведомления",
     settings: "Настройки",
     accountMenu: "Меню аккаунта",
     themeDark: "Тёмная тема",

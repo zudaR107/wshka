@@ -4,6 +4,9 @@ import { getTranslations } from "@/modules/i18n";
 import { getLocale } from "@/modules/i18n/server";
 import { LocaleProvider } from "@/modules/i18n/locale-provider";
 import { getCurrentUser } from "@/modules/auth/server/current-user";
+import { getUnreadNotificationCount } from "@/modules/notification/server/get-unread-count";
+import { getUserNotifications } from "@/modules/notification/server/get-user-notifications";
+import { markAllReadAction } from "@/app/notification-actions";
 import { Header } from "@/shared/ui/header";
 import { Footer } from "@/shared/ui/footer";
 import { CookieBanner } from "@/shared/ui/cookie-banner";
@@ -35,6 +38,22 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   const [user, locale] = await Promise.all([getCurrentUser(), getLocale()]);
+  const [unreadNotificationCount, allNotifications] = user
+    ? await Promise.all([
+        getUnreadNotificationCount(user.id),
+        getUserNotifications(user.id),
+      ])
+    : [0, []];
+
+  const recentNotifications = allNotifications.slice(0, 5).map((n) => ({
+    id: n.id,
+    type: n.type,
+    itemId: n.itemId ?? null,
+    itemTitle: n.itemTitle,
+    wishlistId: n.wishlistId,
+    readAt: n.readAt?.toISOString() ?? null,
+    createdAt: n.createdAt.toISOString(),
+  }));
 
   return (
     <html lang={locale} suppressHydrationWarning>
@@ -50,7 +69,13 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         <LocaleProvider locale={locale}>
           <WallpaperParallax />
           <div className="app-layout">
-            <Header user={user} onLogout={logoutAction} />
+            <Header
+              user={user}
+              unreadNotificationCount={unreadNotificationCount}
+              recentNotifications={recentNotifications}
+              onLogout={logoutAction}
+              onMarkAllRead={markAllReadAction}
+            />
             <main className="app-main">{children}</main>
             <Footer />
             <CookieBanner />

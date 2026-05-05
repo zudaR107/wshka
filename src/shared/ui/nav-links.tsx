@@ -116,6 +116,48 @@ function GlobeIcon() {
   );
 }
 
+function BellIcon() {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+      <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+    </svg>
+  );
+}
+
+function formatNotificationDate(iso: string, locale: string): string {
+  const date = new Date(iso);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMinutes = Math.floor(diffMs / 60_000);
+  const diffHours = Math.floor(diffMinutes / 60);
+  const diffDays = Math.floor(diffHours / 24);
+
+  if (locale === "en") {
+    if (diffMinutes < 1) return "just now";
+    if (diffMinutes < 60) return `${diffMinutes}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays < 7) return `${diffDays}d ago`;
+    return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  }
+
+  if (diffMinutes < 1) return "только что";
+  if (diffMinutes < 60) return `${diffMinutes} мин назад`;
+  if (diffHours < 24) return `${diffHours} ч назад`;
+  if (diffDays < 7) return `${diffDays} дн назад`;
+  return date.toLocaleDateString("ru-RU", { day: "numeric", month: "short" });
+}
+
 function useTheme() {
   const [theme, setTheme] = useState<"light" | "dark">("light");
 
@@ -135,20 +177,43 @@ function useTheme() {
   return { theme, toggleTheme };
 }
 
-type NavLinksProps = {
-  email: string;
-  onLogout: () => Promise<void>;
+export type RecentNotification = {
+  id: string;
+  type: "item_updated" | "item_deleted";
+  itemId: string | null;
+  itemTitle: string;
+  wishlistId: string;
+  readAt: string | null;
+  createdAt: string;
 };
 
-export function NavLinks({ email, onLogout }: NavLinksProps) {
+type NavLinksProps = {
+  email: string;
+  unreadCount: number;
+  recentNotifications: RecentNotification[];
+  onLogout: () => Promise<void>;
+  onMarkAllRead: () => Promise<void>;
+};
+
+export function NavLinks({
+  email,
+  unreadCount,
+  recentNotifications,
+  onLogout,
+  onMarkAllRead,
+}: NavLinksProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [bellOpen, setBellOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
   const locale = useLocale();
   const common = useTranslations("common");
+  const app = useTranslations("app");
   const isSettingsActive = pathname === "/settings";
+  const isNotificationsActive = pathname === "/notifications";
   const menuRef = useRef<HTMLDivElement>(null);
+  const bellRef = useRef<HTMLDivElement>(null);
 
   function handleLocaleSwitch() {
     const next = locale === "ru" ? "en" : "ru";
@@ -167,6 +232,17 @@ export function NavLinks({ email, onLogout }: NavLinksProps) {
     return () => document.removeEventListener("mousedown", handleOutside);
   }, [open]);
 
+  useEffect(() => {
+    if (!bellOpen) return;
+    function handleOutside(e: MouseEvent) {
+      if (bellRef.current && !bellRef.current.contains(e.target as Node)) {
+        setBellOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleOutside);
+    return () => document.removeEventListener("mousedown", handleOutside);
+  }, [bellOpen]);
+
   return (
     <nav className="site-nav">
       <Link
@@ -181,6 +257,85 @@ export function NavLinks({ email, onLogout }: NavLinksProps) {
       >
         {common.nav.reservations}
       </Link>
+
+      {/* Bell / notifications */}
+      <div className="site-nav-bell" ref={bellRef}>
+        <button
+          type="button"
+          className={`site-nav-gear${isNotificationsActive ? " site-nav-gear--active" : ""}`}
+          aria-label={common.nav.notificationsLabel}
+          aria-expanded={bellOpen}
+          onClick={() => setBellOpen((v) => !v)}
+        >
+          <span className="site-nav-bell-wrapper">
+            <BellIcon />
+            {unreadCount > 0 && (
+              <span className="site-nav-bell-badge" aria-hidden="true">
+                {unreadCount > 99 ? "99+" : unreadCount}
+              </span>
+            )}
+          </span>
+        </button>
+        {bellOpen && (
+          <div className="site-nav-dropdown site-nav-dropdown--notifications">
+            <div className="site-nav-dropdown-notifications-header">
+              <span className="site-nav-dropdown-notifications-title">
+                {common.nav.notifications}
+              </span>
+              {unreadCount > 0 && (
+                <form action={onMarkAllRead}>
+                  <button
+                    type="submit"
+                    className="site-nav-dropdown-notifications-mark-read"
+                    onClick={() => setBellOpen(false)}
+                  >
+                    {app.notifications.markAllRead}
+                  </button>
+                </form>
+              )}
+            </div>
+            <div className="site-nav-dropdown-divider" />
+            {recentNotifications.length === 0 ? (
+              <p className="site-nav-dropdown-notifications-empty">
+                {app.notifications.noUnread}
+              </p>
+            ) : (
+              recentNotifications.map((n) => (
+                <Link
+                  key={n.id}
+                  href="/notifications"
+                  className={`site-nav-dropdown-notification${n.readAt ? "" : " site-nav-dropdown-notification--unread"}`}
+                  onClick={() => setBellOpen(false)}
+                >
+                  <span className="site-nav-dropdown-notification-icon" aria-hidden="true">
+                    {n.type === "item_updated" ? "✏️" : "🗑️"}
+                  </span>
+                  <span className="site-nav-dropdown-notification-body">
+                    <span className="site-nav-dropdown-notification-type">
+                      {n.type === "item_updated"
+                        ? app.notifications.itemUpdated
+                        : app.notifications.itemDeleted}
+                    </span>
+                    <span className="site-nav-dropdown-notification-name">{n.itemTitle}</span>
+                    <span className="site-nav-dropdown-notification-date">
+                      {formatNotificationDate(n.createdAt, locale)}
+                    </span>
+                  </span>
+                </Link>
+              ))
+            )}
+            <div className="site-nav-dropdown-divider" />
+            <Link
+              href="/notifications"
+              className="site-nav-dropdown-item"
+              onClick={() => setBellOpen(false)}
+            >
+              {app.notifications.viewAll}
+            </Link>
+          </div>
+        )}
+      </div>
+
       <div className="site-nav-menu" ref={menuRef}>
         <button
           type="button"

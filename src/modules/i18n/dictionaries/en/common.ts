@@ -11,6 +11,8 @@ export const common = {
   nav: {
     wishlist: "My wishlist",
     reservations: "My reservations",
+    notifications: "Notifications",
+    notificationsLabel: "Notifications",
     settings: "Settings",
     accountMenu: "Account menu",
     themeDark: "Dark theme",

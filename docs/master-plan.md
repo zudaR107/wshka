@@ -47,6 +47,7 @@ create a wishlist → share it by link → let another person reserve a gift.
 | `/register` | public | Registration |
 | `/reservations` | auth | Current user's reservations |
 | `/settings` | auth | Account settings (email, bio) |
+| `/notifications` | auth | In-app notification feed |
 | `/share/[token]` | public | Public read-only wishlist |
 | `/roadmap` | public | Product roadmap |
 | `/privacy` | public | Privacy policy |
@@ -92,25 +93,28 @@ Goal:
 - no schema migrations required; all changes are frontend-only
 
 Status:
-- ✅ complete (all 4 issues shipped)
+- ✅ M10-I1–I4 complete; M10-I5 in progress (unplanned addition)
 
 Execution backlog:
 1. ✅ Dark theme — CSS variable toggle, `localStorage` persistence, `prefers-color-scheme` default
 2. ✅ Background parallax — subtle depth effect on the wallpaper pattern, CSS or JS-driven
 3. ✅ English locale — `en/` i18n dictionary, locale switcher in header, browser auto-detect
 4. ✅ Multiple currencies — currency per wish item, default currency preference in profile, locale-aware display formatting
+5. 🔄 Notification system — in-app alerts when a reserved item is updated or deleted; bell icon in nav with unread badge; `/notifications` page
 
 Recommended issue shape:
 - `M10-I1 Dark theme — CSS variable toggle and system preference default`
 - `M10-I2 Background parallax — depth effect on wallpaper pattern`
 - `M10-I3 English locale — en/ dictionary, locale switcher, browser auto-detect`
 - `M10-I4 Multiple currencies — per-item currency, default currency preference in profile, display formatting`
+- `M10-I5 Notification system — in-app alerts on reserved item changes`
 
 Recommended PR order:
 1. `M10-I1 Dark theme — CSS variable toggle and system preference default`
 2. `M10-I2 Background parallax — depth effect on wallpaper pattern`
 3. `M10-I3 English locale — en/ dictionary, locale switcher, browser auto-detect`
 4. `M10-I4 Multiple currencies — per-item currency, default currency preference in profile, display formatting`
+5. `M10-I5 Notification system — in-app alerts on reserved item changes`
 
 Dependencies:
 - `M10-I1` has no dependencies

@@ -1,4 +1,5 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
+import { reservations } from "@/modules/reservation/db/schema";
 import { wishlistItems } from "@/modules/wishlist/db/schema";
 import { getWishlistForUser } from "@/modules/wishlist/server/current-wishlist";
 import {
@@ -6,6 +7,7 @@ import {
   type WishlistItemValidationErrorCode,
   validateWishlistItemInput,
 } from "@/modules/wishlist/server/item-input";
+import { fanOutNotifications } from "@/modules/notification/server/create-notification";
 
 export type UpdateWishlistItemResult =
   | { status: "success" }
@@ -39,6 +41,15 @@ export async function updateCurrentWishlistItem(
     }
 
     const db = await getDb();
+    const existing = await db.query.wishlistItems.findFirst({
+      columns: { id: true, title: true, wishlistId: true },
+      where: and(eq(wishlistItems.id, itemId), eq(wishlistItems.wishlistId, wishlist.id)),
+    });
+
+    if (!existing) {
+      return { status: "error", code: "item-not-found" };
+    }
+
     const result = await db
       .update(wishlistItems)
       .set({
@@ -51,6 +62,9 @@ export async function updateCurrentWishlistItem(
     if (result.length === 0) {
       return { status: "error", code: "item-not-found" };
     }
+
+    // Fan-out notifications to all active reservers (best-effort, non-blocking)
+    void notifyReservers(db, itemId, existing.title, existing.wishlistId, "item_updated");
 
     return { status: "success" };
   } catch {
@@ -71,6 +85,22 @@ export async function deleteCurrentWishlistItem(
     }
 
     const db = await getDb();
+
+    // Snapshot item title and reservers BEFORE deletion (cascade will remove them)
+    const existing = await db.query.wishlistItems.findFirst({
+      columns: { id: true, title: true, wishlistId: true },
+      where: and(eq(wishlistItems.id, itemId), eq(wishlistItems.wishlistId, wishlist.id)),
+    });
+
+    if (!existing) {
+      return { status: "error", code: "item-not-found" };
+    }
+
+    const activeReservers = await db
+      .select({ userId: reservations.userId })
+      .from(reservations)
+      .where(and(eq(reservations.wishlistItemId, itemId), isNull(reservations.cancelledAt)));
+
     const result = await db
       .delete(wishlistItems)
       .where(and(eq(wishlistItems.id, itemId), eq(wishlistItems.wishlistId, wishlist.id)))
@@ -79,6 +109,15 @@ export async function deleteCurrentWishlistItem(
     if (result.length === 0) {
       return { status: "error", code: "item-not-found" };
     }
+
+    // Fan-out notifications with itemId=null (item is now deleted)
+    const reserverIds = activeReservers.map((r) => r.userId);
+    void fanOutNotifications(reserverIds, {
+      type: "item_deleted",
+      itemId: null,
+      itemTitle: existing.title,
+      wishlistId: existing.wishlistId,
+    });
 
     return { status: "success" };
   } catch {
@@ -126,4 +165,26 @@ async function getDb() {
   const { db } = await import("@/shared/db");
 
   return db;
+}
+
+async function notifyReservers(
+  db: Awaited<ReturnType<typeof getDb>>,
+  itemId: string,
+  itemTitle: string,
+  wishlistId: string,
+  type: "item_updated" | "item_deleted",
+): Promise<void> {
+  const activeReservers = await db
+    .select({ userId: reservations.userId })
+    .from(reservations)
+    .where(and(eq(reservations.wishlistItemId, itemId), isNull(reservations.cancelledAt)));
+
+  const reserverIds = activeReservers.map((r) => r.userId);
+
+  await fanOutNotifications(reserverIds, {
+    type,
+    itemId: type === "item_deleted" ? null : itemId,
+    itemTitle,
+    wishlistId,
+  });
 }
