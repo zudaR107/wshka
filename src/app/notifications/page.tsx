@@ -16,8 +16,16 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function NotificationsPage() {
-  const [user, locale] = await Promise.all([requireCurrentUser(), getLocale()]);
+export default async function NotificationsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ highlight?: string }>;
+}) {
+  const [user, locale, params] = await Promise.all([
+    requireCurrentUser(),
+    getLocale(),
+    searchParams,
+  ]);
 
   // Fetch notifications first so we know which were unread,
   // then mark all as read in the DB (badge clears on next nav).
@@ -39,6 +47,7 @@ export default async function NotificationsPage() {
         userId={user.id}
         initialNotifications={notifications}
         locale={locale}
+        highlightId={params.highlight}
         messages={{
           itemUpdated: messages.notifications.itemUpdated,
           itemDeleted: messages.notifications.itemDeleted,

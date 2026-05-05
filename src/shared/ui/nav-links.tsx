@@ -361,7 +361,7 @@ export function NavLinks({
               localRecent.map((n) => (
                 <Link
                   key={n.id}
-                  href="/notifications"
+                  href={`/notifications?highlight=${n.id}`}
                   className="site-nav-dropdown-notification site-nav-dropdown-notification--unread"
                   onClick={() => setBellOpen(false)}
                 >

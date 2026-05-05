@@ -268,6 +268,16 @@
     overflow: hidden;
   }
 
+  @keyframes item-highlight-pulse {
+    0%   { box-shadow: var(--shadow-card), 0 0 0 2px var(--color-accent); background: var(--color-accent-surface); }
+    60%  { box-shadow: var(--shadow-card), 0 0 0 2px var(--color-accent); background: var(--color-accent-surface); }
+    100% { box-shadow: var(--shadow-card), 0 0 0 0px transparent; background: var(--color-bg-surface); }
+  }
+
+  .item-card--highlight {
+    animation: item-highlight-pulse 1.8s ease-out forwards;
+  }
+
   .item-card-status {
     display: flex;
     align-items: center;

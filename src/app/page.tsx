@@ -12,6 +12,7 @@ import type { DeleteItemState, ReserveItemState, CancelItemReservationState, Reg
 import { getAllOwnerWishlistsWithReservations, createReservation, cancelReservation } from "@/modules/reservation";
 import { deleteCurrentWishlistItem } from "@/modules/wishlist/server/manage-item";
 import { WishlistManager, type DashboardWishlist } from "./_dashboard/wishlist-manager";
+import { ScrollHighlight } from "./_dashboard/scroll-highlight";
 import { getUserProfile } from "@/modules/auth/server/update-bio";
 import { parseCurrency } from "@/shared/lib/currency";
 
@@ -143,6 +144,7 @@ async function DashboardView({ userId }: { userId: string }) {
 
   return (
     <div className="dashboard-page">
+      <ScrollHighlight />
       <WishlistManager
         wishlists={wishlistsData}
         defaultCurrency={defaultCurrency}

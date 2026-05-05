@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import type { UserNotification } from "@/modules/notification/server/get-user-notifications";
 import {
@@ -78,6 +79,8 @@ type Props = {
   initialNotifications: UserNotification[];
   messages: Messages;
   locale: string;
+  /** If set, only this notification gets the unread highlight animation. */
+  highlightId?: string;
   emptyAction: React.ReactNode;
 };
 
@@ -86,13 +89,18 @@ export function NotificationList({
   initialNotifications,
   messages,
   locale,
+  highlightId,
   emptyAction,
 }: Props) {
+  const router = useRouter();
   const [items, setItems] = useState(initialNotifications);
-  // Which items were unread on first render — drives the transition
-  const [unreadIds] = useState(
-    () => new Set(initialNotifications.filter((n) => !n.readAt).map((n) => n.id)),
-  );
+  // Which items get the unread highlight animation on first render.
+  // If highlightId is provided (navigation from a specific bell item),
+  // only that notification is animated; otherwise all unread are animated.
+  const [unreadIds] = useState(() => {
+    if (highlightId) return new Set([highlightId]);
+    return new Set(initialNotifications.filter((n) => !n.readAt).map((n) => n.id));
+  });
   // After mount, animate unread → read
   const [allRead, setAllRead] = useState(false);
   const [, startTransition] = useTransition();
@@ -108,6 +116,7 @@ export function NotificationList({
     startTransition(async () => {
       await deleteNotification(userId, notificationId);
       setItems((prev) => prev.filter((n) => n.id !== notificationId));
+      router.refresh();
     });
   }
 
@@ -115,6 +124,7 @@ export function NotificationList({
     startTransition(async () => {
       await deleteAllNotifications(userId);
       setItems([]);
+      router.refresh();
     });
   }
 
