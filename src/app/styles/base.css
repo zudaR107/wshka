@@ -111,6 +111,7 @@
     background-size: 200px 200px;
     background-repeat: repeat;
     transform: translate(var(--wp-x, 0px), var(--wp-y, 0px));
+    will-change: transform;
   }
 
   a {
