@@ -53,8 +53,6 @@ export function DeleteWishlistButton({ wishlistId, disabled }: DeleteWishlistBut
 
   function getErrorMessage(code: string | undefined): string {
     switch (code) {
-      case "last-wishlist":
-        return messages.dashboard.wishlists.errors.deleteLastWishlist;
       case "not-found":
         return messages.dashboard.wishlists.errors.deleteNotFound;
       default:

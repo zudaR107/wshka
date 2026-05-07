@@ -91,14 +91,21 @@ test("owner can create a second wishlist and switch between them", async ({ page
   await expect(page.getByRole("heading", { name: secondName })).toBeVisible();
 });
 
-test("cannot delete the last remaining wishlist", async ({ page }) => {
+test("deleting the last wishlist creates a fresh default list", async ({ page }) => {
   const credentials = createCredentials();
 
   await registerAndLand(page, credentials);
 
-  // Delete button should be disabled when only one wishlist exists
+  // Delete button is enabled even when only one wishlist exists
   const deleteBtn = page.getByRole("button", { name: "Удалить" }).first();
-  await expect(deleteBtn).toBeDisabled();
+  await expect(deleteBtn).toBeEnabled();
+
+  // Delete the only wishlist
+  await deleteBtn.click();
+  await page.getByRole("button", { name: "Да, удалить" }).click();
+
+  // A fresh default list is created automatically
+  await expect(page.getByRole("heading", { name: "Мой список" })).toBeVisible();
 });
 
 test("owner can delete a non-last wishlist", async ({ page }) => {

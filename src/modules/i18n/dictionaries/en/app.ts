@@ -202,7 +202,6 @@ export const app = {
         createUnknown: "Failed to create the list. Please try again.",
         renameNotFound: "This list could not be found.",
         renameUnknown: "Failed to rename the list. Please try again.",
-        deleteLastWishlist: "You cannot delete your only list.",
         deleteNotFound: "This list could not be found.",
         deleteUnknown: "Failed to delete the list. Please try again.",
       },

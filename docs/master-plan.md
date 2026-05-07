@@ -21,7 +21,7 @@ create a wishlist → share it by link → let another person reserve a gift.
 |---|---|---|
 | `User` | Account owner or reserver | Unique `email`; password stored only as hash; optional `bio`; `preferredCurrency` |
 | `Session` | Authenticated access | Required for owner actions and reservations |
-| `Wishlist` | Container for items | Many per user; default created on registration; last cannot be deleted |
+| `Wishlist` | Container for items | Many per user; default created on registration; deleting the last one auto-creates a fresh default |
 | `WishlistItem` | Single wish | Fields: `title`, `url?`, `note?`, `price?`, `currency`, `starred` |
 | `ShareLink` | Public read-only access | Opaque token; one active per wishlist; revocable |
 | `Reservation` | Item reservation | At most one active per item |
@@ -96,7 +96,7 @@ Goal:
 - no schema migrations required; all changes are frontend-only
 
 Status:
-- ✅ M10-I1–I5 complete; M10-I6 in progress (bugfix batch)
+- ✅ M10-I1–I5 complete; M10-I6–I8 in progress (bugfix + QA batch on branch fix/bugfixes-v120)
 
 Execution backlog:
 1. ✅ Dark theme — CSS variable toggle, `localStorage` persistence, `prefers-color-scheme` default
@@ -104,7 +104,9 @@ Execution backlog:
 3. ✅ English locale — `en/` i18n dictionary, locale switcher in header, browser auto-detect
 4. ✅ Multiple currencies — currency per wish item, default currency preference in profile, locale-aware display formatting
 5. ✅ Notification system — in-app alerts when a reserved item is updated or deleted; bell icon in nav with unread badge; `/notifications` page; `owner_updated` type for bio changes; static share token snapshots; scroll/highlight navigation; 30 s polling
-6. 🔄 M10-I6 Bugfixes — post-M10-I5 bug fixes discovered during manual QA
+6. 🔄 M10-I6 Bugfixes — dashboard title line-height and underline on mobile; parallax GPU layer
+7. 🔄 M10-I7 Email truncation — long emails truncated with ellipsis on settings and share pages; custom tooltip on share page
+8. 🔄 M10-I8 Delete last wishlist — allow deleting the only remaining list; auto-create default "Мой список"
 
 Recommended issue shape:
 - `M10-I1 Dark theme — CSS variable toggle and system preference default`
@@ -112,7 +114,9 @@ Recommended issue shape:
 - `M10-I3 English locale — en/ dictionary, locale switcher, browser auto-detect`
 - `M10-I4 Multiple currencies — per-item currency, default currency preference in profile, display formatting`
 - `M10-I5 Notification system — in-app alerts on reserved item changes`
-- `M10-I6 Bugfixes — post-notification-system bug fixes`
+- `M10-I6 Bugfixes — post-notification-system bug fixes (mobile title, parallax GPU layer)`
+- `M10-I7 Email truncation — ellipsis + styled tooltip on settings and share pages`
+- `M10-I8 Delete last wishlist — allow deletion with auto-created default replacement`
 
 Recommended PR order:
 1. `M10-I1 Dark theme — CSS variable toggle and system preference default`
@@ -120,7 +124,7 @@ Recommended PR order:
 3. `M10-I3 English locale — en/ dictionary, locale switcher, browser auto-detect`
 4. `M10-I4 Multiple currencies — per-item currency, default currency preference in profile, display formatting`
 5. `M10-I5 Notification system — in-app alerts on reserved item changes`
-6. `M10-I6 Bugfixes — post-notification-system bug fixes`
+6. `M10-I6–I8 Bugfix and QA batch — one shared PR on branch fix/bugfixes-v120`
 
 Dependencies:
 - `M10-I1` has no dependencies

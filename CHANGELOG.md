@@ -38,6 +38,10 @@ The format is based on Keep a Changelog, and this project follows SemVer.
 - Dark mode dims wallpaper layer via `opacity: 0.18`.
 - Invalid share page uses same layout and styles as the 404 page.
 
+### Added
+- Deleting the last remaining wishlist is now allowed; a fresh default
+  "Мой список" is created automatically so the user always has one list.
+
 ### Fixed
 - Notification badge no longer restores stale unread count after navigating
   away from `/notifications`.

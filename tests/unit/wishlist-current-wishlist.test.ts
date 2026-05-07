@@ -246,42 +246,40 @@ describe("renameWishlist", () => {
 
 describe("deleteWishlist", () => {
   beforeEach(() => {
-    mocks.findMany.mockReset();
+    mocks.findFirst.mockReset();
     mocks.deleteItem.mockReset();
     mocks.deleteWhere.mockReset();
     mocks.deleteReturning.mockReset();
+    mocks.insert.mockReset();
+    mocks.insertValues.mockReset();
 
     mocks.deleteItem.mockReturnValue({ where: mocks.deleteWhere });
     mocks.deleteWhere.mockReturnValue({ returning: mocks.deleteReturning });
+    mocks.insert.mockReturnValue({ values: mocks.insertValues });
   });
 
-  it("deletes the wishlist when the user has more than one", async () => {
-    mocks.findMany.mockResolvedValue([
-      { id: "wishlist-1" },
-      { id: "wishlist-2" },
-    ]);
+  it("deletes the wishlist and returns success when others remain", async () => {
     mocks.deleteReturning.mockResolvedValue([{ id: "wishlist-2" }]);
+    mocks.findFirst.mockResolvedValue({ id: "wishlist-1" });
 
     await expect(deleteWishlist("wishlist-2", "user-1")).resolves.toEqual({
       status: "success",
     });
+    expect(mocks.insert).not.toHaveBeenCalled();
   });
 
-  it("prevents deleting the last remaining wishlist", async () => {
-    mocks.findMany.mockResolvedValue([{ id: "wishlist-1" }]);
+  it("deletes the last wishlist and creates a default replacement", async () => {
+    mocks.deleteReturning.mockResolvedValue([{ id: "wishlist-1" }]);
+    mocks.findFirst.mockResolvedValue(null);
+    mocks.insertValues.mockResolvedValue(undefined);
 
     await expect(deleteWishlist("wishlist-1", "user-1")).resolves.toEqual({
-      status: "error",
-      code: "last-wishlist",
+      status: "success",
     });
-    expect(mocks.deleteItem).not.toHaveBeenCalled();
+    expect(mocks.insert).toHaveBeenCalled();
   });
 
   it("returns not-found when the wishlist does not belong to the user", async () => {
-    mocks.findMany.mockResolvedValue([
-      { id: "wishlist-1" },
-      { id: "wishlist-2" },
-    ]);
     mocks.deleteReturning.mockResolvedValue([]);
 
     await expect(deleteWishlist("wishlist-1", "other-user")).resolves.toEqual({

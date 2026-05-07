@@ -20,7 +20,7 @@ export type RenameWishlistResult =
 
 export type DeleteWishlistResult =
   | { status: "success" }
-  | { status: "error"; code: "last-wishlist" | "not-found" | "unknown" };
+  | { status: "error"; code: "not-found" | "unknown" };
 
 export async function getCurrentWishlist(userId: string): Promise<CurrentWishlist | null> {
   return findCurrentWishlist(userId);
@@ -142,16 +142,6 @@ export async function deleteWishlist(
   try {
     const db = await getDb();
 
-    // Guard: cannot delete the last wishlist
-    const userWishlists = await db.query.wishlists.findMany({
-      columns: { id: true },
-      where: eq(wishlists.userId, userId),
-    });
-
-    if (userWishlists.length <= 1) {
-      return { status: "error", code: "last-wishlist" };
-    }
-
     const result = await db
       .delete(wishlists)
       .where(and(eq(wishlists.id, wishlistId), eq(wishlists.userId, userId)))
@@ -159,6 +149,19 @@ export async function deleteWishlist(
 
     if (result.length === 0) {
       return { status: "error", code: "not-found" };
+    }
+
+    // If no wishlists remain, create a fresh default one so the user
+    // always has at least one list.
+    const remaining = await db.query.wishlists.findFirst({
+      columns: { id: true },
+      where: eq(wishlists.userId, userId),
+    });
+
+    if (!remaining) {
+      await db
+        .insert(wishlists)
+        .values({ userId, name: "Мой список", isActive: true });
     }
 
     return { status: "success" };
