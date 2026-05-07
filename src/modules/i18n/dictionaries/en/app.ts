@@ -289,6 +289,8 @@ export const app = {
     bioHint:
       "Up to 500 characters. Visible only to logged-in users on your wishlist page.",
     bioSaveLabel: "Save",
+    bioSavedLabel: "Saved ✓",
+    bioErrorLabel: "Not saved ✕",
     bioSuccessMessage: "Description saved.",
     currencySection: "Default currency",
     currencyLabel: "Currency for new wishes",

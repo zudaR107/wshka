@@ -96,7 +96,7 @@ Goal:
 - no schema migrations required; all changes are frontend-only
 
 Status:
-- ✅ M10-I1–I5 complete; M10-I6–I9 in progress (bugfix + QA batch on branch fix/bugfixes-v120)
+- ✅ M10-I1–I5 complete; M10-I6–I10 in progress (bugfix + QA batch on branch fix/bugfixes-v120)
 
 Execution backlog:
 1. ✅ Dark theme — CSS variable toggle, `localStorage` persistence, `prefers-color-scheme` default
@@ -108,6 +108,7 @@ Execution backlog:
 7. 🔄 M10-I7 Email truncation — long emails truncated with ellipsis on settings and share pages; custom tooltip on share page
 8. 🔄 M10-I8 Delete last wishlist — allow deleting the only remaining list; auto-create default "Мой список"
 9. 🔄 M10-I9 Mobile header overflow — reduce padding and gap at ≤ 479 px to eliminate horizontal scroll
+10. 🔄 M10-I10 Settings form state — migrate from URL params to useActionState; inline success/error feedback
 
 Recommended issue shape:
 - `M10-I1 Dark theme — CSS variable toggle and system preference default`
@@ -119,6 +120,7 @@ Recommended issue shape:
 - `M10-I7 Email truncation — ellipsis + styled tooltip on settings and share pages`
 - `M10-I8 Delete last wishlist — allow deletion with auto-created default replacement`
 - `M10-I9 Mobile header overflow — reduce padding/gap at ≤ 479 px`
+- `M10-I10 Settings form state — useActionState, inline feedback, clean URL`
 
 Recommended PR order:
 1. `M10-I1 Dark theme — CSS variable toggle and system preference default`

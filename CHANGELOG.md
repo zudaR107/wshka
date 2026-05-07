@@ -45,6 +45,10 @@ The format is based on Keep a Changelog, and this project follows SemVer.
 ### Fixed
 - Notification badge no longer restores stale unread count after navigating
   away from `/notifications`.
+- Settings form migrated from URL-param status (redirect to
+  /settings?status=saved) to useActionState; URL stays clean after save.
+  Save button turns green ("Сохранено ✓") on success and red
+  ("Не сохранено ✕") on error, reverting after 2.5 s.
 - Site header no longer overflows horizontally on narrow mobile viewports;
   padding and gap reduced at ≤ 479 px.
 - Dashboard wishlist title now uses `line-height: 1.25` so long names wrap

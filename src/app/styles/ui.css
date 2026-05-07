@@ -205,6 +205,26 @@
     color: var(--color-accent);
   }
 
+  .ui-button-success {
+    background: #16a34a;
+    border-color: transparent;
+    color: #ffffff;
+  }
+
+  .ui-button-success:hover {
+    background: #15803d;
+  }
+
+  .ui-button-error {
+    background: #ef4444;
+    border-color: transparent;
+    color: #ffffff;
+  }
+
+  .ui-button-error:hover {
+    background: #dc2626;
+  }
+
   .ui-button-full {
     width: 100%;
     justify-content: center;

@@ -53,6 +53,18 @@
   border-color: #7f2d3a;
   background: #2d0e12;
 }
+.dark .ui-button-success {
+  background: #15803d;
+}
+.dark .ui-button-success:hover {
+  background: #166534;
+}
+.dark .ui-button-error {
+  background: #dc2626;
+}
+.dark .ui-button-error:hover {
+  background: #b91c1c;
+}
 
 /* Messages */
 .dark .ui-message-success {
