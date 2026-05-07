@@ -5,6 +5,7 @@ const mocks = vi.hoisted(() => ({
   fanOutNotifications: vi.fn(),
   // db.query
   findWishlistItem: vi.fn(),
+  findShareLink: vi.fn(),
   // db.select chain (for reading active reservers)
   select: vi.fn(),
   selectFrom: vi.fn(),
@@ -34,6 +35,9 @@ vi.mock("../../src/shared/db", () => ({
       wishlistItems: {
         findFirst: mocks.findWishlistItem,
       },
+      shareLinks: {
+        findFirst: mocks.findShareLink,
+      },
     },
     select: mocks.select,
     update: mocks.update,
@@ -47,6 +51,10 @@ vi.mock("../../src/modules/reservation/db/schema", () => ({
 
 vi.mock("../../src/modules/wishlist/db/schema", () => ({
   wishlistItems: {},
+}));
+
+vi.mock("../../src/modules/share/db/schema", () => ({
+  shareLinks: {},
 }));
 
 import {
@@ -81,6 +89,7 @@ describe("wishlist item update flow", () => {
 
     mocks.getWishlistForUser.mockResolvedValue(baseWishlist);
     mocks.findWishlistItem.mockResolvedValue(baseItem);
+    mocks.findShareLink.mockResolvedValue(null);
     mocks.fanOutNotifications.mockResolvedValue(undefined);
 
     mocks.update.mockReturnValue({ set: mocks.updateSet });

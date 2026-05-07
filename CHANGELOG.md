@@ -7,77 +7,40 @@ The format is based on Keep a Changelog, and this project follows SemVer.
 ## [Unreleased]
 
 ### Added
-- English locale: complete `en/` i18n dictionary (all three namespaces:
-  `app`, `common`, `metadata`) with natural idiomatic English translations.
-- Locale switcher in the header: authenticated users toggle via the gear
-  dropdown; guests toggle via a globe icon button next to the theme toggle.
-  Switching sets a `locale` cookie and calls `router.refresh()` (no full
-  page reload — server components re-render with the new locale in place).
-- Default wishlist name on registration is locale-aware: English users get
-  "My wishlist"; Russian users get "Мой список". The name is resolved from
-  the active locale cookie at registration time and passed to `registerUser()`.
-- Privacy Policy and Terms of Use pages are now fully bilingual: switching
-  to English renders a complete English translation of both legal pages;
-  page `<title>` is also locale-aware via `generateMetadata()`.
-- Browser auto-detect: a Next.js middleware reads `Accept-Language` on first
-  visit (no `locale` cookie yet) and sets `locale=en` or `locale=ru`
-  accordingly; falls back to `ru` for unlisted languages.
-- `LocaleProvider` + `useTranslations()`: React context that propagates the
-  server-resolved locale to all client components without prop drilling.
-  Server components call `getLocale()` + `getTranslations(ns, locale)` directly.
-- `getLocale()` server helper: reads the `locale` cookie via `next/headers`.
-- `lang` attribute on `<html>` now reflects the active locale (`ru` or `en`).
-- `<html lang>` and OpenGraph `locale` in page metadata are locale-aware.
-- `formatPrice()` now accepts an optional `currencySymbol` parameter,
-  decoupling price formatting from the i18n module (preparation for M10-I4).
-- Price-input inline hints (`priceInput.nonNumericHint`, `priceInput.tooLargeHint`)
-  moved from hardcoded Russian strings into the i18n `common` namespace.
-- Cookie-banner `aria-label` moved into i18n `common.cookieBanner.ariaLabel`.
-- Multi-currency support: items now store a `currency` column (RUB/USD/EUR/GBP/CNY);
-  prices are displayed with the correct symbol everywhere (dashboard, share page,
-  reservations). Existing rows default to RUB via migration.
-- `preferredCurrency` user profile field: saved in Settings and pre-selected in
-  the create-item form so new wishes default to the user's chosen currency.
-- `CurrencySelect` custom dropdown component: replaces the native `<select>` in
-  the item forms and Settings page. Opens upward (above the trigger button) with
-  a rotating chevron indicator; left/right alignment is configurable via `align` prop.
-
-- In-app notification system (M10-I5): authenticated users receive a
-  notification when an item they have reserved is updated or deleted by the
-  owner. A bell icon with an unread badge appears in the navigation bar.
-  Clicking it opens a dropdown with the five most recent notifications and
-  a "Mark all as read" button. All notifications are listed on a new
-  `/notifications` page, which also auto-marks them as read on visit.
-  Notifications are stored in a new `notifications` DB table (Drizzle
-  migration generated). `--color-error` design token added to `base.css`.
+- English locale: complete `en/` i18n dictionary; locale switcher in header
+  (gear dropdown for auth users, globe button for guests); `Accept-Language`
+  auto-detect on first visit; `LocaleProvider` + `useTranslations()` for
+  client components; `lang` attribute and OG `locale` in metadata locale-aware.
+- Multi-currency support: `currency` column on items (RUB/USD/EUR/GBP/CNY);
+  `preferredCurrency` user profile field; `CurrencySelect` component; prices
+  display with correct symbol on dashboard, share page, and reservations.
+- Dark theme: CSS variable toggle in gear dropdown; `localStorage` persistence;
+  `prefers-color-scheme: dark` applied via inline `<head>` script before hydration.
+- Background parallax: viewport-fixed `body::before` layer; `WallpaperParallax`
+  client component — `pointermove` ±20 px, scroll ±90 px, both RAF-throttled;
+  `prefers-reduced-motion` respected; `overscroll-behavior: none` on `<html>`.
+- In-app notification system (M10-I5): bell icon with unread badge in nav;
+  dropdown with five most recent unread items and "Mark all as read" action;
+  `/notifications` page with full list. Types: `item_updated`, `item_deleted`,
+  `reservation_created`, `reservation_cancelled`, `owner_updated` (bio change
+  notifies active reservers). Each notification stores a static `shareToken`
+  snapshot — link regeneration revokes old notification links. Navigating from
+  a notification scrolls to the target item or bio section with a highlight
+  animation (via `sessionStorage`). Badge polls `/api/notifications/poll` every
+  30 s without requiring page interaction. Cross-tab session sync via
+  `visibilitychange` → `router.refresh()`. DB: `notifications` table with
+  nullable `wishlist_id` and `share_token` column. `--color-error` token added.
 
 ### Changed
-- Background parallax: wallpaper pattern is rendered on a viewport-fixed
-  `body::before` pseudo-element. A `WallpaperParallax` client component
-  drives two combined inputs — `pointermove` shifts the layer ±20 px
-  opposite to the pointer (depth-through-window effect); `wheel` and
-  `scroll` events re-read `window.scrollY` and map it as a fraction of
-  total page height to a fixed ±90 px range, so the effect is evenly
-  distributed across any page length. `wheel` covers Mac trackpad
-  momentum; `scroll` covers mobile touch scroll. Both are RAF-throttled.
-  `prefers-reduced-motion: reduce` disables the component entirely.
-  Dark mode dims the wallpaper layer via `opacity: 0.18` instead of
-  the previous gradient overlay.
-- Site header: removed `backdrop-filter: blur(12px)` for performance;
-  background opacity raised from 0.88 to 0.92 to compensate.
-- Site layout: added `overscroll-behavior: none` on `<html>` to prevent
-  rubber-band overscroll from exposing the fixed wallpaper layer behind
-  the header and footer.
-- Mobile header: logo text («Wshka») is now hidden at ≤479 px on all
-  nav states (was hidden for authenticated users only), freeing space
-  for the theme toggle.
-- Dark theme: CSS custom property overrides under `.dark` class on `<html>`;
-  all design tokens and hardcoded palette values have dark equivalents.
-- Theme toggle in the account menu (gear icon dropdown): switches immediately
-  without page reload; preference persisted in `localStorage`.
-- System preference default: `prefers-color-scheme: dark` is respected on
-  first visit via an inline script in `<head>` that applies the class before
-  hydration, preventing any flash of the wrong theme.
+- Site header: removed `backdrop-filter: blur` for performance; background
+  opacity raised to 0.92.
+- Mobile header: logo hidden at ≤479 px on all nav states.
+- Dark mode dims wallpaper layer via `opacity: 0.18`.
+- Invalid share page uses same layout and styles as the 404 page.
+
+### Fixed
+- Notification badge no longer restores stale unread count after navigating
+  away from `/notifications`.
 
 ## [1.1.0] - 2026-04-28
 

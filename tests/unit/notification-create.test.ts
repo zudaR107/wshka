@@ -28,6 +28,7 @@ const BASE = {
   itemId: "item-uuid",
   itemTitle: "Cool Sneakers",
   wishlistId: "wishlist-uuid",
+  shareToken: null as string | null,
 };
 
 function setup() {
@@ -68,6 +69,22 @@ describe("createNotification", () => {
 
     expect(mocks.insertValues).toHaveBeenCalledWith(
       expect.objectContaining({ itemId: null, type: "item_deleted" }),
+    );
+  });
+
+  it("persists shareToken in the inserted row", async () => {
+    await createNotification({ userId: "user-1", ...BASE, shareToken: "abc-token" });
+
+    expect(mocks.insertValues).toHaveBeenCalledWith(
+      expect.objectContaining({ shareToken: "abc-token" }),
+    );
+  });
+
+  it("persists null shareToken when not applicable", async () => {
+    await createNotification({ userId: "user-1", ...BASE, shareToken: null });
+
+    expect(mocks.insertValues).toHaveBeenCalledWith(
+      expect.objectContaining({ shareToken: null }),
     );
   });
 });

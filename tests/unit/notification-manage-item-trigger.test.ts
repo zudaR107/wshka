@@ -6,6 +6,7 @@ const mocks = vi.hoisted(() => ({
   validateWishlistItemInput: vi.fn(),
   // db
   findWishlistItem: vi.fn(),
+  findShareLink: vi.fn(),
   selectReservations: vi.fn(),
   selectFrom: vi.fn(),
   selectWhere: vi.fn(),
@@ -38,6 +39,9 @@ vi.mock("../../src/shared/db", () => ({
       wishlistItems: {
         findFirst: mocks.findWishlistItem,
       },
+      shareLinks: {
+        findFirst: mocks.findShareLink,
+      },
     },
     select: mocks.selectReservations,
     update: mocks.update,
@@ -51,6 +55,10 @@ vi.mock("../../src/modules/reservation/db/schema", () => ({
 
 vi.mock("../../src/modules/wishlist/db/schema", () => ({
   wishlistItems: {},
+}));
+
+vi.mock("../../src/modules/share/db/schema", () => ({
+  shareLinks: {},
 }));
 
 import {
@@ -85,6 +93,9 @@ function setupChains() {
   mocks.deleteWhere.mockReturnValue({ returning: mocks.deleteReturning });
   mocks.deleteReturning.mockResolvedValue([{ id: "item-1" }]);
 
+  // share link lookup
+  mocks.findShareLink.mockResolvedValue({ token: "share-token-1" });
+
   // notification fan-out
   mocks.fanOutNotifications.mockResolvedValue(undefined);
 }
@@ -109,13 +120,18 @@ describe("updateCurrentWishlistItem notification trigger", () => {
     });
 
     expect(result.status).toBe("success");
-    // fanOutNotifications is called with void (best-effort) so we wait a tick
-    await vi.runAllTimersAsync().catch(() => {});
-    await Promise.resolve();
+    // notifyReservers is fire-and-forget (void) with multiple awaits inside;
+    // setImmediate flushes all pending microtasks before asserting.
+    await new Promise<void>((resolve) => setImmediate(resolve));
 
     expect(mocks.fanOutNotifications).toHaveBeenCalledWith(
       ["reserver-1"],
-      expect.objectContaining({ type: "item_updated", itemId: "item-1" }),
+      expect.objectContaining({
+        type: "item_updated",
+        itemId: "item-1",
+        wishlistId: "wl-1",
+        shareToken: "share-token-1",
+      }),
     );
   });
 
@@ -145,7 +161,7 @@ describe("deleteCurrentWishlistItem notification trigger", () => {
     const result = await deleteCurrentWishlistItem("owner-1", "wl-1", "item-1");
 
     expect(result.status).toBe("success");
-    await Promise.resolve();
+    await new Promise<void>((resolve) => setImmediate(resolve));
 
     expect(mocks.fanOutNotifications).toHaveBeenCalledWith(
       ["reserver-1"],
@@ -172,7 +188,7 @@ describe("deleteCurrentWishlistItem notification trigger", () => {
     const result = await deleteCurrentWishlistItem("owner-1", "wl-1", "item-1");
 
     expect(result.status).toBe("success");
-    await Promise.resolve();
+    await new Promise<void>((resolve) => setImmediate(resolve));
 
     expect(mocks.fanOutNotifications).toHaveBeenCalledWith(
       [],
