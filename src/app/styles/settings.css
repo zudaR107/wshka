@@ -26,7 +26,10 @@
   .settings-field-value {
     font-size: var(--font-size-label);
     color: var(--color-text-strong);
-    word-break: break-all;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .settings-section > .content-section-label {

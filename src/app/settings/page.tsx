@@ -44,7 +44,7 @@ export default async function SettingsPage(props: SettingsPageProps) {
         <p className="content-section-label">{messages.settings.accountSection}</p>
         <div className="settings-field-row">
           <span className="settings-field-label">{messages.settings.emailLabel}</span>
-          <span className="settings-field-value">{user.email}</span>
+          <span className="settings-field-value" title={user.email}>{user.email}</span>
         </div>
       </section>
 

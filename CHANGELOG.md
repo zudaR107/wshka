@@ -45,6 +45,11 @@ The format is based on Keep a Changelog, and this project follows SemVer.
   without excessive vertical gaps on mobile.
 - Hover underline on wishlist title is now continuous across all characters,
   including Russian "Д" (`text-decoration-skip-ink: none`).
+- Long email addresses on the settings page are truncated with ellipsis;
+  full address visible via native tooltip on hover.
+- Share page owner email now shows only the local part (before "@");
+  full address appears in a styled tooltip on hover (desktop) or tap
+  (mobile) via the new `OwnerEmail` client component.
 
 ## [1.1.0] - 2026-04-28
 

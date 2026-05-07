@@ -64,8 +64,8 @@ describe("parallax wallpaper", () => {
       );
     });
 
-    it("does not use will-change so backdrop-filter on the header can see the layer", () => {
-      expect(baseCSS).not.toContain("will-change");
+    it("promotes the layer to a GPU compositor layer via will-change", () => {
+      expect(baseCSS).toContain("will-change: transform");
     });
   });
 

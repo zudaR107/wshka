@@ -182,12 +182,46 @@
   }
 
   .share-page-owner-email {
+    position: relative;
+    display: inline-flex;
+    align-items: baseline;
+    max-width: 100%;
+    min-width: 0;
     font-size: 1.75rem;
     font-weight: 800;
     color: var(--color-accent);
     letter-spacing: -0.03em;
-    word-break: break-all;
-    overflow-wrap: break-word;
+    cursor: pointer;
+  }
+
+  .share-page-owner-email-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+  }
+
+  .share-owner-email-tooltip {
+    position: absolute;
+    top: calc(100% + var(--space-2));
+    left: 0;
+    z-index: 20;
+    background: var(--color-text-strong);
+    color: var(--color-bg-surface);
+    font-size: var(--font-size-label);
+    font-weight: 500;
+    letter-spacing: 0;
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-sm);
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 150ms ease;
+  }
+
+  .share-page-owner-email:hover .share-owner-email-tooltip,
+  .share-page-owner-email[data-open="true"] .share-owner-email-tooltip {
+    opacity: 1;
   }
 
   .share-owner-bio {
