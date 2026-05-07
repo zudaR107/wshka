@@ -41,6 +41,10 @@ The format is based on Keep a Changelog, and this project follows SemVer.
 ### Fixed
 - Notification badge no longer restores stale unread count after navigating
   away from `/notifications`.
+- Dashboard wishlist title now uses `line-height: 1.25` so long names wrap
+  without excessive vertical gaps on mobile.
+- Hover underline on wishlist title is now continuous across all characters,
+  including Russian "Д" (`text-decoration-skip-ink: none`).
 
 ## [1.1.0] - 2026-04-28
 
