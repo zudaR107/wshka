@@ -45,6 +45,8 @@ The format is based on Keep a Changelog, and this project follows SemVer.
 ### Fixed
 - Notification badge no longer restores stale unread count after navigating
   away from `/notifications`.
+- Site header no longer overflows horizontally on narrow mobile viewports;
+  padding and gap reduced at ≤ 479 px.
 - Dashboard wishlist title now uses `line-height: 1.25` so long names wrap
   without excessive vertical gaps on mobile.
 - Hover underline on wishlist title is now continuous across all characters,
