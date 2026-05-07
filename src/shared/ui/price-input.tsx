@@ -127,7 +127,7 @@ export function PriceInput({ id, name, defaultValue, className, autoFocus, error
   }
 
   return (
-    <>
+    <div className="price-input-wrapper">
       <input
         ref={inputRef}
         id={id}
@@ -142,14 +142,10 @@ export function PriceInput({ id, name, defaultValue, className, autoFocus, error
         onBlur={handleBlur}
       />
       {hint === "non-numeric" ? (
-        <p className="ui-note" style={{ color: "var(--color-status-reserved)" }}>
-          {common.priceInput.nonNumericHint}
-        </p>
+        <p className="ui-note ui-note-error">{common.priceInput.nonNumericHint}</p>
       ) : hint === "too-large" ? (
-        <p className="ui-note" style={{ color: "var(--color-status-reserved)" }}>
-          {common.priceInput.tooLargeHint}: {maxPriceDisplay}.
-        </p>
+        <p className="ui-note ui-note-error">{common.priceInput.tooLargeHint}: {maxPriceDisplay}.</p>
       ) : null}
-    </>
+    </div>
   );
 }

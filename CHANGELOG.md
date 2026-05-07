@@ -60,6 +60,12 @@ The format is based on Keep a Changelog, and this project follows SemVer.
 - Share page owner email now shows only the local part (before "@");
   full address appears in a styled tooltip on hover (desktop) or tap
   (mobile) via the new `OwnerEmail` client component.
+- Price input hint no longer appears inline with the currency select;
+  `PriceInput` now wraps its children in a column flex container
+  (`.price-input-wrapper`) so the hint renders below the field.
+- Price input hint color changed from violet (`--color-status-reserved`)
+  to `--color-error` via new `.ui-note-error` modifier; red in light
+  mode, lighter red in dark mode.
 
 ## [1.1.0] - 2026-04-28
 
