@@ -5,18 +5,23 @@ Build Wshka: a minimal, fast wishlist app.
 Core flow: create wishlist → share link → reserve gift.
 
 ## Current Status
-`v1.0.0` shipped. Next focus: `v1.1.0` (multiple wishlists, prioritization,
-account profile data). See `docs/master-plan.md` for full roadmap.
+`v1.1.0` shipped. Working on `v1.2.0` (M10): M10-I1–I5 complete,
+M10-I6 bugfix batch in progress. See `docs/master-plan.md` for full roadmap.
 
-## v1.0.0 Scope (shipped)
+## Shipped Features (as of v1.1.0 + M10-I1–I5)
 - email/password auth with auto-login after registration
-- one wishlist per user in UI
-- wishlist item CRUD (title, url, note, price)
+- multiple wishlists per user (create, rename, delete; last cannot be deleted)
+- wishlist item CRUD with starring, multi-currency price display
 - public share link (create, revoke, regenerate)
-- reservation by another authenticated user
-- owner sees reserved status without reserver identity
-- reserver can cancel their own reservation
-- Russian locale, light theme, full CI/CD
+- reservation by authenticated non-owner; owner sees reserved state (no identity)
+- reserver can cancel own reservation
+- owner bio in settings; shown on share page to authenticated viewers
+- self-reservation from dashboard and share page
+- in-app notification system: bell badge, dropdown, `/notifications` page;
+  types: item_updated, item_deleted, reservation_created, reservation_cancelled,
+  owner_updated; polling every 30 s; cross-tab session sync
+- dark theme, background parallax, English locale, multi-currency display
+- Russian/English locale, light/dark theme, full CI/CD
 
 ## Stack
 Next.js, TypeScript, PostgreSQL, Drizzle, Tailwind,
@@ -31,11 +36,12 @@ Vitest, Playwright, Docker Compose, Caddy.
 - Prefer the smallest correct change
 
 ## Domain Invariants
-- One active wishlist per user in v1.0.0 — product rule, not schema limit
+- Multiple wishlists per user; last wishlist cannot be deleted
 - Public access only through active share tokens
-- Only authenticated non-owners can reserve items
+- Only authenticated non-owners can reserve items (owners can self-reserve)
 - At most one active reservation per item
 - Owners never see reserver identity
+- Notification `shareToken` is a static snapshot — link regeneration revokes old links
 
 ## Routes
 | Route | Access |
@@ -43,6 +49,8 @@ Vitest, Playwright, Docker Compose, Caddy.
 | `/` | Guest landing / owner dashboard |
 | `/login`, `/register` | Public |
 | `/reservations` | Auth — reserver's active reservations |
+| `/settings` | Auth — account settings (email, bio, currency) |
+| `/notifications` | Auth — in-app notification feed |
 | `/share/[token]` | Public — read-only wishlist |
 | `/roadmap`, `/privacy`, `/terms` | Public |
 | `/healthz` | Public-safe health check |

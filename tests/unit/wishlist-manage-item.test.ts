@@ -2,10 +2,20 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
   getWishlistForUser: vi.fn(),
+  fanOutNotifications: vi.fn(),
+  // db.query
+  findWishlistItem: vi.fn(),
+  findShareLink: vi.fn(),
+  // db.select chain (for reading active reservers)
+  select: vi.fn(),
+  selectFrom: vi.fn(),
+  selectWhere: vi.fn(),
+  // db.update chain
   update: vi.fn(),
   updateSet: vi.fn(),
   updateWhere: vi.fn(),
   updateReturning: vi.fn(),
+  // db.delete chain
   deleteItem: vi.fn(),
   deleteWhere: vi.fn(),
   deleteReturning: vi.fn(),
@@ -15,11 +25,36 @@ vi.mock("../../src/modules/wishlist/server/current-wishlist", () => ({
   getWishlistForUser: mocks.getWishlistForUser,
 }));
 
+vi.mock("../../src/modules/notification/server/create-notification", () => ({
+  fanOutNotifications: mocks.fanOutNotifications,
+}));
+
 vi.mock("../../src/shared/db", () => ({
   db: {
+    query: {
+      wishlistItems: {
+        findFirst: mocks.findWishlistItem,
+      },
+      shareLinks: {
+        findFirst: mocks.findShareLink,
+      },
+    },
+    select: mocks.select,
     update: mocks.update,
     delete: mocks.deleteItem,
   },
+}));
+
+vi.mock("../../src/modules/reservation/db/schema", () => ({
+  reservations: {},
+}));
+
+vi.mock("../../src/modules/wishlist/db/schema", () => ({
+  wishlistItems: {},
+}));
+
+vi.mock("../../src/modules/share/db/schema", () => ({
+  shareLinks: {},
 }));
 
 import {
@@ -36,24 +71,32 @@ const baseWishlist = {
   updatedAt: new Date("2026-04-11T00:00:00.000Z"),
 };
 
+const baseItem = {
+  id: "item-1",
+  title: "Наушники",
+  wishlistId: "wishlist-1",
+};
+
+function setupSelectChain(rows: unknown[] = []) {
+  mocks.select.mockReturnValue({ from: mocks.selectFrom });
+  mocks.selectFrom.mockReturnValue({ where: mocks.selectWhere });
+  mocks.selectWhere.mockResolvedValue(rows);
+}
+
 describe("wishlist item update flow", () => {
   beforeEach(() => {
-    mocks.getWishlistForUser.mockReset();
-    mocks.update.mockReset();
-    mocks.updateSet.mockReset();
-    mocks.updateWhere.mockReset();
-    mocks.updateReturning.mockReset();
-    mocks.deleteItem.mockReset();
-    mocks.deleteWhere.mockReset();
-    mocks.deleteReturning.mockReset();
+    vi.clearAllMocks();
+
+    mocks.getWishlistForUser.mockResolvedValue(baseWishlist);
+    mocks.findWishlistItem.mockResolvedValue(baseItem);
+    mocks.findShareLink.mockResolvedValue(null);
+    mocks.fanOutNotifications.mockResolvedValue(undefined);
 
     mocks.update.mockReturnValue({ set: mocks.updateSet });
     mocks.updateSet.mockReturnValue({ where: mocks.updateWhere });
     mocks.updateWhere.mockReturnValue({ returning: mocks.updateReturning });
-    mocks.deleteItem.mockReturnValue({ where: mocks.deleteWhere });
-    mocks.deleteWhere.mockReturnValue({ returning: mocks.deleteReturning });
 
-    mocks.getWishlistForUser.mockResolvedValue(baseWishlist);
+    setupSelectChain([]); // no active reservers by default
   });
 
   it("updates an item in the current owner wishlist", async () => {
@@ -91,8 +134,8 @@ describe("wishlist item update flow", () => {
     expect(mocks.update).not.toHaveBeenCalled();
   });
 
-  it("returns item-not-found when the item is outside the current owner wishlist", async () => {
-    mocks.updateReturning.mockResolvedValue([]);
+  it("returns item-not-found when the item is not found before update", async () => {
+    mocks.findWishlistItem.mockResolvedValue(null);
 
     await expect(
       updateCurrentWishlistItem("user-1", "wishlist-1", "item-1", {
@@ -121,14 +164,16 @@ describe("wishlist item update flow", () => {
 
 describe("wishlist item delete flow", () => {
   beforeEach(() => {
-    mocks.getWishlistForUser.mockReset();
-    mocks.deleteItem.mockReset();
-    mocks.deleteWhere.mockReset();
-    mocks.deleteReturning.mockReset();
+    vi.clearAllMocks();
+
+    mocks.getWishlistForUser.mockResolvedValue(baseWishlist);
+    mocks.findWishlistItem.mockResolvedValue(baseItem);
+    mocks.fanOutNotifications.mockResolvedValue(undefined);
 
     mocks.deleteItem.mockReturnValue({ where: mocks.deleteWhere });
     mocks.deleteWhere.mockReturnValue({ returning: mocks.deleteReturning });
-    mocks.getWishlistForUser.mockResolvedValue(baseWishlist);
+
+    setupSelectChain([]); // no active reservers by default
   });
 
   it("deletes an item from the current owner wishlist", async () => {

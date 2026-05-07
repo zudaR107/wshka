@@ -19,25 +19,28 @@ create a wishlist → share it by link → let another person reserve a gift.
 ### Entities
 | Entity | Purpose | Contract |
 |---|---|---|
-| `User` | Account owner or reserver | Unique `email`; password stored only as hash |
+| `User` | Account owner or reserver | Unique `email`; password stored only as hash; optional `bio`; `preferredCurrency` |
 | `Session` | Authenticated access | Required for owner actions and reservations |
-| `Wishlist` | Container for items | Schema and UI support many per user; default created on registration |
-| `WishlistItem` | Single wish | Fields: `title`, `url?`, `note?`, `price?` |
+| `Wishlist` | Container for items | Many per user; default created on registration; last cannot be deleted |
+| `WishlistItem` | Single wish | Fields: `title`, `url?`, `note?`, `price?`, `currency`, `starred` |
 | `ShareLink` | Public read-only access | Opaque token; one active per wishlist; revocable |
 | `Reservation` | Item reservation | At most one active per item |
+| `Notification` | In-app alert | Types: `item_updated`, `item_deleted`, `reservation_created`, `reservation_cancelled`, `owner_updated`; stores static `shareToken` snapshot |
 
 ### Domain Rules
 - Reservation state is derived from active records, not denormalized flags.
 - Public access requires an active share token.
 - Owners see reserved status but never reserver identity.
+- Owners may self-reserve their own items.
+- Notification `shareToken` is a static snapshot taken at creation time; regenerating the share link revokes old notification deep-links.
 - All text goes through i18n keys. All theme values go through design tokens.
 
 ## Access Contract
 | Actor | Allowed Actions |
 |---|---|
 | Guest | View `/`, `/login`, `/register`, valid public share pages |
-| Owner | Manage wishlist, items, share link; see reserved state |
-| Authenticated non-owner | Reserve items via share page, view and cancel own reservations |
+| Owner | Manage wishlists, items, share link; self-reserve and cancel own reservations; receive and view notifications |
+| Authenticated non-owner | Reserve items via share page; view and cancel own reservations; receive and view notifications |
 
 ## Route Map
 | Route | Access | Purpose |
@@ -46,7 +49,8 @@ create a wishlist → share it by link → let another person reserve a gift.
 | `/login` | public | Login |
 | `/register` | public | Registration |
 | `/reservations` | auth | Current user's reservations |
-| `/settings` | auth | Account settings (email, bio) |
+| `/settings` | auth | Account settings (email, bio, preferred currency) |
+| `/notifications` | auth | In-app notification feed |
 | `/share/[token]` | public | Public read-only wishlist |
 | `/roadmap` | public | Product roadmap |
 | `/privacy` | public | Privacy policy |
@@ -92,25 +96,31 @@ Goal:
 - no schema migrations required; all changes are frontend-only
 
 Status:
-- ✅ complete (all 4 issues shipped)
+- ✅ M10-I1–I5 complete; M10-I6 in progress (bugfix batch)
 
 Execution backlog:
 1. ✅ Dark theme — CSS variable toggle, `localStorage` persistence, `prefers-color-scheme` default
 2. ✅ Background parallax — subtle depth effect on the wallpaper pattern, CSS or JS-driven
 3. ✅ English locale — `en/` i18n dictionary, locale switcher in header, browser auto-detect
 4. ✅ Multiple currencies — currency per wish item, default currency preference in profile, locale-aware display formatting
+5. ✅ Notification system — in-app alerts when a reserved item is updated or deleted; bell icon in nav with unread badge; `/notifications` page; `owner_updated` type for bio changes; static share token snapshots; scroll/highlight navigation; 30 s polling
+6. 🔄 M10-I6 Bugfixes — post-M10-I5 bug fixes discovered during manual QA
 
 Recommended issue shape:
 - `M10-I1 Dark theme — CSS variable toggle and system preference default`
 - `M10-I2 Background parallax — depth effect on wallpaper pattern`
 - `M10-I3 English locale — en/ dictionary, locale switcher, browser auto-detect`
 - `M10-I4 Multiple currencies — per-item currency, default currency preference in profile, display formatting`
+- `M10-I5 Notification system — in-app alerts on reserved item changes`
+- `M10-I6 Bugfixes — post-notification-system bug fixes`
 
 Recommended PR order:
 1. `M10-I1 Dark theme — CSS variable toggle and system preference default`
 2. `M10-I2 Background parallax — depth effect on wallpaper pattern`
 3. `M10-I3 English locale — en/ dictionary, locale switcher, browser auto-detect`
 4. `M10-I4 Multiple currencies — per-item currency, default currency preference in profile, display formatting`
+5. `M10-I5 Notification system — in-app alerts on reserved item changes`
+6. `M10-I6 Bugfixes — post-notification-system bug fixes`
 
 Dependencies:
 - `M10-I1` has no dependencies

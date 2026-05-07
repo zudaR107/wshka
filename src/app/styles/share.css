@@ -155,6 +155,16 @@
     gap: 0;
   }
 
+  @keyframes bio-highlight-pulse {
+    0%   { box-shadow: 0 0 0 2px var(--color-accent); background: var(--color-accent-surface); }
+    60%  { box-shadow: 0 0 0 2px var(--color-accent); background: var(--color-accent-surface); }
+    100% { box-shadow: 0 0 0 0px transparent; background: var(--color-bg-subtle); }
+  }
+
+  .share-owner-card--highlight {
+    animation: bio-highlight-pulse 1.8s ease-out forwards;
+  }
+
   .share-page-title-row {
     display: flex;
     flex-wrap: wrap;
@@ -189,15 +199,5 @@
     word-break: break-word;
   }
 
-  .share-unavailable {
-    max-width: 44rem;
-    margin: 0 auto;
-    padding: var(--space-8) var(--space-4) var(--space-16);
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-6);
-    text-align: center;
-    align-items: center;
-  }
 
 }
