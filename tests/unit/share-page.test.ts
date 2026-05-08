@@ -1,4 +1,6 @@
 import React from "react";
+import { readFileSync } from "fs";
+import { resolve } from "path";
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -445,5 +447,17 @@ describe("cancelShareReservationAction", () => {
     const result = await cancelShareReservationAction(null, formData);
 
     expect(result).toEqual({ status: "error", error: "not-reservation-owner" });
+  });
+});
+
+describe("ShareCancelReservationButton style", () => {
+  const src = readFileSync(
+    resolve(__dirname, "../../src/app/share/[token]/share-cancel-reservation-button.tsx"),
+    "utf-8",
+  );
+
+  it("uses item-delete-btn class (danger/red style matching dashboard delete buttons)", () => {
+    expect(src).toContain("item-delete-btn");
+    expect(src).not.toContain("item-cancel-reservation-btn");
   });
 });

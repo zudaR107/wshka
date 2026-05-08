@@ -81,6 +81,8 @@ The format is based on Keep a Changelog, and this project follows SemVer.
 - Status strip on /reservations now always uses the blue self-reserved
   style and "Reserved by me" label; previously showed pink for items
   from other users' wishlists.
+- Cancel reservation button on the share page now uses the red danger
+  style (item-delete-btn) consistent with dashboard delete buttons.
 
 ## [1.1.0] - 2026-04-28
 
