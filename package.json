@@ -23,7 +23,7 @@
     "next": "^15.0.0",
     "pg": "^8.20.0",
     "postcss": "^8.5.10",
-    "react": "^19.2.5",
+    "react": "^19.2.6",
     "react-dom": "^19.2.5",
     "@tailwindcss/postcss": "^4",
     "tailwindcss": "^4",
