@@ -113,6 +113,7 @@ Execution backlog:
 11. ✅ M10-I11 Price input hint — fix inline layout (hint renders below field) and unreadable color in dark mode
 12. ✅ M10-I12 Owner cancel reservation — owner can cancel a reservation made by another user on their own wish; reserver receives `reservation_cancelled` notification
 13. ✅ M10-I13 Hide reservation status from owner — dashboard hides "reserved" status from the owner by default; opt-in toggle in settings; self-reservations always visible
+14. ✅ M10-I14 Suppress self-reservation notifications — no notification sent when owner reserves or cancels their own wish
 
 Recommended issue shape:
 - `M10-I1 Dark theme — CSS variable toggle and system preference default`

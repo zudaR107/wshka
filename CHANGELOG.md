@@ -76,6 +76,8 @@ The format is based on Keep a Changelog, and this project follows SemVer.
 - `owner_updated` notification now fires only when the bio field actually
   changes; saving currency or the reservations toggle no longer triggers
   notifications to active reservers.
+- `reservation_created` and `reservation_cancelled` notifications are no
+  longer sent when the owner reserves or cancels their own wish.
 
 ## [1.1.0] - 2026-04-28
 

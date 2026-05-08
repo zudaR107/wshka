@@ -193,7 +193,7 @@ export async function createReservation(
     }
 
     // Notify wishlist owner (best-effort)
-    void notifyOwner(itemContext.ownerUserId, "reservation_created", {
+    void notifyOwner(itemContext.ownerUserId, userId, "reservation_created", {
       itemId: itemContext.itemId,
       itemTitle: itemContext.itemTitle,
       wishlistId: itemContext.wishlistId,
@@ -310,7 +310,7 @@ export async function cancelReservation(
     // Notify wishlist owner (best-effort)
     void findReservationItemContext(currentReservation.wishlistItemId).then((ctx) => {
       if (!ctx) return;
-      notifyOwner(ctx.ownerUserId, "reservation_cancelled", {
+      notifyOwner(ctx.ownerUserId, userId, "reservation_cancelled", {
         itemId: ctx.itemId,
         itemTitle: ctx.itemTitle,
         wishlistId: ctx.wishlistId,
@@ -406,9 +406,13 @@ async function getDb() {
 
 async function notifyOwner(
   ownerUserId: string,
+  reserverUserId: string,
   type: "reservation_created" | "reservation_cancelled",
   ctx: { itemId: string; itemTitle: string; wishlistId: string },
 ): Promise<void> {
+  // Never notify the owner about their own self-reservation actions.
+  if (reserverUserId === ownerUserId) return;
+
   // Suppress reservation notifications when the owner has opted out of
   // seeing reservation status — they don't want to know.
   try {
