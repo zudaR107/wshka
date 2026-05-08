@@ -114,6 +114,7 @@ Execution backlog:
 12. ✅ M10-I12 Owner cancel reservation — owner can cancel a reservation made by another user on their own wish; reserver receives `reservation_cancelled` notification
 13. ✅ M10-I13 Hide reservation status from owner — dashboard hides "reserved" status from the owner by default; opt-in toggle in settings; self-reservations always visible
 14. ✅ M10-I14 Suppress self-reservation notifications — no notification sent when owner reserves or cancels their own wish
+15. ✅ M10-I15 Reservations page status color — always blue (self-reserved style) instead of pink for cross-wishlist items
 
 Recommended issue shape:
 - `M10-I1 Dark theme — CSS variable toggle and system preference default`

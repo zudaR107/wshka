@@ -60,9 +60,9 @@ export default async function ReservationsPage() {
                 className="reservation-card"
                 data-testid="reservation-card"
               >
-                <div className={`item-card-status ${reservation.isOwnItem ? "item-card-status-self-reserved" : "item-card-status-reserved"}`}>
+                <div className="item-card-status item-card-status-self-reserved">
                   <span className="item-card-status-dot" />
-                  {messages.dashboard.itemReservation.reservedLabel}
+                  {messages.dashboard.itemReservation.selfReservedLabel}
                   {reservation.isOwnItem ? (
                     <span className="item-own-badge">
                       {messages.reservations.ownItemBadge}

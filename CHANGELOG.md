@@ -78,6 +78,9 @@ The format is based on Keep a Changelog, and this project follows SemVer.
   notifications to active reservers.
 - `reservation_created` and `reservation_cancelled` notifications are no
   longer sent when the owner reserves or cancels their own wish.
+- Status strip on /reservations now always uses the blue self-reserved
+  style and "Reserved by me" label; previously showed pink for items
+  from other users' wishlists.
 
 ## [1.1.0] - 2026-04-28
 
