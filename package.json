@@ -24,7 +24,7 @@
     "pg": "^8.20.0",
     "postcss": "^8.5.10",
     "react": "^19.2.5",
-    "react-dom": "^19.2.5",
+    "react-dom": "^19.2.6",
     "@tailwindcss/postcss": "^4",
     "tailwindcss": "^4",
     "typescript": "^5.9.3"
