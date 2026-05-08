@@ -409,6 +409,19 @@ async function notifyOwner(
   type: "reservation_created" | "reservation_cancelled",
   ctx: { itemId: string; itemTitle: string; wishlistId: string },
 ): Promise<void> {
+  // Suppress reservation notifications when the owner has opted out of
+  // seeing reservation status — they don't want to know.
+  try {
+    const { users } = await import("@/modules/auth/db/schema");
+    const db = await getDb();
+    const owner = await db.query.users.findFirst({
+      columns: { showReservationsOnDashboard: true },
+      where: eq(users.id, ownerUserId),
+    });
+    if (owner && !owner.showReservationsOnDashboard) return;
+  } catch {
+    // best-effort: if check fails, fall through and send the notification
+  }
   return notifyUser(ownerUserId, type, ctx);
 }
 

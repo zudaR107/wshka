@@ -44,6 +44,7 @@ export default async function SettingsPage() {
       <SettingsForm
         defaultBio={profile?.bio ?? ""}
         defaultCurrency={preferredCurrency}
+        defaultShowReservations={profile?.showReservationsOnDashboard ?? false}
       />
     </div>
   );

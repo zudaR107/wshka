@@ -10,6 +10,10 @@ The format is based on Keep a Changelog, and this project follows SemVer.
 - Owner can cancel a reservation made by another user on their own wish
   from the dashboard; the reserver receives a `reservation_cancelled`
   notification. Self-reservations are excluded from this flow.
+- Reservation status from other users is hidden on the owner's dashboard
+  by default; opt-in toggle in Settings ("Wishlist privacy"). Self-
+  reservations always visible. New `show_reservations_on_dashboard`
+  boolean column on `users` (default false).
 - English locale: complete `en/` i18n dictionary; locale switcher in header
   (gear dropdown for auth users, globe button for guests); `Accept-Language`
   auto-detect on first visit; `LocaleProvider` + `useTranslations()` for
@@ -69,6 +73,9 @@ The format is based on Keep a Changelog, and this project follows SemVer.
 - Price input hint color changed from violet (`--color-status-reserved`)
   to `--color-error` via new `.ui-note-error` modifier; red in light
   mode, lighter red in dark mode.
+- `owner_updated` notification now fires only when the bio field actually
+  changes; saving currency or the reservations toggle no longer triggers
+  notifications to active reservers.
 
 ## [1.1.0] - 2026-04-28
 

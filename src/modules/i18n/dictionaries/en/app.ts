@@ -300,6 +300,9 @@ export const app = {
     currencySection: "Default currency",
     currencyLabel: "Currency for new wishes",
     currencyHint: "Applied when creating a new wish. You can change the currency per wish individually.",
+    reservationsSection: "Wishlist privacy",
+    showReservationsLabel: "Show which wishes are reserved",
+    showReservationsHint: "Off by default — you won't see who reserved what. Enable if you want to see the reservation status of your wishes.",
     errors: {
       bioTooLong: "Description must not exceed 500 characters.",
       unknown: "Failed to save changes. Please try again.",

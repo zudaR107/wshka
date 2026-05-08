@@ -10,13 +10,15 @@ import { saveSettingsAction, type SaveSettingsState } from "./actions";
 type SettingsFormProps = {
   defaultBio: string;
   defaultCurrency: CurrencyCode;
+  defaultShowReservations: boolean;
 };
 
-export function SettingsForm({ defaultBio, defaultCurrency }: SettingsFormProps) {
+export function SettingsForm({ defaultBio, defaultCurrency, defaultShowReservations }: SettingsFormProps) {
   const messages = useTranslations("app");
   const router = useRouter();
   const [, startTransition] = useTransition();
   const [currency, setCurrency] = useState<CurrencyCode>(defaultCurrency);
+  const [showReservations, setShowReservations] = useState(defaultShowReservations);
   const [savedRecently, setSavedRecently] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [state, formAction] = useActionState<SaveSettingsState, FormData>(
@@ -24,10 +26,14 @@ export function SettingsForm({ defaultBio, defaultCurrency }: SettingsFormProps)
     null,
   );
 
-  // Sync currency when server re-delivers fresh props after router.refresh().
+  // Sync currency/reservations when server re-delivers fresh props after router.refresh().
   useEffect(() => {
     setCurrency(defaultCurrency);
   }, [defaultCurrency]);
+
+  useEffect(() => {
+    setShowReservations(defaultShowReservations);
+  }, [defaultShowReservations]);
 
   // On any result: show transient button state, then reset after 2.5 s.
   useEffect(() => {
@@ -74,6 +80,26 @@ export function SettingsForm({ defaultBio, defaultCurrency }: SettingsFormProps)
             label={messages.settings.currencyLabel}
           />
           <p className="ui-note">{messages.settings.currencyHint}</p>
+        </div>
+      </section>
+
+      {/* Reservations visibility section */}
+      <section className="settings-section" style={{ marginTop: "var(--space-6)" }}>
+        <p className="content-section-label">{messages.settings.reservationsSection}</p>
+        <div className="settings-bio-field">
+          <label className="settings-toggle-label">
+            <input
+              type="checkbox"
+              name="showReservationsOnDashboard"
+              value="true"
+              checked={showReservations}
+              onChange={(e) => setShowReservations(e.target.checked)}
+              className="settings-toggle-input"
+            />
+            <span className="settings-toggle-track" />
+            {messages.settings.showReservationsLabel}
+          </label>
+          <p className="ui-note">{messages.settings.showReservationsHint}</p>
         </div>
       </section>
 

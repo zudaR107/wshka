@@ -97,7 +97,7 @@ Goal:
 
 Status:
 - ✅ M10-I1–I5 complete; M10-I6–I11 complete (bugfix + QA batch on branch fix/bugfixes-v120)
-- ✅ M10-I12 complete; 🔄 M10-I13 in progress
+- ✅ M10-I12–I13 complete
 
 Execution backlog:
 1. ✅ Dark theme — CSS variable toggle, `localStorage` persistence, `prefers-color-scheme` default
@@ -112,7 +112,7 @@ Execution backlog:
 10. ✅ M10-I10 Settings form state — migrate from URL params to useActionState; inline success/error feedback
 11. ✅ M10-I11 Price input hint — fix inline layout (hint renders below field) and unreadable color in dark mode
 12. ✅ M10-I12 Owner cancel reservation — owner can cancel a reservation made by another user on their own wish; reserver receives `reservation_cancelled` notification
-13. 🔄 M10-I13 Hide reservation status from owner — dashboard hides "reserved" status from the owner by default; opt-in toggle in settings; self-reservations always visible
+13. ✅ M10-I13 Hide reservation status from owner — dashboard hides "reserved" status from the owner by default; opt-in toggle in settings; self-reservations always visible
 
 Recommended issue shape:
 - `M10-I1 Dark theme — CSS variable toggle and system preference default`

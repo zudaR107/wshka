@@ -141,6 +141,7 @@ async function DashboardView({ userId }: { userId: string }) {
   }));
 
   const defaultCurrency = parseCurrency(profile?.preferredCurrency);
+  const showReservations = profile?.showReservationsOnDashboard ?? false;
 
   return (
     <div className="dashboard-page">
@@ -148,6 +149,7 @@ async function DashboardView({ userId }: { userId: string }) {
       <WishlistManager
         wishlists={wishlistsData}
         defaultCurrency={defaultCurrency}
+        showReservations={showReservations}
         deleteItemAction={deleteItemAction}
         reserveItemAction={reserveItemAction}
         cancelItemReservationAction={cancelItemReservationAction}

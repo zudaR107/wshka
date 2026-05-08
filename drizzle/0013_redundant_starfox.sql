@@ -1,0 +1,1 @@
+ALTER TABLE "users" ADD COLUMN "show_reservations_on_dashboard" boolean DEFAULT false NOT NULL;

@@ -1,7 +1,7 @@
 "use server";
 
 import { requireCurrentUser } from "@/modules/auth/server/current-user";
-import { updateUserBio, updateUserPreferredCurrency } from "@/modules/auth/server/update-bio";
+import { getUserProfile, updateUserBio, updateUserPreferredCurrency, updateUserShowReservations } from "@/modules/auth/server/update-bio";
 import { parseCurrency } from "@/shared/lib/currency";
 
 export type SaveSettingsState = {
@@ -17,10 +17,14 @@ export async function saveSettingsAction(
   const user = await requireCurrentUser();
   const nextKey = (prev?.key ?? 0) + 1;
 
+  const profile = await getUserProfile(user.id);
+  const oldBio = profile?.bio ?? null;
+
   const bio = formData.get("bio");
   const bioResult = await updateUserBio(
     user.id,
     typeof bio === "string" ? bio : "",
+    oldBio,
   );
 
   if (bioResult.status === "error" && bioResult.code === "too-long") {
@@ -30,6 +34,9 @@ export async function saveSettingsAction(
   const raw = formData.get("preferredCurrency");
   const currency = parseCurrency(typeof raw === "string" ? raw : "");
   await updateUserPreferredCurrency(user.id, currency);
+
+  const showReservations = formData.get("showReservationsOnDashboard") === "true";
+  await updateUserShowReservations(user.id, showReservations);
 
   if (bioResult.status === "success") {
     return { status: "success", key: nextKey };

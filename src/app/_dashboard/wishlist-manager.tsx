@@ -35,6 +35,7 @@ export type DashboardWishlist = {
 type WishlistManagerProps = {
   wishlists: DashboardWishlist[];
   defaultCurrency: CurrencyCode;
+  showReservations: boolean;
   deleteItemAction: (prev: DeleteItemState, formData: FormData) => Promise<DeleteItemState>;
   reserveItemAction: (prev: ReserveItemState, formData: FormData) => Promise<ReserveItemState>;
   cancelItemReservationAction: (
@@ -54,6 +55,7 @@ type WishlistManagerProps = {
 export function WishlistManager({
   wishlists,
   defaultCurrency,
+  showReservations,
   deleteItemAction,
   reserveItemAction,
   cancelItemReservationAction,
@@ -220,22 +222,25 @@ export function WishlistManager({
           >
             {localItems.map((item) => (
               <li key={item.id} id={`item-${item.id}`} data-item-id={item.id} className="item-card">
-                {/* Status strip */}
-                {item.reservation.status === "reserved" ? (
-                  <div
-                    className={`item-card-status ${item.reservation.isOwn ? "item-card-status-self-reserved" : "item-card-status-reserved"}`}
-                  >
+                {/* Status strip:
+                    - showReservations=false: only self-reservation shown, nothing else
+                    - showReservations=true: full status (available / reserved / self-reserved) */}
+                {item.reservation.status === "reserved" && item.reservation.isOwn ? (
+                  <div className="item-card-status item-card-status-self-reserved">
                     <span className="item-card-status-dot" />
-                    {item.reservation.isOwn
-                      ? messages.dashboard.itemReservation.selfReservedLabel
-                      : messages.dashboard.itemReservation.reservedLabel}
+                    {messages.dashboard.itemReservation.selfReservedLabel}
                   </div>
-                ) : (
+                ) : showReservations && item.reservation.status === "reserved" ? (
+                  <div className="item-card-status item-card-status-reserved">
+                    <span className="item-card-status-dot" />
+                    {messages.dashboard.itemReservation.reservedLabel}
+                  </div>
+                ) : showReservations ? (
                   <div className="item-card-status item-card-status-available">
                     <span className="item-card-status-dot" />
                     {messages.dashboard.itemReservation.availableLabel}
                   </div>
-                )}
+                ) : null}
 
                 {/* Card view */}
                 <div className="item-card-view">
@@ -284,7 +289,7 @@ export function WishlistManager({
                 <ItemEditSection
                   editLabel={messages.dashboard.editToggleLabel}
                   reserveButton={
-                    item.reservation.status === "available" ? (
+                    item.reservation.status === "available" || (!item.reservation.isOwn && !showReservations) ? (
                       <ReserveItemButton
                         itemId={item.id}
                         reserveLabel={messages.dashboard.reserveLabel}
