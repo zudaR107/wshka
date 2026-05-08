@@ -7,6 +7,9 @@ The format is based on Keep a Changelog, and this project follows SemVer.
 ## [Unreleased]
 
 ### Added
+- Owner can cancel a reservation made by another user on their own wish
+  from the dashboard; the reserver receives a `reservation_cancelled`
+  notification. Self-reservations are excluded from this flow.
 - English locale: complete `en/` i18n dictionary; locale switcher in header
   (gear dropdown for auth users, globe button for guests); `Accept-Language`
   auto-detect on first visit; `LocaleProvider` + `useTranslations()` for

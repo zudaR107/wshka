@@ -9,6 +9,7 @@ import { EditItemForm } from "./edit-item-form";
 import { DeleteItemButton } from "./delete-item-button";
 import { ReserveItemButton } from "./reserve-item-button";
 import { CancelItemReservationButton } from "./cancel-item-reservation-button";
+import { CancelOwnerReservationButton } from "./cancel-owner-reservation-button";
 import { ItemEditSection } from "./item-edit-section";
 import { CopyUrlButton } from "./copy-url-button";
 import { RegenerateLinkButton } from "./regenerate-link-button";
@@ -19,6 +20,7 @@ import type {
   DeleteItemState,
   ReserveItemState,
   CancelItemReservationState,
+  CancelOwnerReservationState,
   RegenerateState,
 } from "./item-actions";
 import type { OwnerWishlistItem } from "@/modules/reservation";
@@ -39,6 +41,10 @@ type WishlistManagerProps = {
     prev: CancelItemReservationState,
     formData: FormData,
   ) => Promise<CancelItemReservationState>;
+  cancelOwnerReservationAction: (
+    prev: CancelOwnerReservationState,
+    formData: FormData,
+  ) => Promise<CancelOwnerReservationState>;
   regenerateShareLinkAction: (
     prev: RegenerateState,
     formData: FormData,
@@ -51,6 +57,7 @@ export function WishlistManager({
   deleteItemAction,
   reserveItemAction,
   cancelItemReservationAction,
+  cancelOwnerReservationAction,
   regenerateShareLinkAction,
 }: WishlistManagerProps) {
   const common = useTranslations("common");
@@ -289,7 +296,19 @@ export function WishlistManager({
                         cancelLabel={messages.dashboard.cancelReservationLabel}
                         cancelAction={cancelItemReservationAction}
                       />
-                    ) : undefined
+                    ) : (
+                      <CancelOwnerReservationButton
+                        itemId={item.id}
+                        labels={{
+                          buttonLabel: messages.dashboard.ownerCancelReservationLabel,
+                          confirmTitle: messages.dashboard.ownerCancelReservationConfirmTitle,
+                          confirmDescription: messages.dashboard.ownerCancelReservationConfirmDescription,
+                          confirmLabel: messages.dashboard.ownerCancelReservationConfirmLabel,
+                          cancelLabel: messages.dashboard.ownerCancelReservationCancelLabel,
+                        }}
+                        cancelAction={cancelOwnerReservationAction}
+                      />
+                    )
                   }
                   deleteButton={
                     <DeleteItemButton

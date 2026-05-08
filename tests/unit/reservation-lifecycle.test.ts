@@ -36,6 +36,7 @@ vi.mock("../../src/shared/db", () => ({
 
 import {
   cancelReservation,
+  cancelReservationByOwner,
   createReservation,
   getActiveReservationByItemId,
   getItemReservationAvailability,
@@ -357,5 +358,107 @@ describe("reservation lifecycle helpers", () => {
       code: "not-reservation-owner",
     });
     expect(mocks.update).not.toHaveBeenCalled();
+  });
+
+  describe("cancelReservationByOwner", () => {
+    it("allows the wishlist owner to cancel another user's reservation", async () => {
+      mocks.findWishlistItem.mockResolvedValue({
+        id: "item-1",
+        title: "Guitar",
+        wishlistId: "wishlist-1",
+      });
+      mocks.findWishlist.mockResolvedValue({
+        id: "wishlist-1",
+        userId: "owner-1",
+      });
+      mocks.findReservation.mockResolvedValue({
+        id: "reservation-1",
+        wishlistItemId: "item-1",
+        userId: "user-2",
+        cancelledAt: null,
+        createdAt: new Date("2026-04-12T00:00:00.000Z"),
+      });
+      mocks.updateReturning.mockResolvedValue([{ id: "reservation-1" }]);
+
+      await expect(cancelReservationByOwner("item-1", "owner-1")).resolves.toEqual({
+        status: "success",
+      });
+      expect(mocks.update).toHaveBeenCalledTimes(1);
+      expect(mocks.updateSet).toHaveBeenCalledWith({
+        cancelledAt: expect.any(Date),
+      });
+    });
+
+    it("returns reservation-not-found when item does not exist", async () => {
+      mocks.findWishlistItem.mockResolvedValue(undefined);
+
+      await expect(cancelReservationByOwner("item-1", "owner-1")).resolves.toEqual({
+        status: "error",
+        code: "reservation-not-found",
+      });
+      expect(mocks.update).not.toHaveBeenCalled();
+    });
+
+    it("returns not-reservation-owner when caller does not own the wishlist", async () => {
+      mocks.findWishlistItem.mockResolvedValue({
+        id: "item-1",
+        title: "Guitar",
+        wishlistId: "wishlist-1",
+      });
+      mocks.findWishlist.mockResolvedValue({
+        id: "wishlist-1",
+        userId: "owner-1",
+      });
+
+      await expect(cancelReservationByOwner("item-1", "other-user")).resolves.toEqual({
+        status: "error",
+        code: "not-reservation-owner",
+      });
+      expect(mocks.update).not.toHaveBeenCalled();
+    });
+
+    it("returns reservation-not-found when no active reservation exists", async () => {
+      mocks.findWishlistItem.mockResolvedValue({
+        id: "item-1",
+        title: "Guitar",
+        wishlistId: "wishlist-1",
+      });
+      mocks.findWishlist.mockResolvedValue({
+        id: "wishlist-1",
+        userId: "owner-1",
+      });
+      mocks.findReservation.mockResolvedValue(undefined);
+
+      await expect(cancelReservationByOwner("item-1", "owner-1")).resolves.toEqual({
+        status: "error",
+        code: "reservation-not-found",
+      });
+      expect(mocks.update).not.toHaveBeenCalled();
+    });
+
+    it("rejects cancelling a self-reservation via the owner path", async () => {
+      mocks.findWishlistItem.mockResolvedValue({
+        id: "item-1",
+        title: "Guitar",
+        wishlistId: "wishlist-1",
+      });
+      mocks.findWishlist.mockResolvedValue({
+        id: "wishlist-1",
+        userId: "owner-1",
+      });
+      mocks.findReservation.mockResolvedValue({
+        id: "reservation-2",
+        wishlistItemId: "item-1",
+        userId: "owner-1",
+        cancelledAt: null,
+        createdAt: new Date("2026-04-12T00:00:00.000Z"),
+      });
+
+      await expect(cancelReservationByOwner("item-1", "owner-1")).resolves.toEqual({
+        status: "error",
+        code: "not-reservation-owner",
+      });
+      expect(mocks.update).not.toHaveBeenCalled();
+    });
   });
 });

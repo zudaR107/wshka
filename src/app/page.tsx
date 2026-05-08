@@ -8,8 +8,8 @@ import {
   getOrCreateShareLinkForWishlist,
   regenerateShareLinkForWishlist,
 } from "@/modules/share";
-import type { DeleteItemState, ReserveItemState, CancelItemReservationState, RegenerateState } from "./_dashboard/item-actions";
-import { getAllOwnerWishlistsWithReservations, createReservation, cancelReservation } from "@/modules/reservation";
+import type { DeleteItemState, ReserveItemState, CancelItemReservationState, CancelOwnerReservationState, RegenerateState } from "./_dashboard/item-actions";
+import { getAllOwnerWishlistsWithReservations, createReservation, cancelReservation, cancelReservationByOwner } from "@/modules/reservation";
 import { deleteCurrentWishlistItem } from "@/modules/wishlist/server/manage-item";
 import { WishlistManager, type DashboardWishlist } from "./_dashboard/wishlist-manager";
 import { ScrollHighlight } from "./_dashboard/scroll-highlight";
@@ -151,6 +151,7 @@ async function DashboardView({ userId }: { userId: string }) {
         deleteItemAction={deleteItemAction}
         reserveItemAction={reserveItemAction}
         cancelItemReservationAction={cancelItemReservationAction}
+        cancelOwnerReservationAction={cancelOwnerReservationAction}
         regenerateShareLinkAction={regenerateShareLinkAction}
       />
     </div>
@@ -199,6 +200,19 @@ async function cancelItemReservationAction(
 
   const user = await requireCurrentUser();
   const result = await cancelReservation(user.id, getFormValue(formData, "reservationId"));
+
+  if (result.status === "success") return { status: "success" };
+  return { status: "error", error: result.code };
+}
+
+async function cancelOwnerReservationAction(
+  prev: CancelOwnerReservationState,
+  formData: FormData,
+): Promise<CancelOwnerReservationState> {
+  "use server";
+
+  const user = await requireCurrentUser();
+  const result = await cancelReservationByOwner(getFormValue(formData, "itemId"), user.id);
 
   if (result.status === "success") return { status: "success" };
   return { status: "error", error: result.code };

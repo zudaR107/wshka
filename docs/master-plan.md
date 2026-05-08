@@ -96,7 +96,8 @@ Goal:
 - no schema migrations required; all changes are frontend-only
 
 Status:
-- ✅ M10-I1–I5 complete; M10-I6–I10 in progress (bugfix + QA batch on branch fix/bugfixes-v120)
+- ✅ M10-I1–I5 complete; M10-I6–I11 complete (bugfix + QA batch on branch fix/bugfixes-v120)
+- ✅ M10-I12 complete; 🔄 M10-I13 in progress
 
 Execution backlog:
 1. ✅ Dark theme — CSS variable toggle, `localStorage` persistence, `prefers-color-scheme` default
@@ -104,11 +105,14 @@ Execution backlog:
 3. ✅ English locale — `en/` i18n dictionary, locale switcher in header, browser auto-detect
 4. ✅ Multiple currencies — currency per wish item, default currency preference in profile, locale-aware display formatting
 5. ✅ Notification system — in-app alerts when a reserved item is updated or deleted; bell icon in nav with unread badge; `/notifications` page; `owner_updated` type for bio changes; static share token snapshots; scroll/highlight navigation; 30 s polling
-6. 🔄 M10-I6 Bugfixes — dashboard title line-height and underline on mobile; parallax GPU layer
-7. 🔄 M10-I7 Email truncation — long emails truncated with ellipsis on settings and share pages; custom tooltip on share page
-8. 🔄 M10-I8 Delete last wishlist — allow deleting the only remaining list; auto-create default "Мой список"
-9. 🔄 M10-I9 Mobile header overflow — reduce padding and gap at ≤ 479 px to eliminate horizontal scroll
-10. 🔄 M10-I10 Settings form state — migrate from URL params to useActionState; inline success/error feedback
+6. ✅ M10-I6 Bugfixes — dashboard title line-height and underline on mobile; parallax GPU layer
+7. ✅ M10-I7 Email truncation — long emails truncated with ellipsis on settings and share pages; custom tooltip on share page
+8. ✅ M10-I8 Delete last wishlist — allow deleting the only remaining list; auto-create default "Мой список"
+9. ✅ M10-I9 Mobile header overflow — reduce padding and gap at ≤ 479 px to eliminate horizontal scroll
+10. ✅ M10-I10 Settings form state — migrate from URL params to useActionState; inline success/error feedback
+11. ✅ M10-I11 Price input hint — fix inline layout (hint renders below field) and unreadable color in dark mode
+12. ✅ M10-I12 Owner cancel reservation — owner can cancel a reservation made by another user on their own wish; reserver receives `reservation_cancelled` notification
+13. 🔄 M10-I13 Hide reservation status from owner — dashboard hides "reserved" status from the owner by default; opt-in toggle in settings; self-reservations always visible
 
 Recommended issue shape:
 - `M10-I1 Dark theme — CSS variable toggle and system preference default`
@@ -121,6 +125,9 @@ Recommended issue shape:
 - `M10-I8 Delete last wishlist — allow deletion with auto-created default replacement`
 - `M10-I9 Mobile header overflow — reduce padding/gap at ≤ 479 px`
 - `M10-I10 Settings form state — useActionState, inline feedback, clean URL`
+- `M10-I11 Price input hint — layout fix and dark-mode color`
+- `M10-I12 Owner cancel reservation — cancel button on dashboard for others' reservations`
+- `M10-I13 Hide reservations from owner — settings toggle, hidden by default`
 
 Recommended PR order:
 1. `M10-I1 Dark theme — CSS variable toggle and system preference default`
@@ -128,7 +135,9 @@ Recommended PR order:
 3. `M10-I3 English locale — en/ dictionary, locale switcher, browser auto-detect`
 4. `M10-I4 Multiple currencies — per-item currency, default currency preference in profile, display formatting`
 5. `M10-I5 Notification system — in-app alerts on reserved item changes`
-6. `M10-I6–I8 Bugfix and QA batch — one shared PR on branch fix/bugfixes-v120`
+6. `M10-I6–I11 Bugfix and QA batch — one shared PR on branch fix/bugfixes-v120`
+7. `M10-I12 Owner cancel reservation`
+8. `M10-I13 Hide reservations from owner`
 
 Dependencies:
 - `M10-I1` has no dependencies

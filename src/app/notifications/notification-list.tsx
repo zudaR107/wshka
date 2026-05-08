@@ -192,7 +192,19 @@ export function NotificationList({
                   >
                     {messages.goToWishlist}
                   </Link>
+                ) : n.itemId && n.type === "reservation_cancelled" && n.shareToken ? (
+                  // Owner cancelled the reserver's reservation → send reserver to the share page
+                  <Link
+                    href={`/share/${n.shareToken}`}
+                    className="notification-item-link ui-button ui-button-ghost"
+                    onClick={() => {
+                      if (n.itemId) sessionStorage.setItem("scroll-to-item", n.itemId);
+                    }}
+                  >
+                    {messages.goToItem}
+                  </Link>
                 ) : n.itemId && (n.type === "reservation_created" || n.type === "reservation_cancelled") ? (
+                  // Reserver acted → send owner to their own dashboard
                   <Link
                     href="/"
                     className="notification-item-link ui-button ui-button-ghost"

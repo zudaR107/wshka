@@ -5,6 +5,7 @@ export {
   type ReservationAvailability,
   type ReservationEligibility,
   cancelReservation,
+  cancelReservationByOwner,
   createReservation,
   getActiveReservationByItemId,
   getItemReservationAvailability,
