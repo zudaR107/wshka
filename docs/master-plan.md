@@ -116,6 +116,7 @@ Execution backlog:
 14. ✅ M10-I14 Suppress self-reservation notifications — no notification sent when owner reserves or cancels their own wish
 15. ✅ M10-I15 Reservations page status color — always blue (self-reserved style) instead of pink for cross-wishlist items
 16. ✅ M10-I16 Share page cancel button style — red danger style (item-delete-btn) matching dashboard delete buttons
+17. ✅ M10-I17 Standardize scroll-to-item — center alignment + highlight animation on new item creation, edit save, and notification nav; shared scrollAndHighlight() utility
 
 Recommended issue shape:
 - `M10-I1 Dark theme — CSS variable toggle and system preference default`

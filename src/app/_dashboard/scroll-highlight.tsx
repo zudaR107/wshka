@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { scrollAndHighlight } from "./scroll-utils";
 
 /**
  * Scrolls a dashboard item into the center of the viewport and briefly
@@ -13,19 +14,10 @@ import { useEffect } from "react";
  */
 export function ScrollHighlight() {
   useEffect(() => {
-    function scrollAndHighlight(itemId: string) {
+    function scrollToItemById(itemId: string): (() => void) | undefined {
       const el = document.getElementById(`item-${itemId}`);
       if (!el) return undefined;
-
-      el.scrollIntoView({ behavior: "smooth", block: "center" });
-
-      // Reset any in-progress animation so re-triggering works.
-      el.classList.remove("item-card--highlight");
-      // Force reflow so removing + adding the class restarts the animation.
-      void el.offsetWidth;
-      el.classList.add("item-card--highlight");
-
-      return setTimeout(() => el.classList.remove("item-card--highlight"), 1800);
+      return scrollAndHighlight(el);
     }
 
     function resolveItemId(): string | null {
@@ -41,23 +33,23 @@ export function ScrollHighlight() {
       return null;
     }
 
-    let timer: ReturnType<typeof setTimeout> | undefined;
+    let cleanup: (() => void) | undefined;
 
     const id = resolveItemId();
-    if (id) timer = scrollAndHighlight(id);
+    if (id) cleanup = scrollToItemById(id);
 
     function handleHashChange() {
-      if (timer !== undefined) clearTimeout(timer);
+      cleanup?.();
       const hash = window.location.hash;
       if (hash.startsWith("#item-")) {
-        timer = scrollAndHighlight(hash.slice("#item-".length));
+        cleanup = scrollToItemById(hash.slice("#item-".length));
       }
     }
 
     window.addEventListener("hashchange", handleHashChange);
     return () => {
       window.removeEventListener("hashchange", handleHashChange);
-      if (timer !== undefined) clearTimeout(timer);
+      cleanup?.();
     };
   }, []);
 

@@ -83,6 +83,10 @@ The format is based on Keep a Changelog, and this project follows SemVer.
   from other users' wishlists.
 - Cancel reservation button on the share page now uses the red danger
   style (item-delete-btn) consistent with dashboard delete buttons.
+- Scroll-to-item behavior standardized: new item creation and post-edit
+  save now use block: "center" with the existing item-card--highlight
+  pulse animation, matching notification-triggered navigation. Shared
+  scrollAndHighlight() utility extracted to scroll-utils.ts.
 
 ## [1.1.0] - 2026-04-28
 

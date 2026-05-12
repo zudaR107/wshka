@@ -14,6 +14,7 @@ import { ItemEditSection } from "./item-edit-section";
 import { CopyUrlButton } from "./copy-url-button";
 import { RegenerateLinkButton } from "./regenerate-link-button";
 import { OpenFormButton, AddItemFormFocus } from "./open-form-button";
+import { scrollAndHighlight } from "./scroll-utils";
 import { formatPrice } from "../format-price";
 import { type CurrencyCode } from "@/shared/lib/currency";
 import type {
@@ -99,10 +100,13 @@ export function WishlistManager({
     pendingScrollToNewRef.current = false;
     const newItem = localItems.find((i) => !knownItemIdsRef.current.has(i.id));
     knownItemIdsRef.current = new Set(localItems.map((i) => i.id));
-    const target = newItem
-      ? document.querySelector<HTMLElement>(`[data-item-id="${newItem.id}"]`)
-      : listEndRef.current;
-    target?.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (newItem) {
+      const target = document.querySelector<HTMLElement>(`[data-item-id="${newItem.id}"]`);
+      if (target) scrollAndHighlight(target);
+    } else {
+      // Fallback: no new item identified — scroll to list end without highlight.
+      listEndRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
   }, [localItems]);
 
   if (!wishlist) {

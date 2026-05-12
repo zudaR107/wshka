@@ -8,6 +8,7 @@ import { useTranslations } from "@/modules/i18n";
 import { type CurrencyCode } from "@/shared/lib/currency";
 import { updateItemAction, type ItemFormState } from "./item-actions";
 import { useItemEditClose } from "./item-edit-section";
+import { scrollAndHighlight } from "./scroll-utils";
 
 type EditItemFormProps = {
   item: {
@@ -50,13 +51,14 @@ export function EditItemForm({ item, wishlistId }: EditItemFormProps) {
     }
   }
 
-  // On success: capture card ref before collapse, close, then scroll after repaint.
+  // On success: capture card ref before collapse, close, then scroll + highlight after repaint.
   useEffect(() => {
     if (state?.status !== "success") return;
     const card = formRef.current?.closest(".item-card") as HTMLElement | null;
     closeEditSection();
     requestAnimationFrame(() => {
-      (card ?? formRef.current)?.scrollIntoView({ behavior: "smooth", block: "start" });
+      const target = (card ?? formRef.current) as HTMLElement | null;
+      if (target) scrollAndHighlight(target);
     });
     startTransition(() => router.refresh());
   }, [state]);
