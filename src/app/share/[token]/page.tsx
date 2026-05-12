@@ -13,6 +13,7 @@ import { ShareCancelReservationButton } from "@/app/share/[token]/share-cancel-r
 import { BioHighlight } from "@/app/share/[token]/bio-highlight";
 import { OwnerEmail } from "@/app/share/[token]/owner-email";
 import { ScrollHighlight } from "@/app/_dashboard/scroll-highlight";
+import { SharePageSync } from "@/app/share/[token]/share-page-sync";
 import { formatPrice } from "@/app/format-price";
 import { parseCurrency } from "@/shared/lib/currency";
 
@@ -212,6 +213,7 @@ function SharePageView({
   return (
     <div className="content-page">
       <ScrollHighlight />
+      <SharePageSync />
       <div className="content-page-header">
         <p className="page-brand-label">{common.brand}</p>
         <div className="share-page-title-row">

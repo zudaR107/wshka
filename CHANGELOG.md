@@ -73,6 +73,10 @@ The format is based on Keep a Changelog, and this project follows SemVer.
 - Price input hint color changed from violet (`--color-status-reserved`)
   to `--color-error` via new `.ui-note-error` modifier; red in light
   mode, lighter red in dark mode.
+- Share page now refreshes RSC data every 30 s via `SharePageSync` client
+  component (`router.refresh()` on a timer); keeps the item list in sync
+  when the owner adds or deletes wishes while a visitor has the page open,
+  matching the `visibilitychange` pattern in `SessionSync`.
 - Parallax wallpaper background migrated from `body::before` CSS
   pseudo-element to a real `<div class="wallpaper-bg">` rendered by
   `WallpaperParallax`; `transform` is now set directly on the element

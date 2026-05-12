@@ -51,6 +51,10 @@ vi.mock("../../src/app/share/[token]/share-cancel-reservation-button", () => ({
     ),
 }));
 
+vi.mock("../../src/app/share/[token]/share-page-sync", () => ({
+  SharePageSync: () => null,
+}));
+
 // Helpers
 function makeAvailableItem(overrides: Record<string, unknown> = {}) {
   return {
