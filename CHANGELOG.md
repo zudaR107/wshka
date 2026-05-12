@@ -73,6 +73,10 @@ The format is based on Keep a Changelog, and this project follows SemVer.
 - Price input hint color changed from violet (`--color-status-reserved`)
   to `--color-error` via new `.ui-note-error` modifier; red in light
   mode, lighter red in dark mode.
+- Notification dropdown is now right-aligned on mobile (≤ 479 px);
+  `right` offset on `.site-nav-dropdown--notifications` corrected to
+  account for the gear button (2.75 rem) and nav gap (0.25 rem) that sit
+  to the right of the bell icon.
 - Share page now refreshes RSC data every 30 s via `SharePageSync` client
   component (`router.refresh()` on a timer); keeps the item list in sync
   when the owner adds or deletes wishes while a visitor has the page open,
