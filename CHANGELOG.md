@@ -73,6 +73,11 @@ The format is based on Keep a Changelog, and this project follows SemVer.
 - Price input hint color changed from violet (`--color-status-reserved`)
   to `--color-error` via new `.ui-note-error` modifier; red in light
   mode, lighter red in dark mode.
+- Notifications page mobile layout fixed: notification cards switch to a
+  column layout at ≤ 479 px (body on top, actions below); item name
+  wraps instead of overflowing. "Go to wishlist" / "Go to item" nav
+  links replaced with compact icon buttons (`notification-nav-btn`) —
+  text label hidden on mobile, matching the dashboard button pattern.
 - Notification dropdown is now right-aligned on mobile (≤ 479 px);
   `right` offset on `.site-nav-dropdown--notifications` corrected to
   account for the gear button (2.75 rem) and nav gap (0.25 rem) that sit

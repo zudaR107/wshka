@@ -97,7 +97,7 @@ Goal:
 
 Status:
 - ✅ M10-I1–I5 complete; M10-I6–I11 complete (bugfix + QA batch on branch fix/bugfixes-v120)
-- ✅ M10-I12–I20 complete
+- ✅ M10-I12–I21 complete
 
 Execution backlog:
 1. ✅ Dark theme — CSS variable toggle, `localStorage` persistence, `prefers-color-scheme` default
@@ -120,6 +120,7 @@ Execution backlog:
 18. ✅ M10-I18 Mobile background flicker on reservation — migrate wallpaper from `body::before` + CSS variables to real `<div.wallpaper-bg>` with direct `style.transform`; eliminates CSS cascade-invalidation that briefly destabilised the GPU compositing layer on mobile during RSC reconciliation
 19. ✅ M10-I19 Share page stale on mobile — add `SharePageSync` client component; calls `router.refresh()` every 30 s so item additions and deletions appear without a manual reload
 20. ✅ M10-I20 Notification dropdown misaligned on mobile — shift `right` offset on `.site-nav-dropdown--notifications` by gear-button-width + nav-gap; panel now right-aligned on both mobile and desktop
+21. ✅ M10-I21 Notifications page mobile layout — column layout at ≤ 479 px; item name wraps; actions row aligned right; "go to" text links replaced with `notification-nav-btn` icon buttons (ExternalLinkIcon + hidden label on mobile)
 
 Recommended issue shape:
 - `M10-I1 Dark theme — CSS variable toggle and system preference default`

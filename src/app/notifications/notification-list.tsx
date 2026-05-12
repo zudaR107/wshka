@@ -9,26 +9,7 @@ import {
   deleteAllNotifications,
 } from "@/modules/notification/server/mark-notifications-read";
 
-/* ── Icons (same style as wishlist items) ── */
-
-function EditIcon() {
-  return (
-    <svg
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-    </svg>
-  );
-}
+/* ── Icons ── */
 
 function TrashIcon() {
   return (
@@ -47,6 +28,26 @@ function TrashIcon() {
       <path d="M19 6l-1 14H6L5 6" />
       <path d="M10 11v6M14 11v6" />
       <path d="M9 6V4h6v2" />
+    </svg>
+  );
+}
+
+function ExternalLinkIcon() {
+  return (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+      <polyline points="15 3 21 3 21 9" />
+      <line x1="10" y1="14" x2="21" y2="3" />
     </svg>
   );
 }
@@ -185,42 +186,50 @@ export function NotificationList({
                 {n.itemId && n.type === "item_updated" && n.shareToken ? (
                   <Link
                     href={`/share/${n.shareToken}`}
-                    className="notification-item-link ui-button ui-button-ghost"
+                    className="notification-nav-btn"
+                    aria-label={messages.goToWishlist}
                     onClick={() => {
                       if (n.itemId) sessionStorage.setItem("scroll-to-item", n.itemId);
                     }}
                   >
-                    {messages.goToWishlist}
+                    <ExternalLinkIcon />
+                    <span className="notification-nav-btn-label">{messages.goToWishlist}</span>
                   </Link>
                 ) : n.itemId && n.type === "reservation_cancelled" && n.shareToken ? (
                   // Owner cancelled the reserver's reservation → send reserver to the share page
                   <Link
                     href={`/share/${n.shareToken}`}
-                    className="notification-item-link ui-button ui-button-ghost"
+                    className="notification-nav-btn"
+                    aria-label={messages.goToItem}
                     onClick={() => {
                       if (n.itemId) sessionStorage.setItem("scroll-to-item", n.itemId);
                     }}
                   >
-                    {messages.goToItem}
+                    <ExternalLinkIcon />
+                    <span className="notification-nav-btn-label">{messages.goToItem}</span>
                   </Link>
                 ) : n.itemId && (n.type === "reservation_created" || n.type === "reservation_cancelled") ? (
                   // Reserver acted → send owner to their own dashboard
                   <Link
                     href="/"
-                    className="notification-item-link ui-button ui-button-ghost"
+                    className="notification-nav-btn"
+                    aria-label={messages.goToItem}
                     onClick={() => {
                       if (n.itemId) sessionStorage.setItem("scroll-to-item", n.itemId);
                     }}
                   >
-                    {messages.goToItem}
+                    <ExternalLinkIcon />
+                    <span className="notification-nav-btn-label">{messages.goToItem}</span>
                   </Link>
                 ) : n.type === "owner_updated" && n.shareToken ? (
                   <Link
                     href={`/share/${n.shareToken}`}
-                    className="notification-item-link ui-button ui-button-ghost"
+                    className="notification-nav-btn"
+                    aria-label={messages.goToWishlist}
                     onClick={() => sessionStorage.setItem("highlight-bio", "1")}
                   >
-                    {messages.goToWishlist}
+                    <ExternalLinkIcon />
+                    <span className="notification-nav-btn-label">{messages.goToWishlist}</span>
                   </Link>
                 ) : null}
                 <button
