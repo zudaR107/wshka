@@ -6,128 +6,65 @@ The format is based on Keep a Changelog, and this project follows SemVer.
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-05-12
+
 ### Added
-- Owner can cancel a reservation made by another user on their own wish
-  from the dashboard; the reserver receives a `reservation_cancelled`
-  notification. Self-reservations are excluded from this flow.
-- Reservation status from other users is hidden on the owner's dashboard
-  by default; opt-in toggle in Settings ("Wishlist privacy"). Self-
-  reservations always visible. New `show_reservations_on_dashboard`
-  boolean column on `users` (default false).
-- English locale: complete `en/` i18n dictionary; locale switcher in header
-  (gear dropdown for auth users, globe button for guests); `Accept-Language`
-  auto-detect on first visit; `LocaleProvider` + `useTranslations()` for
-  client components; `lang` attribute and OG `locale` in metadata locale-aware.
-- Multi-currency support: `currency` column on items (RUB/USD/EUR/GBP/CNY);
-  `preferredCurrency` user profile field; `CurrencySelect` component; prices
-  display with correct symbol on dashboard, share page, and reservations.
 - Dark theme: CSS variable toggle in gear dropdown; `localStorage` persistence;
   `prefers-color-scheme: dark` applied via inline `<head>` script before hydration.
-- Background parallax: viewport-fixed `body::before` layer; `WallpaperParallax`
-  client component — `pointermove` ±20 px, scroll ±90 px, both RAF-throttled;
-  `prefers-reduced-motion` respected; `overscroll-behavior: none` on `<html>`.
-- In-app notification system (M10-I5): bell icon with unread badge in nav;
-  dropdown with five most recent unread items and "Mark all as read" action;
-  `/notifications` page with full list. Types: `item_updated`, `item_deleted`,
-  `reservation_created`, `reservation_cancelled`, `owner_updated` (bio change
-  notifies active reservers). Each notification stores a static `shareToken`
-  snapshot — link regeneration revokes old notification links. Navigating from
-  a notification scrolls to the target item or bio section with a highlight
-  animation (via `sessionStorage`). Badge polls `/api/notifications/poll` every
-  30 s without requiring page interaction. Cross-tab session sync via
-  `visibilitychange` → `router.refresh()`. DB: `notifications` table with
-  nullable `wishlist_id` and `share_token` column. `--color-error` token added.
+- Background parallax: `WallpaperParallax` component — `pointermove` ±20 px,
+  scroll ±90 px, RAF-throttled; `prefers-reduced-motion` respected.
+- English locale: complete `en/` i18n dictionary; locale switcher in header;
+  `Accept-Language` auto-detect on first visit.
+- Multi-currency support: `currency` column on items (RUB/USD/EUR/GBP/CNY);
+  `preferredCurrency` user profile field; prices display with correct symbol
+  on dashboard, share page, and reservations.
+- In-app notification system: bell icon with unread badge; dropdown with five
+  most recent unread items and "Mark all as read"; `/notifications` page.
+  Types: `item_updated`, `item_deleted`, `reservation_created`,
+  `reservation_cancelled`, `owner_updated`. Static `shareToken` snapshot per
+  notification; scroll-to-item highlight on nav. Badge polls every 30 s.
+- Owner can cancel another user's reservation from the dashboard; reserver
+  receives a `reservation_cancelled` notification.
+- Reservation status from other users hidden on owner's dashboard by default;
+  opt-in toggle in Settings ("Wishlist privacy"). `show_reservations_on_dashboard`
+  boolean column on `users` (default false).
+- Deleting the last remaining wishlist is allowed; a fresh default "Мой список"
+  is created automatically.
+- Wishlist names are unique per user: duplicate or empty name returns an inline
+  error in create and rename forms.
+- Dashboard and share page auto-refresh every 30 s via shared `AutoRefresh`
+  component; selected wishlist id persisted in `localStorage`.
 
 ### Changed
-- Site header: removed `backdrop-filter: blur` for performance; background
-  opacity raised to 0.92.
-- Mobile header: logo hidden at ≤479 px on all nav states.
-- Dark mode dims wallpaper layer via `opacity: 0.18`.
-- Invalid share page uses same layout and styles as the 404 page.
-
-### Added
-- Deleting the last remaining wishlist is now allowed; a fresh default
-  "Мой список" is created automatically so the user always has one list.
+- Site header: removed `backdrop-filter: blur`; background opacity raised to 0.92.
+- Mobile header: logo hidden at ≤ 479 px.
+- Invalid share page uses the same layout and styles as the 404 page.
+- Form field errors unified across all user-facing forms: inline `ui-note-error`
+  below the field, `ui-input-error` red border, focus on error.
+- Settings form migrated from URL-param redirect to `useActionState`; URL stays
+  clean; save button shows inline success/error feedback.
 
 ### Fixed
-- Dashboard reservation status now refreshes automatically every 30 s
-  via `AutoRefresh` client component (`router.refresh()` on a timer),
-  matching the `SharePageSync` pattern already in place on the share
-  page. `SharePageSync` now delegates to the shared `AutoRefresh`.
-- Selected wishlist is now restored after a page reload; `WishlistManager`
-  persists the chosen wishlist id in `localStorage` and restores it on
-  mount (falls back to the first wishlist if the stored id is no longer
-  valid).
-- Notification badge no longer restores stale unread count after navigating
-  away from `/notifications`.
-- Settings form migrated from URL-param status (redirect to
-  /settings?status=saved) to useActionState; URL stays clean after save.
-  Save button turns green ("Сохранено ✓") on success and red
-  ("Не сохранено ✕") on error, reverting after 2.5 s.
-- Site header no longer overflows horizontally on narrow mobile viewports;
-  padding and gap reduced at ≤ 479 px.
-- Dashboard wishlist title now uses `line-height: 1.25` so long names wrap
-  without excessive vertical gaps on mobile.
-- Hover underline on wishlist title is now continuous across all characters,
-  including Russian "Д" (`text-decoration-skip-ink: none`).
-- Long email addresses on the settings page are truncated with ellipsis;
-  full address visible via native tooltip on hover.
-- Share page owner email now shows only the local part (before "@");
-  full address appears in a styled tooltip on hover (desktop) or tap
-  (mobile) via the new `OwnerEmail` client component.
-- Price input hint no longer appears inline with the currency select;
-  `PriceInput` now wraps its children in a column flex container
-  (`.price-input-wrapper`) so the hint renders below the field.
-- Price input hint color changed from violet (`--color-status-reserved`)
-  to `--color-error` via new `.ui-note-error` modifier; red in light
-  mode, lighter red in dark mode.
-- Wishlist names are now unique per user: creating or renaming a wishlist
-  to a name already taken returns a `"duplicate"` error; submitting an
-  empty name returns `"empty"`. Inline error shown in create and rename
-  forms.
-- Form field error display unified across all user-facing forms (create
-  wishlist, rename wishlist, create item, edit item, login, register):
-  error message is now a `ui-note ui-note-error` text directly below the
-  offending field; affected field gets `ui-input-error` red border; focus
-  moves to the field on error. `ui-message ui-message-error` block above
-  the form removed from all input forms (`noValidate` added; browser
-  native validation tooltips suppressed).
-- Notifications page mobile layout fixed: notification cards switch to a
-  column layout at ≤ 479 px (body on top, actions below); item name
-  wraps instead of overflowing. "Go to wishlist" / "Go to item" nav
-  links replaced with compact icon buttons (`notification-nav-btn`) —
-  text label hidden on mobile, matching the dashboard button pattern.
-- Notification dropdown is now right-aligned on mobile (≤ 479 px);
-  `right` offset on `.site-nav-dropdown--notifications` corrected to
-  account for the gear button (2.75 rem) and nav gap (0.25 rem) that sit
-  to the right of the bell icon.
-- Share page now refreshes RSC data every 30 s via `SharePageSync` client
-  component (`router.refresh()` on a timer); keeps the item list in sync
-  when the owner adds or deletes wishes while a visitor has the page open,
-  matching the `visibilitychange` pattern in `SessionSync`.
-- Parallax wallpaper background migrated from `body::before` CSS
-  pseudo-element to a real `<div class="wallpaper-bg">` rendered by
-  `WallpaperParallax`; `transform` is now set directly on the element
-  instead of via CSS custom properties on `<html>`, eliminating the CSS
-  cascade-invalidation step that briefly destabilised the GPU compositing
-  layer on mobile during RSC reconciliation (visible as background flicker
-  after reservation actions). Fraction clamped to [0, 1] to prevent
-  overscroll from producing extreme background offsets. Share page item
-  list gains `overflow-anchor: none` as a secondary safeguard.
-- `owner_updated` notification now fires only when the bio field actually
-  changes; saving currency or the reservations toggle no longer triggers
-  notifications to active reservers.
-- `reservation_created` and `reservation_cancelled` notifications are no
-  longer sent when the owner reserves or cancels their own wish.
-- Status strip on /reservations now always uses the blue self-reserved
-  style and "Reserved by me" label; previously showed pink for items
-  from other users' wishlists.
-- Cancel reservation button on the share page now uses the red danger
-  style (item-delete-btn) consistent with dashboard delete buttons.
-- Scroll-to-item behavior standardized: new item creation and post-edit
-  save now use block: "center" with the existing item-card--highlight
-  pulse animation, matching notification-triggered navigation. Shared
-  scrollAndHighlight() utility extracted to scroll-utils.ts.
+- Wallpaper background: migrated to a real `<div class="wallpaper-bg">` with
+  direct `style.transform`; eliminates GPU compositing flicker on mobile during
+  RSC reconciliation.
+- `owner_updated` notification fires only when bio actually changes.
+- `reservation_created`/`reservation_cancelled` not sent for owner's own wishes.
+- Notifications page mobile layout: column at ≤ 479 px; icon-only nav buttons.
+- Notification dropdown right-aligned on mobile (≤ 479 px).
+- Status strip on `/reservations` always uses blue self-reserved style.
+- Cancel reservation button on share page uses red danger style.
+- Scroll-to-item standardized (block: center + highlight animation) across new
+  item creation, edit save, and notification nav; shared `scrollAndHighlight()`
+  utility in `scroll-utils.ts`.
+- Price input hint renders below the field; color uses `--color-error` in dark mode.
+- Long emails truncated with ellipsis on settings page; share page shows local
+  part only with full address in tooltip.
+- Mobile header no longer overflows horizontally at ≤ 479 px.
+- Notification badge no longer shows stale count after visiting `/notifications`.
+- `AutoRefresh` now skips `router.refresh()` when `document.hidden` is true,
+  preventing aborted RSC requests (ECONNRESET) when a browser tab is closed or
+  another context is torn down during e2e tests.
 
 ## [1.1.0] - 2026-04-28
 

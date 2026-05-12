@@ -69,7 +69,7 @@ export const app = {
       {
         version: "v1.2",
         title: "Look & Feel",
-        status: "inProgress" as const,
+        status: "released" as const,
         items: [
           "Dark theme",
           "English language",
@@ -81,7 +81,7 @@ export const app = {
       {
         version: "v1.3",
         title: "Sharing & Data",
-        status: "planned" as const,
+        status: "inProgress" as const,
         items: [
           "QR code for share link",
           "Wishlist export and import",

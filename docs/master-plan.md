@@ -86,112 +86,7 @@ create a wishlist → share it by link → let another person reserve a gift.
 | v1.0.0 | M7–M8: UI redesign, auto-login, /app→/ routing merge, legal pages, project restructure | ✅ shipped |
 | v1.0.1 | Patch: inline mutation state (no redirect), UX fixes, technical SEO, dashboard refactor, test coverage | ✅ shipped |
 | v1.1.0 | M9: self-reservation, item starring, owner bio, multiple wishlists, UX bugfix batch | ✅ shipped |
-
----
-
-### Milestone 10 — Look & Feel (`v1.2.0`)
-
-Goal:
-- deliver dark theme, background parallax, English locale, and multi-currency display
-- no schema migrations required; all changes are frontend-only
-
-Status:
-- ✅ M10-I1–I5 complete; M10-I6–I11 complete (bugfix + QA batch on branch fix/bugfixes-v120)
-- ✅ M10-I12–I22 complete
-
-Execution backlog:
-1. ✅ Dark theme — CSS variable toggle, `localStorage` persistence, `prefers-color-scheme` default
-2. ✅ Background parallax — subtle depth effect on the wallpaper pattern, CSS or JS-driven
-3. ✅ English locale — `en/` i18n dictionary, locale switcher in header, browser auto-detect
-4. ✅ Multiple currencies — currency per wish item, default currency preference in profile, locale-aware display formatting
-5. ✅ Notification system — in-app alerts when a reserved item is updated or deleted; bell icon in nav with unread badge; `/notifications` page; `owner_updated` type for bio changes; static share token snapshots; scroll/highlight navigation; 30 s polling
-6. ✅ M10-I6 Bugfixes — dashboard title line-height and underline on mobile; parallax GPU layer
-7. ✅ M10-I7 Email truncation — long emails truncated with ellipsis on settings and share pages; custom tooltip on share page
-8. ✅ M10-I8 Delete last wishlist — allow deleting the only remaining list; auto-create default "Мой список"
-9. ✅ M10-I9 Mobile header overflow — reduce padding and gap at ≤ 479 px to eliminate horizontal scroll
-10. ✅ M10-I10 Settings form state — migrate from URL params to useActionState; inline success/error feedback
-11. ✅ M10-I11 Price input hint — fix inline layout (hint renders below field) and unreadable color in dark mode
-12. ✅ M10-I12 Owner cancel reservation — owner can cancel a reservation made by another user on their own wish; reserver receives `reservation_cancelled` notification
-13. ✅ M10-I13 Hide reservation status from owner — dashboard hides "reserved" status from the owner by default; opt-in toggle in settings; self-reservations always visible
-14. ✅ M10-I14 Suppress self-reservation notifications — no notification sent when owner reserves or cancels their own wish
-15. ✅ M10-I15 Reservations page status color — always blue (self-reserved style) instead of pink for cross-wishlist items
-16. ✅ M10-I16 Share page cancel button style — red danger style (item-delete-btn) matching dashboard delete buttons
-17. ✅ M10-I17 Standardize scroll-to-item — center alignment + highlight animation on new item creation, edit save, and notification nav; shared scrollAndHighlight() utility
-18. ✅ M10-I18 Mobile background flicker on reservation — migrate wallpaper from `body::before` + CSS variables to real `<div.wallpaper-bg>` with direct `style.transform`; eliminates CSS cascade-invalidation that briefly destabilised the GPU compositing layer on mobile during RSC reconciliation
-19. ✅ M10-I19 Share page stale on mobile — add `SharePageSync` client component; calls `router.refresh()` every 30 s so item additions and deletions appear without a manual reload
-20. ✅ M10-I20 Notification dropdown misaligned on mobile — shift `right` offset on `.site-nav-dropdown--notifications` by gear-button-width + nav-gap; panel now right-aligned on both mobile and desktop
-21. ✅ M10-I21 Notifications page mobile layout — column layout at ≤ 479 px; item name wraps; actions row aligned right; "go to" text links replaced with `notification-nav-btn` icon buttons (ExternalLinkIcon + hidden label on mobile)
-22. ✅ M10-I22 Unique wishlist names — `createWishlist` and `renameWishlist` check for duplicate names (exact match after trim, per-user scope); return `"duplicate"` error code; inline error shown in create and rename forms via new i18n keys
-23. ✅ M10-I23 Dashboard wishlist selection persisted — `WishlistManager` stores the selected wishlist id in `localStorage`; restored on mount so page reload lands on the last active wishlist
-24. ✅ M10-I24 Dashboard auto-refresh — `AutoRefresh` shared component (`router.refresh()` every 30 s) added to dashboard; `SharePageSync` delegates to it; reservation status updates without manual reload
-
-Recommended issue shape:
-- `M10-I1 Dark theme — CSS variable toggle and system preference default`
-- `M10-I2 Background parallax — depth effect on wallpaper pattern`
-- `M10-I3 English locale — en/ dictionary, locale switcher, browser auto-detect`
-- `M10-I4 Multiple currencies — per-item currency, default currency preference in profile, display formatting`
-- `M10-I5 Notification system — in-app alerts on reserved item changes`
-- `M10-I6 Bugfixes — post-notification-system bug fixes (mobile title, parallax GPU layer)`
-- `M10-I7 Email truncation — ellipsis + styled tooltip on settings and share pages`
-- `M10-I8 Delete last wishlist — allow deletion with auto-created default replacement`
-- `M10-I9 Mobile header overflow — reduce padding/gap at ≤ 479 px`
-- `M10-I10 Settings form state — useActionState, inline feedback, clean URL`
-- `M10-I11 Price input hint — layout fix and dark-mode color`
-- `M10-I12 Owner cancel reservation — cancel button on dashboard for others' reservations`
-- `M10-I13 Hide reservations from owner — settings toggle, hidden by default`
-
-Recommended PR order:
-1. `M10-I1 Dark theme — CSS variable toggle and system preference default`
-2. `M10-I2 Background parallax — depth effect on wallpaper pattern`
-3. `M10-I3 English locale — en/ dictionary, locale switcher, browser auto-detect`
-4. `M10-I4 Multiple currencies — per-item currency, default currency preference in profile, display formatting`
-5. `M10-I5 Notification system — in-app alerts on reserved item changes`
-6. `M10-I6–I11 Bugfix and QA batch — one shared PR on branch fix/bugfixes-v120`
-7. `M10-I12 Owner cancel reservation`
-8. `M10-I13 Hide reservations from owner`
-
-Dependencies:
-- `M10-I1` has no dependencies
-- `M10-I2` has no dependencies
-- `M10-I3` has no dependencies; locale switcher touches the header component
-- `M10-I4` depends on the user profile (shipped in v1.1.0) for storing the default currency preference; depends on the item schema for the per-item currency field
-
-Scope notes:
-- Dark theme must not introduce client components in pages that are currently server-rendered; use a CSS class on `<html>` toggled by a small script tag or a client component at the layout boundary only. The theme toggle is placed inside the gear-icon dropdown in `NavLinks` (already a client component); no new client boundary is introduced.
-- Background parallax must be lightweight — prefer CSS `background-attachment: fixed` or a minimal scroll listener; must not degrade performance on mobile; must work in both light and dark themes.
-- English locale duplicates the Russian dictionary in `en/`; no machine translation, write natural English.
-- Multiple currencies is display-only — no conversion rates, no external API.
-  - Each wish item stores its own currency (e.g. a Wildberries item in ₽, an AliExpress item in $).
-  - The user profile stores a preferred default currency (RUB by default) used when creating a new item.
-  - Price formatting is locale-aware; displayed using `Intl.NumberFormat` with the item's own currency.
-  - No currency conversion is performed at any point.
-
-Acceptance targets:
-- dark theme can be toggled manually; preference persists across sessions; `prefers-color-scheme: dark` is respected on first visit
-- background wallpaper has a visible but subtle parallax depth effect on scroll; no jank on mobile
-- all user-visible strings are available in English; switching locale changes the entire UI immediately
-- owner can select a currency per item (₽, $, €, etc.) in the item form; existing items default to the profile's preferred currency at creation time
-- owner can set a preferred default currency in profile settings; it pre-fills the currency field on new items
-- all prices display with locale-aware formatting (symbol, separators) on dashboard, share page, and reservations page
-
-Exit criteria:
-- dark/light toggle works in all routes with no flash on load
-- parallax effect is smooth on desktop; gracefully disabled or static on mobile if needed
-- English locale covers 100% of i18n keys with no missing-key fallbacks
-- `currency` field present on `WishlistItem` schema; migration generated via `npm run db:generate`
-- `preferredCurrency` field present on `User` profile schema; migration generated via `npm run db:generate`
-- per-item currency selector present in the item form (add and edit)
-- preferred currency selector present in profile settings
-- price formatting is consistent across dashboard, share page, and reservations page
-
-Definition of small PRs for this milestone:
-- dark theme PR only touches CSS variables, the theme toggle component, and layout wiring
-- parallax PR only touches background rendering; does not touch theme logic or i18n
-- locale PR only adds the `en/` dictionary, the switcher UI, and locale resolution logic; does not touch styles
-- currency PR adds: `currency` column on items, `preferredCurrency` column on user profile, currency selector in item form, preferred currency picker in settings, and updated price formatting utility; does not touch locale or theme logic
-
-Release note:
-- `v1.2.0` delivers dark theme, background parallax, English language support, and multi-currency price display with per-item currency selection.
+| v1.2.0 | M10: dark theme, background parallax, English locale, multi-currency, notification system, UX/mobile bugfix batch | ✅ shipped |
 
 ---
 
@@ -203,7 +98,7 @@ Goal:
 - allow attaching an image to each wishlist item
 
 Status:
-- planned
+- 🔄 in progress
 
 Execution backlog:
 1. QR code for share links — browser-side generation, modal or inline display
