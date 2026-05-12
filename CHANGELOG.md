@@ -50,6 +50,10 @@ The format is based on Keep a Changelog, and this project follows SemVer.
   "Мой список" is created automatically so the user always has one list.
 
 ### Fixed
+- Dashboard reservation status now refreshes automatically every 30 s
+  via `AutoRefresh` client component (`router.refresh()` on a timer),
+  matching the `SharePageSync` pattern already in place on the share
+  page. `SharePageSync` now delegates to the shared `AutoRefresh`.
 - Selected wishlist is now restored after a page reload; `WishlistManager`
   persists the chosen wishlist id in `localStorage` and restores it on
   mount (falls back to the first wishlist if the stored id is no longer
