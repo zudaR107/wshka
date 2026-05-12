@@ -79,6 +79,9 @@ describe("current user reservations page", () => {
     expect(html).toContain("9 990");
     expect(html).toContain("Отменить бронь");
     expect(html).not.toContain("Моё желание");
+    // Status strip must always use the self-reserved (blue) style
+    expect(html).toContain("item-card-status-self-reserved");
+    expect(html).not.toContain("item-card-status-reserved");
   });
 
   it("shows the own-item badge when the reservation is for the user's own wishlist", async () => {

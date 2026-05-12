@@ -33,8 +33,8 @@ test("owner saves bio and sees success message", async ({ page }) => {
   await page.locator("textarea[name='bio']").fill(bio);
   await page.getByRole("button", { name: "Сохранить" }).click();
 
-  await expect(page).toHaveURL(/\/settings\?status=saved$/);
-  await expect(page.getByTestId("settings-bio-success")).toBeVisible();
+  await expect(page.getByTestId("settings-save-btn")).toContainText("Сохранено");
+  await expect(page).toHaveURL(/\/settings$/);
 });
 
 test("saved bio is visible on share page for authenticated viewer", async ({ browser }) => {
@@ -52,7 +52,7 @@ test("saved bio is visible on share page for authenticated viewer", async ({ bro
     await ownerPage.goto("/settings");
     await ownerPage.locator("textarea[name='bio']").fill(bio);
     await ownerPage.getByRole("button", { name: "Сохранить" }).click();
-    await expect(ownerPage).toHaveURL(/\/settings\?status=saved$/);
+    await expect(ownerPage.getByTestId("settings-save-btn")).toContainText("Сохранено");
 
     await ownerPage.goto("/");
     await expect(ownerPage.getByTestId("share-link-url")).toHaveValue(/\/share\//);
@@ -82,7 +82,7 @@ test("saved bio is not visible on share page for guest viewer", async ({ browser
     await ownerPage.goto("/settings");
     await ownerPage.locator("textarea[name='bio']").fill(bio);
     await ownerPage.getByRole("button", { name: "Сохранить" }).click();
-    await expect(ownerPage).toHaveURL(/\/settings\?status=saved$/);
+    await expect(ownerPage.getByTestId("settings-save-btn")).toContainText("Сохранено");
 
     await ownerPage.goto("/");
     await expect(ownerPage.getByTestId("share-link-url")).toHaveValue(/\/share\//);
@@ -109,8 +109,7 @@ test("owner saves preferred currency and it persists after reload", async ({ pag
 
   await page.getByRole("button", { name: "Сохранить" }).click();
 
-  await expect(page).toHaveURL(/\/settings\?status=saved$/);
-  await expect(page.getByTestId("settings-bio-success")).toBeVisible();
+  await expect(page.getByTestId("settings-save-btn")).toContainText("Сохранено");
 
   // Reload and verify the selected currency is still shown
   await page.goto("/settings");
@@ -128,7 +127,7 @@ test("preferred currency pre-selects in create-item form", async ({ page }) => {
   await page.getByRole("button", { name: "Валюта для новых желаний" }).click();
   await page.getByRole("option", { name: /Евро/ }).getByRole("button").click();
   await page.getByRole("button", { name: "Сохранить" }).click();
-  await expect(page).toHaveURL(/\/settings\?status=saved$/);
+  await expect(page.getByTestId("settings-save-btn")).toContainText("Сохранено");
 
   // Open create-item form and check the currency trigger shows €
   await page.goto("/");

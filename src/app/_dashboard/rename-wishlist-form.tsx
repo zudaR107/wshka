@@ -31,10 +31,18 @@ export function RenameWishlistForm({ wishlistId, currentName, onCancel }: Rename
       onCancel();
       startTransition(() => router.refresh());
     }
+    if (state?.status === "error") {
+      inputRef.current?.focus();
+      inputRef.current?.select();
+    }
   }, [state]);
 
   function getErrorMessage(code: string | undefined): string {
     switch (code) {
+      case "empty":
+        return messages.dashboard.wishlists.errors.renameEmpty;
+      case "duplicate":
+        return messages.dashboard.wishlists.errors.renameDuplicate;
       case "not-found":
         return messages.dashboard.wishlists.errors.renameNotFound;
       default:
@@ -42,21 +50,22 @@ export function RenameWishlistForm({ wishlistId, currentName, onCancel }: Rename
     }
   }
 
+  const errorMessage = state?.status === "error" ? getErrorMessage(state.error) : null;
+
   return (
-    <form action={formAction} className="wishlist-edit-form">
+    <form action={formAction} className="wishlist-edit-form" noValidate>
       <input type="hidden" name="wishlistId" value={wishlistId} />
-      <input
-        ref={inputRef}
-        name="name"
-        className="ui-input"
-        defaultValue={currentName}
-        maxLength={100}
-        placeholder={messages.dashboard.wishlists.renamePlaceholder}
-        required
-      />
-      {state?.status === "error" ? (
-        <p className="ui-message ui-message-error">{getErrorMessage(state.error)}</p>
-      ) : null}
+      <div>
+        <input
+          ref={inputRef}
+          name="name"
+          className={errorMessage ? "ui-input ui-input-error" : "ui-input"}
+          defaultValue={currentName}
+          maxLength={100}
+          placeholder={messages.dashboard.wishlists.renamePlaceholder}
+        />
+        {errorMessage ? <p className="ui-note ui-note-error">{errorMessage}</p> : null}
+      </div>
       <div className="wishlist-edit-form-actions">
         <button type="submit" className="ui-button">
           {messages.dashboard.wishlists.renameSubmitLabel}

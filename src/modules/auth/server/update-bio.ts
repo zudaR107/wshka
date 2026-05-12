@@ -10,6 +10,7 @@ export type UpdateBioResult =
 export async function updateUserBio(
   userId: string,
   rawBio: string,
+  oldBio: string | null,
 ): Promise<UpdateBioResult> {
   const bio = rawBio.trim() || null;
 
@@ -25,7 +26,9 @@ export async function updateUserBio(
       .set({ bio, updatedAt: new Date() })
       .where(eq(users.id, userId));
 
-    void notifyBioReservers(userId);
+    if (bio !== oldBio) {
+      void notifyBioReservers(userId);
+    }
     return { status: "success" };
   } catch {
     return { status: "error", code: "db-error" };
@@ -124,13 +127,41 @@ export async function updateUserPreferredCurrency(
 
 export async function getUserProfile(
   userId: string,
-): Promise<{ id: string; email: string; bio: string | null; preferredCurrency: string } | null> {
+): Promise<{
+  id: string;
+  email: string;
+  bio: string | null;
+  preferredCurrency: string;
+  showReservationsOnDashboard: boolean;
+} | null> {
   const { db } = await import("@/shared/db");
 
   const user = await db.query.users.findFirst({
-    columns: { id: true, email: true, bio: true, preferredCurrency: true },
+    columns: { id: true, email: true, bio: true, preferredCurrency: true, showReservationsOnDashboard: true },
     where: eq(users.id, userId),
   });
 
   return user ?? null;
+}
+
+export type UpdateShowReservationsResult =
+  | { status: "success" }
+  | { status: "error"; code: "db-error" };
+
+export async function updateUserShowReservations(
+  userId: string,
+  show: boolean,
+): Promise<UpdateShowReservationsResult> {
+  try {
+    const { db } = await import("@/shared/db");
+
+    await db
+      .update(users)
+      .set({ showReservationsOnDashboard: show, updatedAt: new Date() })
+      .where(eq(users.id, userId));
+
+    return { status: "success" };
+  } catch {
+    return { status: "error", code: "db-error" };
+  }
 }

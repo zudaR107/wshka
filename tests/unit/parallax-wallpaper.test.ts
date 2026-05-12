@@ -21,8 +21,8 @@ const componentSrc = readFileSync(
 
 describe("parallax wallpaper", () => {
   describe("base.css — fixed layer", () => {
-    it("declares body::before pseudo-element", () => {
-      expect(baseCSS).toContain("body::before");
+    it("declares .wallpaper-bg CSS class for the background element", () => {
+      expect(baseCSS).toContain(".wallpaper-bg");
     });
 
     it("fixes the pseudo-element to the viewport", () => {
@@ -43,29 +43,29 @@ describe("parallax wallpaper", () => {
       expect(bodyBlockMatch![1]).not.toContain("background-color");
     });
 
-    it("serves the wallpaper via body::before, not via body background-image", () => {
-      const beforeIndex = baseCSS.indexOf("body::before");
+    it("serves the wallpaper via .wallpaper-bg, not via body background-image", () => {
+      const bgClassIndex = baseCSS.indexOf(".wallpaper-bg");
       const wallpaperIndex = baseCSS.indexOf("url('/wallpaper.svg')");
-      expect(beforeIndex).toBeGreaterThan(-1);
+      expect(bgClassIndex).toBeGreaterThan(-1);
       expect(wallpaperIndex).toBeGreaterThan(-1);
-      expect(wallpaperIndex).toBeGreaterThan(beforeIndex);
+      expect(wallpaperIndex).toBeGreaterThan(bgClassIndex);
     });
   });
 
   describe("base.css — pointer-driven parallax", () => {
-    it("uses CSS custom properties for the parallax offset", () => {
-      expect(baseCSS).toContain("--wp-x");
-      expect(baseCSS).toContain("--wp-y");
+    it("sets transform directly on the element from JS (no CSS variable cascade)", () => {
+      expect(baseCSS).not.toContain("--wp-x");
+      expect(baseCSS).not.toContain("--wp-y");
+      expect(componentSrc).toContain("bg.style.transform");
     });
 
     it("applies offset via transform translate for composited animation", () => {
-      expect(baseCSS).toContain(
-        "transform: translate(var(--wp-x, 0px), var(--wp-y, 0px))",
-      );
+      expect(componentSrc).toContain("bg.style.transform");
+      expect(componentSrc).toContain("translate(");
     });
 
-    it("does not use will-change so backdrop-filter on the header can see the layer", () => {
-      expect(baseCSS).not.toContain("will-change");
+    it("promotes the layer to a GPU compositor layer via will-change", () => {
+      expect(baseCSS).toContain("will-change: transform");
     });
   });
 
@@ -76,8 +76,8 @@ describe("parallax wallpaper", () => {
   });
 
   describe("dark.css — dark mode integration", () => {
-    it("dims the wallpaper pseudo-element in dark mode via opacity", () => {
-      expect(darkCSS).toContain(".dark body::before");
+    it("dims the wallpaper background element in dark mode via opacity", () => {
+      expect(darkCSS).toContain(".dark .wallpaper-bg");
       expect(darkCSS).toContain("opacity");
     });
 
@@ -125,9 +125,10 @@ describe("parallax wallpaper", () => {
       expect(componentSrc).toContain("requestAnimationFrame");
     });
 
-    it("sets --wp-x and --wp-y custom properties", () => {
-      expect(componentSrc).toContain("--wp-x");
-      expect(componentSrc).toContain("--wp-y");
+    it("sets transform directly on the background element ref (no CSS variable cascade)", () => {
+      expect(componentSrc).toContain("bg.style.transform");
+      expect(componentSrc).not.toContain("--wp-x");
+      expect(componentSrc).not.toContain("--wp-y");
     });
 
     it("respects prefers-reduced-motion", () => {

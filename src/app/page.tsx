@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { headers } from "next/headers";
+import { headers, cookies } from "next/headers";
 import { getCurrentUser, requireCurrentUser } from "@/modules/auth/server/current-user";
 import { getTranslations } from "@/modules/i18n";
 import { getLocale } from "@/modules/i18n/server";
@@ -8,11 +8,12 @@ import {
   getOrCreateShareLinkForWishlist,
   regenerateShareLinkForWishlist,
 } from "@/modules/share";
-import type { DeleteItemState, ReserveItemState, CancelItemReservationState, RegenerateState } from "./_dashboard/item-actions";
-import { getAllOwnerWishlistsWithReservations, createReservation, cancelReservation } from "@/modules/reservation";
+import type { DeleteItemState, ReserveItemState, CancelItemReservationState, CancelOwnerReservationState, RegenerateState } from "./_dashboard/item-actions";
+import { getAllOwnerWishlistsWithReservations, createReservation, cancelReservation, cancelReservationByOwner } from "@/modules/reservation";
 import { deleteCurrentWishlistItem } from "@/modules/wishlist/server/manage-item";
 import { WishlistManager, type DashboardWishlist } from "./_dashboard/wishlist-manager";
 import { ScrollHighlight } from "./_dashboard/scroll-highlight";
+import { AutoRefresh } from "@/shared/ui/auto-refresh";
 import { getUserProfile } from "@/modules/auth/server/update-bio";
 import { parseCurrency } from "@/shared/lib/currency";
 
@@ -141,16 +142,26 @@ async function DashboardView({ userId }: { userId: string }) {
   }));
 
   const defaultCurrency = parseCurrency(profile?.preferredCurrency);
+  const showReservations = profile?.showReservationsOnDashboard ?? false;
+
+  const cookieStore = await cookies();
+  const storedId = cookieStore.get("wshka_selected_wishlist")?.value ?? "";
+  const initialSelectedId =
+    wishlistsData.find((w) => w.id === storedId)?.id ?? wishlistsData[0]?.id ?? "";
 
   return (
     <div className="dashboard-page">
       <ScrollHighlight />
+      <AutoRefresh />
       <WishlistManager
         wishlists={wishlistsData}
+        initialSelectedId={initialSelectedId}
         defaultCurrency={defaultCurrency}
+        showReservations={showReservations}
         deleteItemAction={deleteItemAction}
         reserveItemAction={reserveItemAction}
         cancelItemReservationAction={cancelItemReservationAction}
+        cancelOwnerReservationAction={cancelOwnerReservationAction}
         regenerateShareLinkAction={regenerateShareLinkAction}
       />
     </div>
@@ -199,6 +210,19 @@ async function cancelItemReservationAction(
 
   const user = await requireCurrentUser();
   const result = await cancelReservation(user.id, getFormValue(formData, "reservationId"));
+
+  if (result.status === "success") return { status: "success" };
+  return { status: "error", error: result.code };
+}
+
+async function cancelOwnerReservationAction(
+  prev: CancelOwnerReservationState,
+  formData: FormData,
+): Promise<CancelOwnerReservationState> {
+  "use server";
+
+  const user = await requireCurrentUser();
+  const result = await cancelReservationByOwner(getFormValue(formData, "itemId"), user.id);
 
   if (result.status === "success") return { status: "success" };
   return { status: "error", error: result.code };

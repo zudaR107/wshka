@@ -161,10 +161,13 @@ describe("getUserWishlists", () => {
 
 describe("createWishlist", () => {
   beforeEach(() => {
+    mocks.findFirst.mockReset();
     mocks.insert.mockReset();
     mocks.insertValues.mockReset();
     mocks.insertReturning.mockReset();
 
+    // No duplicate by default
+    mocks.findFirst.mockResolvedValue(null);
     mocks.insert.mockReturnValue({ values: mocks.insertValues });
     mocks.insertValues.mockReturnValue({ returning: mocks.insertReturning });
   });
@@ -181,14 +184,22 @@ describe("createWishlist", () => {
     );
   });
 
-  it("falls back to the default name when an empty name is given", async () => {
-    mocks.insertReturning.mockResolvedValue([{ id: "wishlist-new" }]);
+  it("returns empty error when name is blank", async () => {
+    await expect(createWishlist("user-1", "   ")).resolves.toEqual({
+      status: "error",
+      code: "empty",
+    });
+    expect(mocks.insert).not.toHaveBeenCalled();
+  });
 
-    await createWishlist("user-1", "   ");
+  it("returns duplicate error when the user already has a list with that name", async () => {
+    mocks.findFirst.mockResolvedValue({ id: "wishlist-existing" });
 
-    expect(mocks.insertValues).toHaveBeenCalledWith(
-      expect.objectContaining({ name: "Мой список" }),
-    );
+    await expect(createWishlist("user-1", "День рождения")).resolves.toEqual({
+      status: "error",
+      code: "duplicate",
+    });
+    expect(mocks.insert).not.toHaveBeenCalled();
   });
 
   it("returns error on database failure", async () => {
@@ -203,11 +214,14 @@ describe("createWishlist", () => {
 
 describe("renameWishlist", () => {
   beforeEach(() => {
+    mocks.findFirst.mockReset();
     mocks.update.mockReset();
     mocks.updateSet.mockReset();
     mocks.updateWhere.mockReset();
     mocks.updateReturning.mockReset();
 
+    // No duplicate by default
+    mocks.findFirst.mockResolvedValue(null);
     mocks.update.mockReturnValue({ set: mocks.updateSet });
     mocks.updateSet.mockReturnValue({ where: mocks.updateWhere });
     mocks.updateWhere.mockReturnValue({ returning: mocks.updateReturning });
@@ -233,55 +247,71 @@ describe("renameWishlist", () => {
     });
   });
 
-  it("falls back to the default name when an empty name is given", async () => {
+  it("returns empty error when name is blank", async () => {
+    await expect(renameWishlist("wishlist-1", "user-1", "  ")).resolves.toEqual({
+      status: "error",
+      code: "empty",
+    });
+    expect(mocks.update).not.toHaveBeenCalled();
+  });
+
+  it("returns duplicate error when another list of the user has the same name", async () => {
+    mocks.findFirst.mockResolvedValue({ id: "wishlist-other" });
+
+    await expect(renameWishlist("wishlist-1", "user-1", "День рождения")).resolves.toEqual({
+      status: "error",
+      code: "duplicate",
+    });
+    expect(mocks.update).not.toHaveBeenCalled();
+  });
+
+  it("allows renaming to the same name (no-op: no other list matches)", async () => {
+    // findFirst returns null because ne(wishlists.id, wishlistId) excludes self
+    mocks.findFirst.mockResolvedValue(null);
     mocks.updateReturning.mockResolvedValue([{ id: "wishlist-1" }]);
 
-    await renameWishlist("wishlist-1", "user-1", "  ");
-
-    expect(mocks.updateSet).toHaveBeenCalledWith(
-      expect.objectContaining({ name: "Мой список" }),
-    );
+    await expect(renameWishlist("wishlist-1", "user-1", "Мой список")).resolves.toEqual({
+      status: "success",
+    });
   });
 });
 
 describe("deleteWishlist", () => {
   beforeEach(() => {
-    mocks.findMany.mockReset();
+    mocks.findFirst.mockReset();
     mocks.deleteItem.mockReset();
     mocks.deleteWhere.mockReset();
     mocks.deleteReturning.mockReset();
+    mocks.insert.mockReset();
+    mocks.insertValues.mockReset();
 
     mocks.deleteItem.mockReturnValue({ where: mocks.deleteWhere });
     mocks.deleteWhere.mockReturnValue({ returning: mocks.deleteReturning });
+    mocks.insert.mockReturnValue({ values: mocks.insertValues });
   });
 
-  it("deletes the wishlist when the user has more than one", async () => {
-    mocks.findMany.mockResolvedValue([
-      { id: "wishlist-1" },
-      { id: "wishlist-2" },
-    ]);
+  it("deletes the wishlist and returns success when others remain", async () => {
     mocks.deleteReturning.mockResolvedValue([{ id: "wishlist-2" }]);
+    mocks.findFirst.mockResolvedValue({ id: "wishlist-1" });
 
     await expect(deleteWishlist("wishlist-2", "user-1")).resolves.toEqual({
       status: "success",
     });
+    expect(mocks.insert).not.toHaveBeenCalled();
   });
 
-  it("prevents deleting the last remaining wishlist", async () => {
-    mocks.findMany.mockResolvedValue([{ id: "wishlist-1" }]);
+  it("deletes the last wishlist and creates a default replacement", async () => {
+    mocks.deleteReturning.mockResolvedValue([{ id: "wishlist-1" }]);
+    mocks.findFirst.mockResolvedValue(null);
+    mocks.insertValues.mockResolvedValue(undefined);
 
     await expect(deleteWishlist("wishlist-1", "user-1")).resolves.toEqual({
-      status: "error",
-      code: "last-wishlist",
+      status: "success",
     });
-    expect(mocks.deleteItem).not.toHaveBeenCalled();
+    expect(mocks.insert).toHaveBeenCalled();
   });
 
   it("returns not-found when the wishlist does not belong to the user", async () => {
-    mocks.findMany.mockResolvedValue([
-      { id: "wishlist-1" },
-      { id: "wishlist-2" },
-    ]);
     mocks.deleteReturning.mockResolvedValue([]);
 
     await expect(deleteWishlist("wishlist-1", "other-user")).resolves.toEqual({

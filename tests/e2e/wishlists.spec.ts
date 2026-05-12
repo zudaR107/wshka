@@ -91,14 +91,21 @@ test("owner can create a second wishlist and switch between them", async ({ page
   await expect(page.getByRole("heading", { name: secondName })).toBeVisible();
 });
 
-test("cannot delete the last remaining wishlist", async ({ page }) => {
+test("deleting the last wishlist creates a fresh default list", async ({ page }) => {
   const credentials = createCredentials();
 
   await registerAndLand(page, credentials);
 
-  // Delete button should be disabled when only one wishlist exists
+  // Delete button is enabled even when only one wishlist exists
   const deleteBtn = page.getByRole("button", { name: "Удалить" }).first();
-  await expect(deleteBtn).toBeDisabled();
+  await expect(deleteBtn).toBeEnabled();
+
+  // Delete the only wishlist
+  await deleteBtn.click();
+  await page.getByRole("button", { name: "Да, удалить" }).click();
+
+  // A fresh default list is created automatically
+  await expect(page.getByRole("heading", { name: "Мой список" })).toBeVisible();
 });
 
 test("owner can delete a non-last wishlist", async ({ page }) => {
@@ -125,6 +132,64 @@ test("owner can delete a non-last wishlist", async ({ page }) => {
   // Deleted wishlist no longer in dropdown
   await page.getByTestId("wishlist-select").click();
   await expect(page.getByRole("option", { name: secondName })).toHaveCount(0);
+});
+
+test("duplicate wishlist name shows inline error on create and rename", async ({ page }) => {
+  const credentials = createCredentials();
+  const runId = randomUUID().slice(0, 6);
+  const secondName = `Дубликат ${runId}`;
+
+  await registerAndLand(page, credentials);
+
+  // Create a second wishlist with a unique name
+  await page.getByTestId("create-wishlist-btn").click();
+  await page.getByPlaceholder("Название вишлиста").fill(secondName);
+  await page.getByRole("button", { name: "Создать" }).click();
+  await expect(page.getByRole("heading", { name: secondName })).toBeVisible();
+
+  // Try to create another list with the same name
+  await page.getByTestId("create-wishlist-btn").click();
+  await page.getByPlaceholder("Название вишлиста").fill(secondName);
+  await page.getByRole("button", { name: "Создать" }).click();
+
+  await expect(
+    page.getByText("Список с таким названием уже существует."),
+  ).toBeVisible();
+
+  // Switch to the first wishlist and try to rename it to the same name as the second
+  await page.getByRole("button", { name: "Отмена" }).click();
+  await page.getByTestId("wishlist-select").click();
+  await page.getByRole("option", { name: "Мой список" }).getByRole("button").click();
+
+  await page.getByTestId("rename-wishlist-btn").click();
+  const renameInput = page.getByPlaceholder("Новое название");
+  await renameInput.fill(secondName);
+  await page.getByRole("button", { name: "Сохранить" }).click();
+
+  await expect(
+    page.getByText("Список с таким названием уже существует."),
+  ).toBeVisible();
+});
+
+test("selected wishlist is restored after page reload", async ({ page }) => {
+  const credentials = createCredentials();
+  const runId = randomUUID().slice(0, 6);
+  const secondName = `После перезагрузки ${runId}`;
+
+  await registerAndLand(page, credentials);
+
+  // Create second wishlist and switch to it
+  await page.getByTestId("create-wishlist-btn").click();
+  await page.getByPlaceholder("Название вишлиста").fill(secondName);
+  await page.getByRole("button", { name: "Создать" }).click();
+  await expect(page.getByRole("heading", { name: secondName })).toBeVisible();
+
+  // Reload the page
+  await page.reload();
+
+  // Second wishlist should still be selected
+  await expect(page.getByRole("heading", { name: secondName })).toBeVisible();
+  await expect(page.getByTestId("wishlist-select")).toContainText(secondName);
 });
 
 test("each wishlist has its own independent share link", async ({ page }) => {

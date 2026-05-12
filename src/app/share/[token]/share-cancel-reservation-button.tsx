@@ -50,7 +50,7 @@ export function ShareCancelReservationButton({
   return (
     <form action={formAction}>
       <input type="hidden" name="reservationId" value={reservationId} />
-      <button type="submit" className="item-cancel-reservation-btn">
+      <button type="submit" className="item-delete-btn">
         <XIcon />
         <span className="item-btn-label">{cancelLabel}</span>
       </button>

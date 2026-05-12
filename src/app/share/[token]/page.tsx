@@ -11,7 +11,9 @@ import {
 import { ShareReserveButton } from "@/app/share/[token]/share-reserve-button";
 import { ShareCancelReservationButton } from "@/app/share/[token]/share-cancel-reservation-button";
 import { BioHighlight } from "@/app/share/[token]/bio-highlight";
+import { OwnerEmail } from "@/app/share/[token]/owner-email";
 import { ScrollHighlight } from "@/app/_dashboard/scroll-highlight";
+import { SharePageSync } from "@/app/share/[token]/share-page-sync";
 import { formatPrice } from "@/app/format-price";
 import { parseCurrency } from "@/shared/lib/currency";
 
@@ -211,11 +213,12 @@ function SharePageView({
   return (
     <div className="content-page">
       <ScrollHighlight />
+      <SharePageSync />
       <div className="content-page-header">
         <p className="page-brand-label">{common.brand}</p>
         <div className="share-page-title-row">
           <h1 className="content-page-title">{messages.share.title}</h1>
-          <span className="share-page-owner-email">{wishlist.owner.email}</span>
+          <OwnerEmail email={wishlist.owner.email} />
         </div>
         <p className="content-page-description">{messages.share.description}</p>
       </div>
@@ -264,6 +267,7 @@ function SharePageView({
               display: "flex",
               flexDirection: "column",
               gap: "var(--space-3)",
+              overflowAnchor: "none",
             }}
           >
             {wishlist.items.map((item) => {

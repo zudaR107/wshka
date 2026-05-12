@@ -62,7 +62,7 @@ test("owner can complete the core wishlist journey end to end", async ({ page })
     await expect(createdItemCard).toContainText(initialItem.url);
     await expect(createdItemCard).toContainText(initialItem.note);
     await expect(createdItemCard).toContainText("1\u00a0990");
-    await expect(createdItemCard).toContainText("Статус: доступно");
+    // Status strip is hidden by default (showReservations=false)
 
     // Open the inline edit form
     await createdItemCard.getByTestId("edit-item-toggle").click();

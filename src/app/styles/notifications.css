@@ -5,7 +5,7 @@
     margin-bottom: var(--space-3);
   }
 
-.notification-list {
+  .notification-list {
     list-style: none;
     margin: 0;
     padding: 0;
@@ -72,23 +72,54 @@
 
   .notification-item-actions {
     display: flex;
-    align-items: stretch;
+    align-items: center;
     gap: var(--space-2);
     flex-shrink: 0;
   }
 
-  .notification-item-link {
-    white-space: nowrap;
-  }
-
-/* ui-button-ghost variant */
-  .ui-button-ghost {
-    background: transparent;
-    color: var(--color-accent);
+  /* Navigation icon button — accent-toned, mirrors item-edit-btn style */
+  .notification-nav-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
     border: 1px solid var(--color-accent);
+    border-radius: var(--radius-md);
+    background: transparent;
+    padding: var(--space-3) var(--space-4);
+    color: var(--color-accent);
+    font: inherit;
+    font-size: var(--font-size-label);
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
 
-  .ui-button-ghost:hover {
+  .notification-nav-btn:hover {
     background: var(--color-accent-surface);
+  }
+
+  /* ── Mobile layout ──────────────────────────────────────── */
+  @media (max-width: 479px) {
+    .notification-item {
+      gap: var(--space-3);
+      padding: var(--space-3) var(--space-4);
+    }
+
+    .notification-item-name {
+      white-space: normal;
+    }
+
+    .notification-nav-btn-label {
+      display: none;
+    }
+
+    /* Match height of .ui-button (padding: space-3 space-5) so both
+       action buttons are the same size on mobile */
+    .notification-nav-btn {
+      padding: var(--space-3) var(--space-5);
+    }
   }
 }

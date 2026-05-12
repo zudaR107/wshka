@@ -1,7 +1,7 @@
 /* ── Dark mode — hardcoded color overrides ───────────── */
 
-/* Background: dim wallpaper by reducing pseudo-element opacity */
-.dark body::before {
+/* Background: dim wallpaper layer in dark mode */
+.dark .wallpaper-bg {
   opacity: 0.18;
 }
 
@@ -52,6 +52,18 @@
 .dark .ui-button-danger:hover {
   border-color: #7f2d3a;
   background: #2d0e12;
+}
+.dark .ui-button-success {
+  background: #15803d;
+}
+.dark .ui-button-success:hover {
+  background: #166534;
+}
+.dark .ui-button-error {
+  background: #dc2626;
+}
+.dark .ui-button-error:hover {
+  background: #b91c1c;
 }
 
 /* Messages */

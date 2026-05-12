@@ -21,7 +21,7 @@ create a wishlist → share it by link → let another person reserve a gift.
 |---|---|---|
 | `User` | Account owner or reserver | Unique `email`; password stored only as hash; optional `bio`; `preferredCurrency` |
 | `Session` | Authenticated access | Required for owner actions and reservations |
-| `Wishlist` | Container for items | Many per user; default created on registration; last cannot be deleted |
+| `Wishlist` | Container for items | Many per user; default created on registration; deleting the last one auto-creates a fresh default |
 | `WishlistItem` | Single wish | Fields: `title`, `url?`, `note?`, `price?`, `currency`, `starred` |
 | `ShareLink` | Public read-only access | Opaque token; one active per wishlist; revocable |
 | `Reservation` | Item reservation | At most one active per item |
@@ -96,7 +96,8 @@ Goal:
 - no schema migrations required; all changes are frontend-only
 
 Status:
-- ✅ M10-I1–I5 complete; M10-I6 in progress (bugfix batch)
+- ✅ M10-I1–I5 complete; M10-I6–I11 complete (bugfix + QA batch on branch fix/bugfixes-v120)
+- ✅ M10-I12–I22 complete
 
 Execution backlog:
 1. ✅ Dark theme — CSS variable toggle, `localStorage` persistence, `prefers-color-scheme` default
@@ -104,7 +105,25 @@ Execution backlog:
 3. ✅ English locale — `en/` i18n dictionary, locale switcher in header, browser auto-detect
 4. ✅ Multiple currencies — currency per wish item, default currency preference in profile, locale-aware display formatting
 5. ✅ Notification system — in-app alerts when a reserved item is updated or deleted; bell icon in nav with unread badge; `/notifications` page; `owner_updated` type for bio changes; static share token snapshots; scroll/highlight navigation; 30 s polling
-6. 🔄 M10-I6 Bugfixes — post-M10-I5 bug fixes discovered during manual QA
+6. ✅ M10-I6 Bugfixes — dashboard title line-height and underline on mobile; parallax GPU layer
+7. ✅ M10-I7 Email truncation — long emails truncated with ellipsis on settings and share pages; custom tooltip on share page
+8. ✅ M10-I8 Delete last wishlist — allow deleting the only remaining list; auto-create default "Мой список"
+9. ✅ M10-I9 Mobile header overflow — reduce padding and gap at ≤ 479 px to eliminate horizontal scroll
+10. ✅ M10-I10 Settings form state — migrate from URL params to useActionState; inline success/error feedback
+11. ✅ M10-I11 Price input hint — fix inline layout (hint renders below field) and unreadable color in dark mode
+12. ✅ M10-I12 Owner cancel reservation — owner can cancel a reservation made by another user on their own wish; reserver receives `reservation_cancelled` notification
+13. ✅ M10-I13 Hide reservation status from owner — dashboard hides "reserved" status from the owner by default; opt-in toggle in settings; self-reservations always visible
+14. ✅ M10-I14 Suppress self-reservation notifications — no notification sent when owner reserves or cancels their own wish
+15. ✅ M10-I15 Reservations page status color — always blue (self-reserved style) instead of pink for cross-wishlist items
+16. ✅ M10-I16 Share page cancel button style — red danger style (item-delete-btn) matching dashboard delete buttons
+17. ✅ M10-I17 Standardize scroll-to-item — center alignment + highlight animation on new item creation, edit save, and notification nav; shared scrollAndHighlight() utility
+18. ✅ M10-I18 Mobile background flicker on reservation — migrate wallpaper from `body::before` + CSS variables to real `<div.wallpaper-bg>` with direct `style.transform`; eliminates CSS cascade-invalidation that briefly destabilised the GPU compositing layer on mobile during RSC reconciliation
+19. ✅ M10-I19 Share page stale on mobile — add `SharePageSync` client component; calls `router.refresh()` every 30 s so item additions and deletions appear without a manual reload
+20. ✅ M10-I20 Notification dropdown misaligned on mobile — shift `right` offset on `.site-nav-dropdown--notifications` by gear-button-width + nav-gap; panel now right-aligned on both mobile and desktop
+21. ✅ M10-I21 Notifications page mobile layout — column layout at ≤ 479 px; item name wraps; actions row aligned right; "go to" text links replaced with `notification-nav-btn` icon buttons (ExternalLinkIcon + hidden label on mobile)
+22. ✅ M10-I22 Unique wishlist names — `createWishlist` and `renameWishlist` check for duplicate names (exact match after trim, per-user scope); return `"duplicate"` error code; inline error shown in create and rename forms via new i18n keys
+23. ✅ M10-I23 Dashboard wishlist selection persisted — `WishlistManager` stores the selected wishlist id in `localStorage`; restored on mount so page reload lands on the last active wishlist
+24. ✅ M10-I24 Dashboard auto-refresh — `AutoRefresh` shared component (`router.refresh()` every 30 s) added to dashboard; `SharePageSync` delegates to it; reservation status updates without manual reload
 
 Recommended issue shape:
 - `M10-I1 Dark theme — CSS variable toggle and system preference default`
@@ -112,7 +131,14 @@ Recommended issue shape:
 - `M10-I3 English locale — en/ dictionary, locale switcher, browser auto-detect`
 - `M10-I4 Multiple currencies — per-item currency, default currency preference in profile, display formatting`
 - `M10-I5 Notification system — in-app alerts on reserved item changes`
-- `M10-I6 Bugfixes — post-notification-system bug fixes`
+- `M10-I6 Bugfixes — post-notification-system bug fixes (mobile title, parallax GPU layer)`
+- `M10-I7 Email truncation — ellipsis + styled tooltip on settings and share pages`
+- `M10-I8 Delete last wishlist — allow deletion with auto-created default replacement`
+- `M10-I9 Mobile header overflow — reduce padding/gap at ≤ 479 px`
+- `M10-I10 Settings form state — useActionState, inline feedback, clean URL`
+- `M10-I11 Price input hint — layout fix and dark-mode color`
+- `M10-I12 Owner cancel reservation — cancel button on dashboard for others' reservations`
+- `M10-I13 Hide reservations from owner — settings toggle, hidden by default`
 
 Recommended PR order:
 1. `M10-I1 Dark theme — CSS variable toggle and system preference default`
@@ -120,7 +146,9 @@ Recommended PR order:
 3. `M10-I3 English locale — en/ dictionary, locale switcher, browser auto-detect`
 4. `M10-I4 Multiple currencies — per-item currency, default currency preference in profile, display formatting`
 5. `M10-I5 Notification system — in-app alerts on reserved item changes`
-6. `M10-I6 Bugfixes — post-notification-system bug fixes`
+6. `M10-I6–I11 Bugfix and QA batch — one shared PR on branch fix/bugfixes-v120`
+7. `M10-I12 Owner cancel reservation`
+8. `M10-I13 Hide reservations from owner`
 
 Dependencies:
 - `M10-I1` has no dependencies

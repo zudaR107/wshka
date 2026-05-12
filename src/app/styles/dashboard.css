@@ -29,6 +29,7 @@
   .dashboard-title {
     font-size: 1.75rem;
     font-weight: 800;
+    line-height: 1.25;
     letter-spacing: -0.03em;
     color: var(--color-text-strong);
     margin: 0;
@@ -693,6 +694,7 @@
   .wishlist-dropdown-trigger:hover .dashboard-title {
     text-decoration: underline;
     text-underline-offset: 3px;
+    text-decoration-skip-ink: none;
   }
 
   .wishlist-dropdown-menu {

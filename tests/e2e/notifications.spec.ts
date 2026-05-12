@@ -18,6 +18,14 @@ async function registerUser(page: Page, credentials: Credentials) {
   await expect(page).toHaveURL(/\/(?:\?.*)?$/);
 }
 
+async function enableShowReservations(page: Page): Promise<void> {
+  await page.goto("/settings");
+  await page.locator("label.settings-toggle-label").click();
+  await page.getByRole("button", { name: "Сохранить" }).click();
+  await expect(page.getByTestId("settings-save-btn")).toContainText("Сохранено");
+  await page.goto("/");
+}
+
 async function createWishlistItem(page: Page, title: string): Promise<void> {
   await page.getByTestId("add-item-toggle").click();
   const form = page.getByTestId("wishlist-create-form");
@@ -59,6 +67,7 @@ test("notification badge appears when a reservation is made on owner's item", as
 
   try {
     await registerUser(ownerPage, owner);
+    await enableShowReservations(ownerPage);
     await createWishlistItem(ownerPage, itemTitle);
     const shareUrl = await ownerPage.getByTestId("share-link-url").inputValue();
 
@@ -94,6 +103,7 @@ test("badge resets after visiting /notifications and stays 0 when navigating awa
   try {
     // Setup: reserver makes a reservation so the owner has an unread notification
     await registerUser(ownerPage, owner);
+    await enableShowReservations(ownerPage);
     await createWishlistItem(ownerPage, itemTitle);
     const shareUrl = await ownerPage.getByTestId("share-link-url").inputValue();
 

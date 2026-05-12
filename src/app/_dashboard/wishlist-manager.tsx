@@ -9,16 +9,19 @@ import { EditItemForm } from "./edit-item-form";
 import { DeleteItemButton } from "./delete-item-button";
 import { ReserveItemButton } from "./reserve-item-button";
 import { CancelItemReservationButton } from "./cancel-item-reservation-button";
+import { CancelOwnerReservationButton } from "./cancel-owner-reservation-button";
 import { ItemEditSection } from "./item-edit-section";
 import { CopyUrlButton } from "./copy-url-button";
 import { RegenerateLinkButton } from "./regenerate-link-button";
 import { OpenFormButton, AddItemFormFocus } from "./open-form-button";
+import { scrollAndHighlight } from "./scroll-utils";
 import { formatPrice } from "../format-price";
 import { type CurrencyCode } from "@/shared/lib/currency";
 import type {
   DeleteItemState,
   ReserveItemState,
   CancelItemReservationState,
+  CancelOwnerReservationState,
   RegenerateState,
 } from "./item-actions";
 import type { OwnerWishlistItem } from "@/modules/reservation";
@@ -32,37 +35,61 @@ export type DashboardWishlist = {
 
 type WishlistManagerProps = {
   wishlists: DashboardWishlist[];
+  initialSelectedId: string;
   defaultCurrency: CurrencyCode;
+  showReservations: boolean;
   deleteItemAction: (prev: DeleteItemState, formData: FormData) => Promise<DeleteItemState>;
   reserveItemAction: (prev: ReserveItemState, formData: FormData) => Promise<ReserveItemState>;
   cancelItemReservationAction: (
     prev: CancelItemReservationState,
     formData: FormData,
   ) => Promise<CancelItemReservationState>;
+  cancelOwnerReservationAction: (
+    prev: CancelOwnerReservationState,
+    formData: FormData,
+  ) => Promise<CancelOwnerReservationState>;
   regenerateShareLinkAction: (
     prev: RegenerateState,
     formData: FormData,
   ) => Promise<RegenerateState>;
 };
 
+const SELECTED_WISHLIST_COOKIE = "wshka_selected_wishlist";
+
 export function WishlistManager({
   wishlists,
+  initialSelectedId,
   defaultCurrency,
+  showReservations,
   deleteItemAction,
   reserveItemAction,
   cancelItemReservationAction,
+  cancelOwnerReservationAction,
   regenerateShareLinkAction,
 }: WishlistManagerProps) {
   const common = useTranslations("common");
   const messages = useTranslations("app");
-  const [selectedId, setSelectedId] = useState(wishlists[0]?.id ?? "");
+  const [selectedId, setSelectedId] = useState(initialSelectedId);
+  // Ref so the deletion-fallback effect always sees the latest selectedId
+  // without adding it to the dependency array (which would cause a false
+  // fallback when a newly-created wishlist hasn't arrived via RSC yet).
+  const selectedIdRef = useRef(initialSelectedId);
 
   // After router.refresh(): if the selected wishlist was deleted, fall back to first.
   useEffect(() => {
-    if (wishlists.length > 0 && !wishlists.find((w) => w.id === selectedId)) {
-      setSelectedId(wishlists[0].id);
+    if (wishlists.length > 0 && !wishlists.find((w) => w.id === selectedIdRef.current)) {
+      const fallbackId = wishlists[0].id;
+      selectedIdRef.current = fallbackId;
+      setSelectedId(fallbackId);
+      document.cookie = `${SELECTED_WISHLIST_COOKIE}=${fallbackId}; path=/; max-age=31536000; SameSite=Lax`;
     }
   }, [wishlists]);
+
+  function handleSelectWishlist(id: string) {
+    selectedIdRef.current = id;
+    setSelectedId(id);
+    document.cookie = `${SELECTED_WISHLIST_COOKIE}=${id}; path=/; max-age=31536000; SameSite=Lax`;
+  }
 
   const wishlist = wishlists.find((w) => w.id === selectedId) ?? wishlists[0];
 
@@ -90,10 +117,13 @@ export function WishlistManager({
     pendingScrollToNewRef.current = false;
     const newItem = localItems.find((i) => !knownItemIdsRef.current.has(i.id));
     knownItemIdsRef.current = new Set(localItems.map((i) => i.id));
-    const target = newItem
-      ? document.querySelector<HTMLElement>(`[data-item-id="${newItem.id}"]`)
-      : listEndRef.current;
-    target?.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (newItem) {
+      const target = document.querySelector<HTMLElement>(`[data-item-id="${newItem.id}"]`);
+      if (target) scrollAndHighlight(target);
+    } else {
+      // Fallback: no new item identified — scroll to list end without highlight.
+      listEndRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
   }, [localItems]);
 
   if (!wishlist) {
@@ -112,8 +142,8 @@ export function WishlistManager({
           wishlists={wishlists}
           selectedId={selectedId}
           itemCount={localItems.length}
-          onSelect={setSelectedId}
-          onCreated={setSelectedId}
+          onSelect={handleSelectWishlist}
+          onCreated={handleSelectWishlist}
         />
       </div>
 
@@ -213,22 +243,25 @@ export function WishlistManager({
           >
             {localItems.map((item) => (
               <li key={item.id} id={`item-${item.id}`} data-item-id={item.id} className="item-card">
-                {/* Status strip */}
-                {item.reservation.status === "reserved" ? (
-                  <div
-                    className={`item-card-status ${item.reservation.isOwn ? "item-card-status-self-reserved" : "item-card-status-reserved"}`}
-                  >
+                {/* Status strip:
+                    - showReservations=false: only self-reservation shown, nothing else
+                    - showReservations=true: full status (available / reserved / self-reserved) */}
+                {item.reservation.status === "reserved" && item.reservation.isOwn ? (
+                  <div className="item-card-status item-card-status-self-reserved">
                     <span className="item-card-status-dot" />
-                    {item.reservation.isOwn
-                      ? messages.dashboard.itemReservation.selfReservedLabel
-                      : messages.dashboard.itemReservation.reservedLabel}
+                    {messages.dashboard.itemReservation.selfReservedLabel}
                   </div>
-                ) : (
+                ) : showReservations && item.reservation.status === "reserved" ? (
+                  <div className="item-card-status item-card-status-reserved">
+                    <span className="item-card-status-dot" />
+                    {messages.dashboard.itemReservation.reservedLabel}
+                  </div>
+                ) : showReservations ? (
                   <div className="item-card-status item-card-status-available">
                     <span className="item-card-status-dot" />
                     {messages.dashboard.itemReservation.availableLabel}
                   </div>
-                )}
+                ) : null}
 
                 {/* Card view */}
                 <div className="item-card-view">
@@ -277,7 +310,7 @@ export function WishlistManager({
                 <ItemEditSection
                   editLabel={messages.dashboard.editToggleLabel}
                   reserveButton={
-                    item.reservation.status === "available" ? (
+                    item.reservation.status === "available" || (!item.reservation.isOwn && !showReservations) ? (
                       <ReserveItemButton
                         itemId={item.id}
                         reserveLabel={messages.dashboard.reserveLabel}
@@ -289,7 +322,19 @@ export function WishlistManager({
                         cancelLabel={messages.dashboard.cancelReservationLabel}
                         cancelAction={cancelItemReservationAction}
                       />
-                    ) : undefined
+                    ) : (
+                      <CancelOwnerReservationButton
+                        itemId={item.id}
+                        labels={{
+                          buttonLabel: messages.dashboard.ownerCancelReservationLabel,
+                          confirmTitle: messages.dashboard.ownerCancelReservationConfirmTitle,
+                          confirmDescription: messages.dashboard.ownerCancelReservationConfirmDescription,
+                          confirmLabel: messages.dashboard.ownerCancelReservationConfirmLabel,
+                          cancelLabel: messages.dashboard.ownerCancelReservationCancelLabel,
+                        }}
+                        cancelAction={cancelOwnerReservationAction}
+                      />
+                    )
                   }
                   deleteButton={
                     <DeleteItemButton

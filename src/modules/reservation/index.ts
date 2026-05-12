@@ -11,6 +11,7 @@ export {
   type ReservationAvailability,
   type ReservationEligibility,
   cancelReservation,
+  cancelReservationByOwner,
   createReservation,
   getAllOwnerWishlistsWithReservations,
   getCurrentOwnerWishlistWithReservations,

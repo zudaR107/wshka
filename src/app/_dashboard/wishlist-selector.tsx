@@ -187,7 +187,7 @@ export function WishlistSelector({
           <span className="wishlist-btn-label">{messages.dashboard.wishlists.createLabel}</span>
         </button>
 
-        <DeleteWishlistButton wishlistId={selectedId} disabled={wishlists.length <= 1} />
+        <DeleteWishlistButton wishlistId={selectedId} />
       </div>
     );
 

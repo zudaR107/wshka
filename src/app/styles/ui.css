@@ -205,6 +205,26 @@
     color: var(--color-accent);
   }
 
+  .ui-button-success {
+    background: #16a34a;
+    border-color: transparent;
+    color: #ffffff;
+  }
+
+  .ui-button-success:hover {
+    background: #15803d;
+  }
+
+  .ui-button-error {
+    background: #ef4444;
+    border-color: transparent;
+    color: #ffffff;
+  }
+
+  .ui-button-error:hover {
+    background: #dc2626;
+  }
+
   .ui-button-full {
     width: 100%;
     justify-content: center;
@@ -213,6 +233,22 @@
   .ui-note {
     color: var(--color-text-muted);
     font-size: var(--font-size-label);
+  }
+  .ui-note-error {
+    color: var(--color-error);
+  }
+
+  /* Wrapper so the inline hint renders below the input, not beside it */
+  .price-input-wrapper {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+  .price-input-wrapper .ui-input,
+  .price-input-wrapper .ui-input-error {
+    width: 100%;
   }
 
   .ui-message {

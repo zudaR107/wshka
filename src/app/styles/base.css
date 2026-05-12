@@ -96,13 +96,12 @@
     text-rendering: optimizeLegibility;
   }
 
-  /* Wallpaper on a fixed pseudo-element for parallax depth.
-     Using ::before + position:fixed is more reliable than
-     background-attachment:fixed when a parent has overflow-x:clip.
-     inset:-50px extends beyond the viewport so edges stay covered
-     when JS shifts the layer via --wp-x / --wp-y (max ±20 px). */
-  body::before {
-    content: '';
+  /* Wallpaper background element for parallax depth.
+     A real <div.wallpaper-bg> rendered by WallpaperParallax is used instead
+     of body::before so that transform is set directly on the element via JS,
+     bypassing the CSS custom-property cascade that can briefly invalidate the
+     GPU compositing layer on mobile during RSC reconciliation. */
+  .wallpaper-bg {
     position: fixed;
     inset: -120px;
     z-index: -1;
@@ -110,7 +109,7 @@
     background-image: url('/wallpaper.svg');
     background-size: 200px 200px;
     background-repeat: repeat;
-    transform: translate(var(--wp-x, 0px), var(--wp-y, 0px));
+    will-change: transform;
   }
 
   a {

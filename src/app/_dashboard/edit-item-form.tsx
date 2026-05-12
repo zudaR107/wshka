@@ -8,6 +8,7 @@ import { useTranslations } from "@/modules/i18n";
 import { type CurrencyCode } from "@/shared/lib/currency";
 import { updateItemAction, type ItemFormState } from "./item-actions";
 import { useItemEditClose } from "./item-edit-section";
+import { scrollAndHighlight } from "./scroll-utils";
 
 type EditItemFormProps = {
   item: {
@@ -28,6 +29,9 @@ export function EditItemForm({ item, wishlistId }: EditItemFormProps) {
   const [, startTransition] = useTransition();
   const formRef = useRef<HTMLFormElement>(null);
   const isMountedRef = useRef(false);
+  const titleRef = useRef<HTMLInputElement>(null);
+  const urlRef = useRef<HTMLInputElement>(null);
+  const priceWrapperRef = useRef<HTMLDivElement>(null);
   const [state, action] = useActionState<ItemFormState, FormData>(updateItemAction, null);
   const closeEditSection = useItemEditClose();
   const [currency, setCurrency] = useState<CurrencyCode>(item.currency);
@@ -50,15 +54,22 @@ export function EditItemForm({ item, wishlistId }: EditItemFormProps) {
     }
   }
 
-  // On success: capture card ref before collapse, close, then scroll after repaint.
+  // On success: capture card ref before collapse, close, then scroll + highlight after repaint.
   useEffect(() => {
-    if (state?.status !== "success") return;
-    const card = formRef.current?.closest(".item-card") as HTMLElement | null;
-    closeEditSection();
-    requestAnimationFrame(() => {
-      (card ?? formRef.current)?.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
-    startTransition(() => router.refresh());
+    if (state?.status === "success") {
+      const card = formRef.current?.closest(".item-card") as HTMLElement | null;
+      closeEditSection();
+      requestAnimationFrame(() => {
+        const target = (card ?? formRef.current) as HTMLElement | null;
+        if (target) scrollAndHighlight(target);
+      });
+      startTransition(() => router.refresh());
+    }
+    if (state?.status === "error") {
+      if (err === "invalid-title") titleRef.current?.focus();
+      else if (err === "invalid-url") urlRef.current?.focus();
+      else if (err === "invalid-price") priceWrapperRef.current?.querySelector("input")?.focus();
+    }
   }, [state]);
 
   // After router.refresh() delivers new RSC props (detected via updatedAt change),
@@ -73,83 +84,87 @@ export function EditItemForm({ item, wishlistId }: EditItemFormProps) {
   }, [item.updatedAt]);
 
   return (
-    <>
-      {err ? (
-        <p className="ui-message ui-message-error" style={{ marginBottom: "var(--space-4)" }}>
-          {getErrorMessage(err ?? "")}
-        </p>
-      ) : null}
-      <form ref={formRef} action={action} className="ui-form" style={{ maxWidth: "none" }} noValidate>
-        <input type="hidden" name="itemId" value={item.id} />
-        <input type="hidden" name="wishlistId" value={wishlistId} />
-        <div className="ui-field">
-          <label className="ui-label" htmlFor={`title-${item.id}`}>
-            {messages.dashboard.fields.title}
-          </label>
-          <input
-            id={`title-${item.id}`}
-            name="title"
-            defaultValue={v?.title ?? item.title}
-            className={err === "invalid-title" ? "ui-input ui-input-error" : "ui-input"}
-            required
-            maxLength={255}
-            autoFocus={err === "invalid-title"}
-          />
-        </div>
-        <div className="ui-field">
-          <label className="ui-label" htmlFor={`url-${item.id}`}>
-            {messages.dashboard.fields.url}
-          </label>
-          <input
-            id={`url-${item.id}`}
-            name="url"
-            type="text"
-            defaultValue={v?.url ?? item.url ?? ""}
-            className={err === "invalid-url" ? "ui-input ui-input-error" : "ui-input"}
-            maxLength={2048}
-            autoFocus={err === "invalid-url"}
-          />
+    <form ref={formRef} action={action} className="ui-form" style={{ maxWidth: "none" }} noValidate>
+      <input type="hidden" name="itemId" value={item.id} />
+      <input type="hidden" name="wishlistId" value={wishlistId} />
+      <div className="ui-field">
+        <label className="ui-label" htmlFor={`title-${item.id}`}>
+          {messages.dashboard.fields.title}
+        </label>
+        <input
+          ref={titleRef}
+          id={`title-${item.id}`}
+          name="title"
+          defaultValue={v?.title ?? item.title}
+          className={err === "invalid-title" ? "ui-input ui-input-error" : "ui-input"}
+          maxLength={255}
+        />
+        {err === "invalid-title" ? (
+          <p className="ui-note ui-note-error">{getErrorMessage("invalid-title")}</p>
+        ) : null}
+      </div>
+      <div className="ui-field">
+        <label className="ui-label" htmlFor={`url-${item.id}`}>
+          {messages.dashboard.fields.url}
+        </label>
+        <input
+          ref={urlRef}
+          id={`url-${item.id}`}
+          name="url"
+          type="text"
+          defaultValue={v?.url ?? item.url ?? ""}
+          className={err === "invalid-url" ? "ui-input ui-input-error" : "ui-input"}
+          maxLength={2048}
+        />
+        {err === "invalid-url" ? (
+          <p className="ui-note ui-note-error">{getErrorMessage("invalid-url")}</p>
+        ) : (
           <p className="ui-note">{messages.dashboard.hints.url}</p>
-        </div>
-        <div className="ui-field">
-          <label className="ui-label" htmlFor={`note-${item.id}`}>
-            {messages.dashboard.fields.note}
-          </label>
-          <textarea
-            id={`note-${item.id}`}
-            name="note"
-            defaultValue={v?.note ?? item.note ?? ""}
-            className="ui-input min-h-28 resize-y"
-            maxLength={2000}
+        )}
+      </div>
+      <div className="ui-field">
+        <label className="ui-label" htmlFor={`note-${item.id}`}>
+          {messages.dashboard.fields.note}
+        </label>
+        <textarea
+          id={`note-${item.id}`}
+          name="note"
+          defaultValue={v?.note ?? item.note ?? ""}
+          className="ui-input min-h-28 resize-y"
+          maxLength={2000}
+        />
+      </div>
+      <div className="ui-field">
+        <label className="ui-label" htmlFor={`price-${item.id}`}>
+          {messages.dashboard.fields.price}
+        </label>
+        <div
+          ref={priceWrapperRef}
+          style={{ display: "flex", gap: "var(--space-2)", alignItems: "flex-start" }}
+        >
+          <PriceInput
+            id={`price-${item.id}`}
+            name="price"
+            defaultValue={v?.price ?? item.priceFormatted}
+            className="ui-input"
+            error={err === "invalid-price"}
+            currency={currency}
+          />
+          <CurrencySelect
+            name="currency"
+            value={currency}
+            onChange={setCurrency}
+            label={messages.dashboard.fields.currency}
+            align="right"
           />
         </div>
-        <div className="ui-field">
-          <label className="ui-label" htmlFor={`price-${item.id}`}>
-            {messages.dashboard.fields.price}
-          </label>
-          <div style={{ display: "flex", gap: "var(--space-2)", alignItems: "flex-start" }}>
-            <PriceInput
-              id={`price-${item.id}`}
-              name="price"
-              defaultValue={v?.price ?? item.priceFormatted}
-              className="ui-input"
-              autoFocus={err === "invalid-price"}
-              error={err === "invalid-price"}
-              currency={currency}
-            />
-            <CurrencySelect
-              name="currency"
-              value={currency}
-              onChange={setCurrency}
-              label={messages.dashboard.fields.currency}
-              align="right"
-            />
-          </div>
-        </div>
-        <button type="submit" className="ui-button">
-          {messages.dashboard.updateLabel}
-        </button>
-      </form>
-    </>
+        {err === "invalid-price" ? (
+          <p className="ui-note ui-note-error">{getErrorMessage("invalid-price")}</p>
+        ) : null}
+      </div>
+      <button type="submit" className="ui-button">
+        {messages.dashboard.updateLabel}
+      </button>
+    </form>
   );
 }

@@ -193,7 +193,7 @@ export async function createReservation(
     }
 
     // Notify wishlist owner (best-effort)
-    void notifyOwner(itemContext.ownerUserId, "reservation_created", {
+    void notifyOwner(itemContext.ownerUserId, userId, "reservation_created", {
       itemId: itemContext.itemId,
       itemTitle: itemContext.itemTitle,
       wishlistId: itemContext.wishlistId,
@@ -208,6 +208,67 @@ export async function createReservation(
       return { status: "error", code: "already-reserved" };
     }
 
+    return { status: "error", code: "unknown" };
+  }
+}
+
+export async function cancelReservationByOwner(
+  itemId: string,
+  ownerId: string,
+): Promise<CancelReservationResult> {
+  try {
+    const itemContext = await findReservationItemContext(itemId);
+
+    if (!itemContext) {
+      return { status: "error", code: "reservation-not-found" };
+    }
+
+    if (itemContext.ownerUserId !== ownerId) {
+      return { status: "error", code: "not-reservation-owner" };
+    }
+
+    const activeReservation = await getActiveReservationByItemId(itemId);
+
+    if (!activeReservation) {
+      return { status: "error", code: "reservation-not-found" };
+    }
+
+    // Should not be possible to cancel your own reservation via this path,
+    // but guard defensively.
+    if (activeReservation.userId === ownerId) {
+      return { status: "error", code: "not-reservation-owner" };
+    }
+
+    const db = await getDb();
+    const cancelled = await db
+      .update(reservations)
+      .set({ cancelledAt: new Date() })
+      .where(
+        and(
+          eq(reservations.id, activeReservation.id),
+          isNull(reservations.cancelledAt),
+        ),
+      )
+      .returning({ id: reservations.id });
+
+    if (cancelled.length === 0) {
+      return { status: "error", code: "reservation-not-found" };
+    }
+
+    // Snapshot the active share token so the reserver can navigate to the
+    // owner's share page. Best-effort — null is safe if not found.
+    const shareToken = await getActiveShareToken(itemContext.wishlistId);
+
+    // Notify the reserver (best-effort)
+    void notifyUser(activeReservation.userId, "reservation_cancelled", {
+      itemId: itemContext.itemId,
+      itemTitle: itemContext.itemTitle,
+      wishlistId: itemContext.wishlistId,
+      shareToken,
+    });
+
+    return { status: "success" };
+  } catch {
     return { status: "error", code: "unknown" };
   }
 }
@@ -249,7 +310,7 @@ export async function cancelReservation(
     // Notify wishlist owner (best-effort)
     void findReservationItemContext(currentReservation.wishlistItemId).then((ctx) => {
       if (!ctx) return;
-      notifyOwner(ctx.ownerUserId, "reservation_cancelled", {
+      notifyOwner(ctx.ownerUserId, userId, "reservation_cancelled", {
         itemId: ctx.itemId,
         itemTitle: ctx.itemTitle,
         wishlistId: ctx.wishlistId,
@@ -345,22 +406,61 @@ async function getDb() {
 
 async function notifyOwner(
   ownerUserId: string,
+  reserverUserId: string,
   type: "reservation_created" | "reservation_cancelled",
   ctx: { itemId: string; itemTitle: string; wishlistId: string },
+): Promise<void> {
+  // Never notify the owner about their own self-reservation actions.
+  if (reserverUserId === ownerUserId) return;
+
+  // Suppress reservation notifications when the owner has opted out of
+  // seeing reservation status — they don't want to know.
+  try {
+    const { users } = await import("@/modules/auth/db/schema");
+    const db = await getDb();
+    const owner = await db.query.users.findFirst({
+      columns: { showReservationsOnDashboard: true },
+      where: eq(users.id, ownerUserId),
+    });
+    if (owner && !owner.showReservationsOnDashboard) return;
+  } catch {
+    // best-effort: if check fails, fall through and send the notification
+  }
+  return notifyUser(ownerUserId, type, ctx);
+}
+
+async function notifyUser(
+  userId: string,
+  type: "reservation_created" | "reservation_cancelled",
+  ctx: { itemId: string; itemTitle: string; wishlistId: string; shareToken?: string | null },
 ): Promise<void> {
   try {
     const { createNotification } = await import(
       "@/modules/notification/server/create-notification"
     );
     await createNotification({
-      userId: ownerUserId,
+      userId,
       type,
       itemId: ctx.itemId,
       itemTitle: ctx.itemTitle,
       wishlistId: ctx.wishlistId,
-      shareToken: null,
+      shareToken: ctx.shareToken ?? null,
     });
   } catch {
     // best-effort
+  }
+}
+
+async function getActiveShareToken(wishlistId: string): Promise<string | null> {
+  try {
+    const { shareLinks } = await import("@/modules/share/db/schema");
+    const db = await getDb();
+    const link = await db.query.shareLinks.findFirst({
+      columns: { token: true },
+      where: and(eq(shareLinks.wishlistId, wishlistId), eq(shareLinks.isActive, true)),
+    });
+    return link?.token ?? null;
+  } catch {
+    return null;
   }
 }

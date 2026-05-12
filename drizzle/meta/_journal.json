@@ -13,14 +13,14 @@
       "idx": 1,
       "version": "7",
       "when": 1775932524298,
-      "tag": "0001_lyrical_venom",
+      "tag": "0001_wishlist-items-schema",
       "breakpoints": true
     },
     {
       "idx": 2,
       "version": "7",
       "when": 1775940620615,
-      "tag": "0002_jittery_wallop",
+      "tag": "0002_share-links-schema",
       "breakpoints": true
     },
     {
@@ -41,14 +41,14 @@
       "idx": 5,
       "version": "7",
       "when": 1776235906196,
-      "tag": "0005_lonely_zzzax",
+      "tag": "0005_price-type-alter",
       "breakpoints": true
     },
     {
       "idx": 6,
       "version": "7",
       "when": 1777033112363,
-      "tag": "0006_quick_patch",
+      "tag": "0006_wishlist-items-starred",
       "breakpoints": true
     },
     {
@@ -62,35 +62,42 @@
       "idx": 8,
       "version": "7",
       "when": 1777268445147,
-      "tag": "0008_regular_randall_flagg",
+      "tag": "0008_wishlists-name",
       "breakpoints": true
     },
     {
       "idx": 9,
       "version": "7",
       "when": 1777628862986,
-      "tag": "0009_whole_infant_terrible",
+      "tag": "0009_multi-currency",
       "breakpoints": true
     },
     {
       "idx": 10,
       "version": "7",
       "when": 1777885636606,
-      "tag": "0010_cloudy_ultimatum",
+      "tag": "0010_notifications-schema",
       "breakpoints": true
     },
     {
       "idx": 11,
       "version": "7",
       "when": 1777968399307,
-      "tag": "0011_unknown_mauler",
+      "tag": "0011_notifications-wishlist-nullable",
       "breakpoints": true
     },
     {
       "idx": 12,
       "version": "7",
       "when": 1777975782983,
-      "tag": "0012_futuristic_ricochet",
+      "tag": "0012_notifications-share-token",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1778237047405,
+      "tag": "0013_redundant_starfox",
       "breakpoints": true
     }
   ]

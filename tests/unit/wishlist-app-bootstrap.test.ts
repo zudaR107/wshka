@@ -12,6 +12,7 @@ const mocks = vi.hoisted(() => ({
   updateCurrentWishlistItem: vi.fn(),
   deleteCurrentWishlistItem: vi.fn(),
   getUserProfile: vi.fn(),
+  cookies: vi.fn(),
 }));
 
 vi.mock("next/headers", () => ({
@@ -28,7 +29,7 @@ vi.mock("next/headers", () => ({
       return null;
     },
   }),
-  cookies: vi.fn(),
+  cookies: mocks.cookies,
 }));
 
 vi.mock("next/navigation", () => ({
@@ -106,6 +107,10 @@ describe("owner app wishlist bootstrap", () => {
     mocks.updateCurrentWishlistItem.mockReset();
     mocks.deleteCurrentWishlistItem.mockReset();
     mocks.getUserProfile.mockReset();
+    mocks.cookies.mockReset();
+
+    // No stored wishlist cookie by default.
+    mocks.cookies.mockResolvedValue({ get: (_name: string) => undefined });
 
     mocks.requireCurrentUser.mockResolvedValue({
       id: "user-1",
@@ -117,7 +122,7 @@ describe("owner app wishlist bootstrap", () => {
     });
     mocks.getAllOwnerWishlistsWithReservations.mockResolvedValue([baseWishlist]);
     mocks.getOrCreateShareLinkForWishlist.mockResolvedValue(baseShareLink);
-    mocks.getUserProfile.mockResolvedValue({ preferredCurrency: "RUB", bio: null });
+    mocks.getUserProfile.mockResolvedValue({ preferredCurrency: "RUB", bio: null, showReservationsOnDashboard: false });
   });
 
   it("loads all wishlists for the authenticated owner on /", async () => {
@@ -182,7 +187,8 @@ describe("owner app wishlist bootstrap", () => {
     expect(html).toContain("https://example.com/item");
     expect(html).toContain("Нужны беспроводные");
     expect(html).toContain("9 990");
-    expect(html).toContain("Статус: забронировано");
+    // showReservations=false by default — status strip is hidden
+    expect(html).not.toContain("Статус: забронировано");
     expect(html).toContain("Редактировать");
     expect(html).toContain("Удалить");
   });
@@ -226,9 +232,50 @@ describe("owner app wishlist bootstrap", () => {
 
     const html = await render(await AppPage({}));
 
+    // showReservations=false — status strips are hidden; reserver identity must not leak
+    expect(html).not.toContain("Статус: доступно");
+    expect(html).not.toContain("Статус: забронировано");
+    expect(html).not.toContain("user-2");
+    expect(html).not.toContain("@example.com");
+  });
+
+  it("shows reservation status strips when showReservations is enabled", async () => {
+    mocks.getUserProfile.mockResolvedValue({ preferredCurrency: "RUB", bio: null, showReservationsOnDashboard: true });
+    mocks.getAllOwnerWishlistsWithReservations.mockResolvedValue([{
+      ...baseWishlist,
+      items: [
+        {
+          id: "item-1",
+          wishlistId: "wishlist-1",
+          title: "Наушники",
+          url: null,
+          note: null,
+          price: null,
+          starred: false,
+          createdAt: new Date("2026-04-11T00:00:00.000Z"),
+          updatedAt: new Date("2026-04-11T00:00:00.000Z"),
+          reservation: { status: "available" },
+        },
+        {
+          id: "item-2",
+          wishlistId: "wishlist-1",
+          title: "Книга",
+          url: null,
+          note: null,
+          price: null,
+          starred: false,
+          createdAt: new Date("2026-04-11T00:00:00.000Z"),
+          updatedAt: new Date("2026-04-11T00:00:00.000Z"),
+          reservation: { status: "reserved", isOwn: false },
+        },
+      ],
+    }]);
+
+    const { default: AppPage } = await import("../../src/app/page");
+    const html = await render(await AppPage({}));
+
     expect(html).toContain("Статус: доступно");
     expect(html).toContain("Статус: забронировано");
-    expect(html).not.toContain("user-2");
     expect(html).not.toContain("@example.com");
   });
 

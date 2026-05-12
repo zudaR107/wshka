@@ -42,6 +42,11 @@ export type CancelItemReservationState = {
   error?: string;
 } | null;
 
+export type CancelOwnerReservationState = {
+  status: "success" | "error";
+  error?: string;
+} | null;
+
 export type RegenerateState = {
   status: "success" | "error";
 } | null;

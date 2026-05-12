@@ -1,4 +1,5 @@
 import {
+  boolean,
   index,
   pgTable,
   timestamp,
@@ -15,6 +16,7 @@ export const users = pgTable(
     passwordHash: varchar("password_hash", { length: 255 }).notNull(),
     bio: varchar("bio", { length: 500 }),
     preferredCurrency: varchar("preferred_currency", { length: 3 }).notNull().default("RUB"),
+    showReservationsOnDashboard: boolean("show_reservations_on_dashboard").notNull().default(false),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),
