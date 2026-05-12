@@ -50,6 +50,10 @@ The format is based on Keep a Changelog, and this project follows SemVer.
   "Мой список" is created automatically so the user always has one list.
 
 ### Fixed
+- Selected wishlist is now restored after a page reload; `WishlistManager`
+  persists the chosen wishlist id in `localStorage` and restores it on
+  mount (falls back to the first wishlist if the stored id is no longer
+  valid).
 - Notification badge no longer restores stale unread count after navigating
   away from `/notifications`.
 - Settings form migrated from URL-param status (redirect to

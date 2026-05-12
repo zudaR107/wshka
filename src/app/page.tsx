@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { headers } from "next/headers";
+import { headers, cookies } from "next/headers";
 import { getCurrentUser, requireCurrentUser } from "@/modules/auth/server/current-user";
 import { getTranslations } from "@/modules/i18n";
 import { getLocale } from "@/modules/i18n/server";
@@ -143,11 +143,17 @@ async function DashboardView({ userId }: { userId: string }) {
   const defaultCurrency = parseCurrency(profile?.preferredCurrency);
   const showReservations = profile?.showReservationsOnDashboard ?? false;
 
+  const cookieStore = await cookies();
+  const storedId = cookieStore.get("wshka_selected_wishlist")?.value ?? "";
+  const initialSelectedId =
+    wishlistsData.find((w) => w.id === storedId)?.id ?? wishlistsData[0]?.id ?? "";
+
   return (
     <div className="dashboard-page">
       <ScrollHighlight />
       <WishlistManager
         wishlists={wishlistsData}
+        initialSelectedId={initialSelectedId}
         defaultCurrency={defaultCurrency}
         showReservations={showReservations}
         deleteItemAction={deleteItemAction}

@@ -171,6 +171,27 @@ test("duplicate wishlist name shows inline error on create and rename", async ({
   ).toBeVisible();
 });
 
+test("selected wishlist is restored after page reload", async ({ page }) => {
+  const credentials = createCredentials();
+  const runId = randomUUID().slice(0, 6);
+  const secondName = `После перезагрузки ${runId}`;
+
+  await registerAndLand(page, credentials);
+
+  // Create second wishlist and switch to it
+  await page.getByTestId("create-wishlist-btn").click();
+  await page.getByPlaceholder("Название вишлиста").fill(secondName);
+  await page.getByRole("button", { name: "Создать" }).click();
+  await expect(page.getByRole("heading", { name: secondName })).toBeVisible();
+
+  // Reload the page
+  await page.reload();
+
+  // Second wishlist should still be selected
+  await expect(page.getByRole("heading", { name: secondName })).toBeVisible();
+  await expect(page.getByTestId("wishlist-select")).toContainText(secondName);
+});
+
 test("each wishlist has its own independent share link", async ({ page }) => {
   const credentials = createCredentials();
   const runId = randomUUID().slice(0, 6);

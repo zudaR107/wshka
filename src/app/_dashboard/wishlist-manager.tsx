@@ -35,6 +35,7 @@ export type DashboardWishlist = {
 
 type WishlistManagerProps = {
   wishlists: DashboardWishlist[];
+  initialSelectedId: string;
   defaultCurrency: CurrencyCode;
   showReservations: boolean;
   deleteItemAction: (prev: DeleteItemState, formData: FormData) => Promise<DeleteItemState>;
@@ -53,8 +54,11 @@ type WishlistManagerProps = {
   ) => Promise<RegenerateState>;
 };
 
+const SELECTED_WISHLIST_COOKIE = "wshka_selected_wishlist";
+
 export function WishlistManager({
   wishlists,
+  initialSelectedId,
   defaultCurrency,
   showReservations,
   deleteItemAction,
@@ -65,14 +69,27 @@ export function WishlistManager({
 }: WishlistManagerProps) {
   const common = useTranslations("common");
   const messages = useTranslations("app");
-  const [selectedId, setSelectedId] = useState(wishlists[0]?.id ?? "");
+  const [selectedId, setSelectedId] = useState(initialSelectedId);
+  // Ref so the deletion-fallback effect always sees the latest selectedId
+  // without adding it to the dependency array (which would cause a false
+  // fallback when a newly-created wishlist hasn't arrived via RSC yet).
+  const selectedIdRef = useRef(initialSelectedId);
 
   // After router.refresh(): if the selected wishlist was deleted, fall back to first.
   useEffect(() => {
-    if (wishlists.length > 0 && !wishlists.find((w) => w.id === selectedId)) {
-      setSelectedId(wishlists[0].id);
+    if (wishlists.length > 0 && !wishlists.find((w) => w.id === selectedIdRef.current)) {
+      const fallbackId = wishlists[0].id;
+      selectedIdRef.current = fallbackId;
+      setSelectedId(fallbackId);
+      document.cookie = `${SELECTED_WISHLIST_COOKIE}=${fallbackId}; path=/; max-age=31536000; SameSite=Lax`;
     }
   }, [wishlists]);
+
+  function handleSelectWishlist(id: string) {
+    selectedIdRef.current = id;
+    setSelectedId(id);
+    document.cookie = `${SELECTED_WISHLIST_COOKIE}=${id}; path=/; max-age=31536000; SameSite=Lax`;
+  }
 
   const wishlist = wishlists.find((w) => w.id === selectedId) ?? wishlists[0];
 
@@ -125,8 +142,8 @@ export function WishlistManager({
           wishlists={wishlists}
           selectedId={selectedId}
           itemCount={localItems.length}
-          onSelect={setSelectedId}
-          onCreated={setSelectedId}
+          onSelect={handleSelectWishlist}
+          onCreated={handleSelectWishlist}
         />
       </div>
 

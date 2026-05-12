@@ -12,6 +12,7 @@ const mocks = vi.hoisted(() => ({
   updateCurrentWishlistItem: vi.fn(),
   deleteCurrentWishlistItem: vi.fn(),
   getUserProfile: vi.fn(),
+  cookies: vi.fn(),
 }));
 
 vi.mock("next/headers", () => ({
@@ -28,7 +29,7 @@ vi.mock("next/headers", () => ({
       return null;
     },
   }),
-  cookies: vi.fn(),
+  cookies: mocks.cookies,
 }));
 
 vi.mock("next/navigation", () => ({
@@ -106,6 +107,10 @@ describe("owner app wishlist bootstrap", () => {
     mocks.updateCurrentWishlistItem.mockReset();
     mocks.deleteCurrentWishlistItem.mockReset();
     mocks.getUserProfile.mockReset();
+    mocks.cookies.mockReset();
+
+    // No stored wishlist cookie by default.
+    mocks.cookies.mockResolvedValue({ get: (_name: string) => undefined });
 
     mocks.requireCurrentUser.mockResolvedValue({
       id: "user-1",

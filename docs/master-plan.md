@@ -122,6 +122,7 @@ Execution backlog:
 20. ✅ M10-I20 Notification dropdown misaligned on mobile — shift `right` offset on `.site-nav-dropdown--notifications` by gear-button-width + nav-gap; panel now right-aligned on both mobile and desktop
 21. ✅ M10-I21 Notifications page mobile layout — column layout at ≤ 479 px; item name wraps; actions row aligned right; "go to" text links replaced with `notification-nav-btn` icon buttons (ExternalLinkIcon + hidden label on mobile)
 22. ✅ M10-I22 Unique wishlist names — `createWishlist` and `renameWishlist` check for duplicate names (exact match after trim, per-user scope); return `"duplicate"` error code; inline error shown in create and rename forms via new i18n keys
+23. ✅ M10-I23 Dashboard wishlist selection persisted — `WishlistManager` stores the selected wishlist id in `localStorage`; restored on mount so page reload lands on the last active wishlist
 
 Recommended issue shape:
 - `M10-I1 Dark theme — CSS variable toggle and system preference default`
