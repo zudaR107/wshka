@@ -200,9 +200,13 @@ export const app = {
       deleteConfirmLabel: "Да, удалить",
       deleteCancelLabel: "Отмена",
       errors: {
+        createEmpty: "Введите название списка.",
         createUnknown: "Не удалось создать список. Попробуйте ещё раз.",
+        createDuplicate: "Список с таким названием уже существует.",
+        renameEmpty: "Введите название списка.",
         renameNotFound: "Не удалось найти этот список.",
         renameUnknown: "Не удалось переименовать список. Попробуйте ещё раз.",
+        renameDuplicate: "Список с таким названием уже существует.",
         deleteNotFound: "Не удалось найти этот список.",
         deleteUnknown: "Не удалось удалить список. Попробуйте ещё раз.",
       },

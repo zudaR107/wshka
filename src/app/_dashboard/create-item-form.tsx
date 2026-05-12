@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useState, useTransition } from "react";
+import { useActionState, useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { PriceInput } from "@/shared/ui/price-input";
 import { CurrencySelect } from "@/shared/ui/currency-select";
@@ -23,6 +23,9 @@ export function CreateItemForm({ wishlistId, defaultCurrency = "RUB", onSuccess 
   const [starred, setStarred] = useState(false);
   const [currency, setCurrency] = useState<CurrencyCode>(defaultCurrency);
   const err = state?.status === "error" ? state.error : undefined;
+  const titleRef = useRef<HTMLInputElement>(null);
+  const urlRef = useRef<HTMLInputElement>(null);
+  const priceWrapperRef = useRef<HTMLDivElement>(null);
 
   function getErrorMessage(code: string): string {
     switch (code) {
@@ -38,108 +41,120 @@ export function CreateItemForm({ wishlistId, defaultCurrency = "RUB", onSuccess 
   }
 
   useEffect(() => {
-    if (state?.status !== "success") return;
-    setStarred(false);
-    setCurrency(defaultCurrency);
-    onSuccess?.();
-    startTransition(() => router.refresh());
+    if (state?.status === "success") {
+      setStarred(false);
+      setCurrency(defaultCurrency);
+      onSuccess?.();
+      startTransition(() => router.refresh());
+    }
+    if (state?.status === "error") {
+      if (err === "invalid-title") titleRef.current?.focus();
+      else if (err === "invalid-url") urlRef.current?.focus();
+      else if (err === "invalid-price") priceWrapperRef.current?.querySelector("input")?.focus();
+    }
   }, [state]);
 
   return (
-    <>
-      {err ? (
-        <p className="ui-message ui-message-error">{getErrorMessage(err ?? "")}</p>
-      ) : null}
-      <form
-        key={state?.key ?? 0}
-        action={action}
-        className="ui-form"
-        style={{ maxWidth: "none" }}
-        id="wishlist-create-form"
-        data-testid="wishlist-create-form"
-        noValidate
-      >
-        <input type="hidden" name="wishlistId" value={wishlistId} />
-        <div className="ui-field">
-          <label className="ui-label" htmlFor="title">
-            {messages.dashboard.fields.title}
-          </label>
-          <input
-            id="title"
-            name="title"
-            className={err === "invalid-title" ? "ui-input ui-input-error" : "ui-input"}
-            required
-            maxLength={255}
-            defaultValue={state?.values?.title ?? ""}
-            autoFocus={err === "invalid-title"}
-          />
-        </div>
-        <div className="ui-field">
-          <label className="ui-label" htmlFor="url">
-            {messages.dashboard.fields.url}
-          </label>
-          <input
-            id="url"
-            name="url"
-            type="text"
-            className={err === "invalid-url" ? "ui-input ui-input-error" : "ui-input"}
-            maxLength={2048}
-            defaultValue={state?.values?.url ?? ""}
-            autoFocus={err === "invalid-url"}
-          />
+    <form
+      key={state?.key ?? 0}
+      action={action}
+      className="ui-form"
+      style={{ maxWidth: "none" }}
+      id="wishlist-create-form"
+      data-testid="wishlist-create-form"
+      noValidate
+    >
+      <input type="hidden" name="wishlistId" value={wishlistId} />
+      <div className="ui-field">
+        <label className="ui-label" htmlFor="title">
+          {messages.dashboard.fields.title}
+        </label>
+        <input
+          ref={titleRef}
+          id="title"
+          name="title"
+          className={err === "invalid-title" ? "ui-input ui-input-error" : "ui-input"}
+          maxLength={255}
+          defaultValue={state?.values?.title ?? ""}
+        />
+        {err === "invalid-title" ? (
+          <p className="ui-note ui-note-error">{getErrorMessage("invalid-title")}</p>
+        ) : null}
+      </div>
+      <div className="ui-field">
+        <label className="ui-label" htmlFor="url">
+          {messages.dashboard.fields.url}
+        </label>
+        <input
+          ref={urlRef}
+          id="url"
+          name="url"
+          type="text"
+          className={err === "invalid-url" ? "ui-input ui-input-error" : "ui-input"}
+          maxLength={2048}
+          defaultValue={state?.values?.url ?? ""}
+        />
+        {err === "invalid-url" ? (
+          <p className="ui-note ui-note-error">{getErrorMessage("invalid-url")}</p>
+        ) : (
           <p className="ui-note">{messages.dashboard.hints.url}</p>
-        </div>
-        <div className="ui-field">
-          <label className="ui-label" htmlFor="note">
-            {messages.dashboard.fields.note}
-          </label>
-          <textarea
-            id="note"
-            name="note"
-            className="ui-input min-h-28 resize-y"
-            maxLength={2000}
-            defaultValue={state?.values?.note ?? ""}
+        )}
+      </div>
+      <div className="ui-field">
+        <label className="ui-label" htmlFor="note">
+          {messages.dashboard.fields.note}
+        </label>
+        <textarea
+          id="note"
+          name="note"
+          className="ui-input min-h-28 resize-y"
+          maxLength={2000}
+          defaultValue={state?.values?.note ?? ""}
+        />
+      </div>
+      <div className="ui-field">
+        <label className="ui-label" htmlFor="price">
+          {messages.dashboard.fields.price}
+        </label>
+        <div
+          ref={priceWrapperRef}
+          style={{ display: "flex", gap: "var(--space-2)", alignItems: "flex-start" }}
+        >
+          <PriceInput
+            id="price"
+            name="price"
+            className="ui-input"
+            defaultValue={state?.values?.price ?? ""}
+            error={err === "invalid-price"}
+            currency={currency}
+          />
+          <CurrencySelect
+            name="currency"
+            value={currency}
+            onChange={setCurrency}
+            label={messages.dashboard.fields.currency}
+            align="right"
           />
         </div>
-        <div className="ui-field">
-          <label className="ui-label" htmlFor="price">
-            {messages.dashboard.fields.price}
-          </label>
-          <div style={{ display: "flex", gap: "var(--space-2)", alignItems: "flex-start" }}>
-            <PriceInput
-              id="price"
-              name="price"
-              className="ui-input"
-              defaultValue={state?.values?.price ?? ""}
-              autoFocus={err === "invalid-price"}
-              error={err === "invalid-price"}
-              currency={currency}
-            />
-            <CurrencySelect
-              name="currency"
-              value={currency}
-              onChange={setCurrency}
-              label={messages.dashboard.fields.currency}
-              align="right"
-            />
-          </div>
-        </div>
-        <input type="hidden" name="starred" value={starred ? "true" : "false"} />
-        <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
-          <button type="submit" className="ui-button">
-            {messages.dashboard.submitLabel}
-          </button>
-          <button
-            type="button"
-            className={`item-star-btn${starred ? " item-star-btn--starred" : ""}`}
-            aria-label={starred ? messages.dashboard.unstarLabel : messages.dashboard.starLabel}
-            aria-pressed={starred}
-            onClick={() => setStarred((v) => !v)}
-          >
-            <StarIcon filled={starred} />
-          </button>
-        </div>
-      </form>
-    </>
+        {err === "invalid-price" ? (
+          <p className="ui-note ui-note-error">{getErrorMessage("invalid-price")}</p>
+        ) : null}
+      </div>
+      <input type="hidden" name="starred" value={starred ? "true" : "false"} />
+      <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
+        <button type="submit" className="ui-button">
+          {messages.dashboard.submitLabel}
+        </button>
+        <button
+          type="button"
+          className={`item-star-btn${starred ? " item-star-btn--starred" : ""}`}
+          aria-label={starred ? messages.dashboard.unstarLabel : messages.dashboard.starLabel}
+          aria-pressed={starred}
+          onClick={() => setStarred((v) => !v)}
+        >
+          <StarIcon filled={starred} />
+        </button>
+      </div>
+    </form>
   );
 }

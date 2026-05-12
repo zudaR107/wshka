@@ -1,4 +1,4 @@
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, eq, ne } from "drizzle-orm";
 import { wishlists } from "@/modules/wishlist/db/schema";
 
 export type CurrentWishlist = {
@@ -12,11 +12,11 @@ export type CurrentWishlist = {
 
 export type CreateWishlistResult =
   | { status: "success"; wishlistId: string }
-  | { status: "error"; code: "unknown" };
+  | { status: "error"; code: "empty" | "duplicate" | "unknown" };
 
 export type RenameWishlistResult =
   | { status: "success" }
-  | { status: "error"; code: "not-found" | "unknown" };
+  | { status: "error"; code: "empty" | "duplicate" | "not-found" | "unknown" };
 
 export type DeleteWishlistResult =
   | { status: "success" }
@@ -97,9 +97,22 @@ export async function createWishlist(
 ): Promise<CreateWishlistResult> {
   try {
     const db = await getDb();
+    const trimmedName = name.trim();
+    if (!trimmedName) {
+      return { status: "error", code: "empty" };
+    }
+
+    const existing = await db.query.wishlists.findFirst({
+      columns: { id: true },
+      where: and(eq(wishlists.userId, userId), eq(wishlists.name, trimmedName)),
+    });
+    if (existing) {
+      return { status: "error", code: "duplicate" };
+    }
+
     const [created] = await db
       .insert(wishlists)
-      .values({ userId, name: name.trim() || "Мой список", isActive: true })
+      .values({ userId, name: trimmedName, isActive: true })
       .returning({ id: wishlists.id });
 
     if (!created) {
@@ -119,9 +132,27 @@ export async function renameWishlist(
 ): Promise<RenameWishlistResult> {
   try {
     const db = await getDb();
+    const trimmedName = name.trim();
+    if (!trimmedName) {
+      return { status: "error", code: "empty" };
+    }
+
+    // Check for a duplicate name among other wishlists of this user
+    const existing = await db.query.wishlists.findFirst({
+      columns: { id: true },
+      where: and(
+        eq(wishlists.userId, userId),
+        eq(wishlists.name, trimmedName),
+        ne(wishlists.id, wishlistId),
+      ),
+    });
+    if (existing) {
+      return { status: "error", code: "duplicate" };
+    }
+
     const result = await db
       .update(wishlists)
-      .set({ name: name.trim() || "Мой список", updatedAt: new Date() })
+      .set({ name: trimmedName, updatedAt: new Date() })
       .where(and(eq(wishlists.id, wishlistId), eq(wishlists.userId, userId)))
       .returning({ id: wishlists.id });
 

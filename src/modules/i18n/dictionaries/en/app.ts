@@ -204,9 +204,13 @@ export const app = {
       deleteConfirmLabel: "Yes, delete",
       deleteCancelLabel: "Cancel",
       errors: {
+        createEmpty: "Please enter a list name.",
         createUnknown: "Failed to create the list. Please try again.",
+        createDuplicate: "A list with this name already exists.",
+        renameEmpty: "Please enter a list name.",
         renameNotFound: "This list could not be found.",
         renameUnknown: "Failed to rename the list. Please try again.",
+        renameDuplicate: "A list with this name already exists.",
         deleteNotFound: "This list could not be found.",
         deleteUnknown: "Failed to delete the list. Please try again.",
       },

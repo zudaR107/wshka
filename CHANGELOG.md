@@ -73,6 +73,17 @@ The format is based on Keep a Changelog, and this project follows SemVer.
 - Price input hint color changed from violet (`--color-status-reserved`)
   to `--color-error` via new `.ui-note-error` modifier; red in light
   mode, lighter red in dark mode.
+- Wishlist names are now unique per user: creating or renaming a wishlist
+  to a name already taken returns a `"duplicate"` error; submitting an
+  empty name returns `"empty"`. Inline error shown in create and rename
+  forms.
+- Form field error display unified across all user-facing forms (create
+  wishlist, rename wishlist, create item, edit item, login, register):
+  error message is now a `ui-note ui-note-error` text directly below the
+  offending field; affected field gets `ui-input-error` red border; focus
+  moves to the field on error. `ui-message ui-message-error` block above
+  the form removed from all input forms (`noValidate` added; browser
+  native validation tooltips suppressed).
 - Notifications page mobile layout fixed: notification cards switch to a
   column layout at ≤ 479 px (body on top, actions below); item name
   wraps instead of overflowing. "Go to wishlist" / "Go to item" nav
