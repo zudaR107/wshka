@@ -62,6 +62,9 @@ The format is based on Keep a Changelog, and this project follows SemVer.
   part only with full address in tooltip.
 - Mobile header no longer overflows horizontally at ≤ 479 px.
 - Notification badge no longer shows stale count after visiting `/notifications`.
+- `AutoRefresh` now skips `router.refresh()` when `document.hidden` is true,
+  preventing aborted RSC requests (ECONNRESET) when a browser tab is closed or
+  another context is torn down during e2e tests.
 
 ## [1.1.0] - 2026-04-28
 

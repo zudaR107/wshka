@@ -13,7 +13,11 @@ export function AutoRefresh({ intervalMs = 30_000 }: { intervalMs?: number }) {
   const router = useRouter();
 
   useEffect(() => {
-    const id = setInterval(() => router.refresh(), intervalMs);
+    const id = setInterval(() => {
+      if (!document.hidden) {
+        router.refresh();
+      }
+    }, intervalMs);
     return () => clearInterval(id);
   }, [router, intervalMs]);
 
