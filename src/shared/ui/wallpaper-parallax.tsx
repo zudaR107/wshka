@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 /**
- * Drives the wallpaper parallax via two combined inputs:
+ * Renders the wallpaper background div and drives its parallax via two inputs:
  *
  *  • pointermove (mouse / touch drag) — shifts the layer ±20 px on X and Y,
  *    opposite to pointer direction, creating a depth-through-window effect.
@@ -15,11 +15,16 @@ import { useEffect } from "react";
  *    so the effect is distributed evenly regardless of page length.
  *
  * window.scrollY is always the ground truth — no delta accumulation.
- * Both inputs are RAF-throttled and write to --wp-x / --wp-y on <html>.
+ * Both inputs are RAF-throttled and set transform directly on the element
+ * (bypassing CSS variable cascade to avoid mobile compositing artifacts).
  * Disabled entirely when prefers-reduced-motion: reduce is set.
  */
 export function WallpaperParallax() {
+  const bgRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
+    const bg = bgRef.current;
+    if (!bg) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     const MOUSE_INTENSITY = 40; // full range in px; actual offset is ±20 px
@@ -35,13 +40,12 @@ export function WallpaperParallax() {
 
       // Fraction of page scrolled (0 at top → 1 at bottom).
       // Guard against non-scrollable pages (scrollable === 0).
+      // Clamped to [0, 1] to prevent overscroll from producing extreme offsets.
       const scrollable = document.body.scrollHeight - window.innerHeight;
-      const fraction = scrollable > 0 ? window.scrollY / scrollable : 0;
+      const fraction = scrollable > 0 ? Math.min(1, window.scrollY / scrollable) : 0;
       const sy = -fraction * SCROLL_MAX;
 
-      const root = document.documentElement;
-      root.style.setProperty("--wp-x", `${mx.toFixed(2)}px`);
-      root.style.setProperty("--wp-y", `${(my + sy).toFixed(2)}px`);
+      bg.style.transform = `translate(${mx.toFixed(2)}px, ${(my + sy).toFixed(2)}px)`;
     };
 
     const onPointerMove = (e: PointerEvent) => {
@@ -73,5 +77,5 @@ export function WallpaperParallax() {
     };
   }, []);
 
-  return null;
+  return <div ref={bgRef} className="wallpaper-bg" aria-hidden="true" />;
 }

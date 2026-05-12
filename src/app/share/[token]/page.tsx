@@ -265,6 +265,7 @@ function SharePageView({
               display: "flex",
               flexDirection: "column",
               gap: "var(--space-3)",
+              overflowAnchor: "none",
             }}
           >
             {wishlist.items.map((item) => {

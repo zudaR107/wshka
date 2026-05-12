@@ -15,10 +15,11 @@ test.describe("parallax wallpaper", () => {
     await page.waitForLoadState("networkidle");
   });
 
-  test("body::before pseudo-element is position:fixed", async ({ page }) => {
-    const position = await page.evaluate(() =>
-      window.getComputedStyle(document.body, "::before").position,
-    );
+  test(".wallpaper-bg element is position:fixed", async ({ page }) => {
+    const position = await page.evaluate(() => {
+      const bg = document.querySelector(".wallpaper-bg");
+      return bg ? window.getComputedStyle(bg).position : null;
+    });
     expect(position).toBe("fixed");
   });
 
@@ -37,43 +38,48 @@ test.describe("parallax wallpaper", () => {
     expect(value).toBe("none");
   });
 
-  test("WallpaperParallax sets --wp-x and --wp-y after pointer move", async ({
+  test("WallpaperParallax sets transform on .wallpaper-bg after pointer move", async ({
     page,
   }) => {
     await page.mouse.move(400, 300);
     await page.waitForTimeout(50);
 
-    const [wpX, wpY] = await page.evaluate(() => [
-      document.documentElement.style.getPropertyValue("--wp-x"),
-      document.documentElement.style.getPropertyValue("--wp-y"),
-    ]);
+    const transform = await page.evaluate(() => {
+      const bg = document.querySelector<HTMLElement>(".wallpaper-bg");
+      return bg ? bg.style.transform : "";
+    });
 
-    expect(wpX).toMatch(/^-?\d+\.\d+px$/);
-    expect(wpY).toMatch(/^-?\d+\.\d+px$/);
+    // Expects: translate(Xpx, Ypx)
+    expect(transform).toMatch(/^translate\(-?\d+\.\d+px, -?\d+\.\d+px\)$/);
   });
 
-  test("--wp-x changes direction when cursor crosses the viewport centre", async ({
+  test("x offset changes direction when cursor crosses the viewport centre", async ({
     page,
   }) => {
     const width = page.viewportSize()!.width;
 
-    // Move to left edge and wait for RAF to write the CSS var
+    // Move to left edge and wait for RAF to write the transform
     await page.mouse.move(10, 300);
     await page.waitForTimeout(50);
-    const leftX = await page.evaluate(() =>
-      document.documentElement.style.getPropertyValue("--wp-x"),
-    );
+    const leftTransform = await page.evaluate(() => {
+      const bg = document.querySelector<HTMLElement>(".wallpaper-bg");
+      return bg ? bg.style.transform : "";
+    });
 
-    // Move to right edge (stay 10px inside to stay within the viewport)
+    // Move to right edge (stay 10 px inside viewport)
     await page.mouse.move(width - 10, 300);
     await page.waitForTimeout(50);
-    const rightX = await page.evaluate(() =>
-      document.documentElement.style.getPropertyValue("--wp-x"),
-    );
+    const rightTransform = await page.evaluate(() => {
+      const bg = document.querySelector<HTMLElement>(".wallpaper-bg");
+      return bg ? bg.style.transform : "";
+    });
 
-    const left = parseFloat(leftX);
-    const right = parseFloat(rightX);
-    // Left-of-centre → positive offset; right-of-centre → negative offset
+    const parseX = (t: string) =>
+      parseFloat(t.match(/translate\((-?\d+\.\d+)px/)?.[1] ?? "NaN");
+    const left = parseX(leftTransform);
+    const right = parseX(rightTransform);
+
+    // Left-of-centre → positive x offset; right-of-centre → negative x offset
     expect(left).toBeGreaterThan(0);
     expect(right).toBeLessThan(0);
   });

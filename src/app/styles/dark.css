@@ -1,7 +1,7 @@
 /* ── Dark mode — hardcoded color overrides ───────────── */
 
-/* Background: dim wallpaper by reducing pseudo-element opacity */
-.dark body::before {
+/* Background: dim wallpaper layer in dark mode */
+.dark .wallpaper-bg {
   opacity: 0.18;
 }
 

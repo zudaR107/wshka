@@ -97,7 +97,7 @@ Goal:
 
 Status:
 - ✅ M10-I1–I5 complete; M10-I6–I11 complete (bugfix + QA batch on branch fix/bugfixes-v120)
-- ✅ M10-I12–I13 complete
+- ✅ M10-I12–I18 complete
 
 Execution backlog:
 1. ✅ Dark theme — CSS variable toggle, `localStorage` persistence, `prefers-color-scheme` default
@@ -117,6 +117,7 @@ Execution backlog:
 15. ✅ M10-I15 Reservations page status color — always blue (self-reserved style) instead of pink for cross-wishlist items
 16. ✅ M10-I16 Share page cancel button style — red danger style (item-delete-btn) matching dashboard delete buttons
 17. ✅ M10-I17 Standardize scroll-to-item — center alignment + highlight animation on new item creation, edit save, and notification nav; shared scrollAndHighlight() utility
+18. ✅ M10-I18 Mobile background flicker on reservation — migrate wallpaper from `body::before` + CSS variables to real `<div.wallpaper-bg>` with direct `style.transform`; eliminates CSS cascade-invalidation that briefly destabilised the GPU compositing layer on mobile during RSC reconciliation
 
 Recommended issue shape:
 - `M10-I1 Dark theme — CSS variable toggle and system preference default`

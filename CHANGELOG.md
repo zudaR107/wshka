@@ -73,6 +73,15 @@ The format is based on Keep a Changelog, and this project follows SemVer.
 - Price input hint color changed from violet (`--color-status-reserved`)
   to `--color-error` via new `.ui-note-error` modifier; red in light
   mode, lighter red in dark mode.
+- Parallax wallpaper background migrated from `body::before` CSS
+  pseudo-element to a real `<div class="wallpaper-bg">` rendered by
+  `WallpaperParallax`; `transform` is now set directly on the element
+  instead of via CSS custom properties on `<html>`, eliminating the CSS
+  cascade-invalidation step that briefly destabilised the GPU compositing
+  layer on mobile during RSC reconciliation (visible as background flicker
+  after reservation actions). Fraction clamped to [0, 1] to prevent
+  overscroll from producing extreme background offsets. Share page item
+  list gains `overflow-anchor: none` as a secondary safeguard.
 - `owner_updated` notification now fires only when the bio field actually
   changes; saving currency or the reservations toggle no longer triggers
   notifications to active reservers.
