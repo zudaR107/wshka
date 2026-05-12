@@ -67,7 +67,7 @@ export const app = {
       {
         version: "v1.2",
         title: "Оформление",
-        status: "inProgress" as const,
+        status: "released" as const,
         items: [
           "Тёмная тема",
           "Английский язык",
@@ -79,7 +79,7 @@ export const app = {
       {
         version: "v1.3",
         title: "Шаринг и данные",
-        status: "planned" as const,
+        status: "inProgress" as const,
         items: [
           "QR-код для публичной ссылки",
           "Экспорт и импорт вишлиста",
